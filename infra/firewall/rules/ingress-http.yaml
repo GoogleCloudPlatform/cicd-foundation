@@ -1,0 +1,13 @@
+ingress:
+  allow-healthchecks:
+    description: Allow ingress from healthchecks to ports used for http(s).
+    source_ranges:
+      - healthchecks
+    targets: ["http-server"]
+    rules:
+      - protocol: tcp
+        ports:
+          - 80
+          - 443
+          - 8080
+          - 8443
