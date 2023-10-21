@@ -15,9 +15,20 @@
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway
 metadata:
-  name: hello-world
+  name: cicd-jumpstart
+  labels:
+    app: hello-world
+    commit-short-sha: "NA"	# from-param: ${commit-short-sha}
+    gcb-build-id: "NA"		# from-param: ${gcb-build-id}
+  # annotations:
+  #  networking.gke.io/certmap: cicd-jumpstart-map
 spec:
   gatewayClassName: gke-l7-global-external-managed
+  # addresses:
+  # - type: NamedAddress
+  #  value: cicd-jumpstart-ipv4
+  # - type: NamedAddress
+  #  value: cicd-jumpstart-ipv6
   listeners:
   - name: http
     protocol: HTTP
@@ -25,3 +36,6 @@ spec:
     allowedRoutes:
       kinds:
       - kind: HTTPRoute
+  # - name: https
+  #   protocol: HTTPS
+  #   port: 443

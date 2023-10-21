@@ -19,7 +19,7 @@ metadata:
 spec:
   parentRefs:
   - kind: Gateway
-    name: sweets
+    name: cicd-jumpstart
   rules:
   - backendRefs:
     - name: hello-world

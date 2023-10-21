@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 # Copyright 2023 Google LLC
 #
@@ -45,6 +45,7 @@ fi
 echo login
 gcloud auth login
 
+# echo starting workstation
 gcloud workstations start \
   $WS_NAME \
   --cluster=$WS_CLUSTER \
@@ -55,14 +56,15 @@ gcloud workstations start \
 echo started
 
 echo getting hostname
-WS_URL=$(gcloud workstations describe \
+WS_URL=https://$(gcloud workstations describe \
   $WS_NAME \
   --cluster=$WS_CLUSTER \
   --config=$WS_CONFIG \
   --region=$WS_REGION \
   --project=$GOOGLE_CLOUD_PROJECT \
 | \
-jq '.host' \
+#jq '.host' \
+grep host | sed -e 's/.*: "\(.*\)".*/\1/' \
 | \
 sed -e 's/\"\(.*\)\"/https:\/\/\1/' \
 )
@@ -70,9 +72,8 @@ sed -e 's/\"\(.*\)\"/https:\/\/\1/' \
 echo "opening $WS_URL"
 google-chrome $WS_URL &
 
-# https://cloud.google.com/workstations/docs/ssh-support
-
 if [ ! -d "$HOME/.ssh/" ]
+then
   mkdir $HOME/.ssh/
 fi
 grep -q "^Host ws$" $HOME/.ssh/config || cat >> $HOME/.ssh/config << EOF
@@ -83,8 +84,10 @@ Host ws
   StrictHostKeyChecking no
   UserKnownHostsFile /dev/null
   LogLevel ERROR
-"""
+EOF
 
+echo starting SSH tunnel
+# cf. https://cloud.google.com/workstations/docs/ssh-support
 gcloud beta workstations \
   start-tcp-tunnel \
   --project=$GOOGLE_CLOUD_PROJECT \
