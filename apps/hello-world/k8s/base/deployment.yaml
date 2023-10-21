@@ -16,21 +16,32 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hello-world
+  labels:
+    commit-short-sha: "NA"        # from-param: ${commit-short-sha}
+    gcb-build-id: "NA"            # from-param: ${gcb-build-id}
 spec:
   selector:
     matchLabels:
       app: hello-world
-  replicas: 3
+  replicas: 3                     # from-param: ${deploy_replicas}
   template:
     metadata:
       labels:
         app: hello-world
+        commit-short-sha: "NA"    # from-param: ${commit-short-sha}
+        gcb-build-id: "NA"        # from-param: ${gcb-build-id}
     spec:
       containers:
         - name: hello-world
           image: hello-world
           ports:
             - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 3
           # env:
-          # - name: NAME
-          #   value: "World"
+          #  - name: NAME
+          #    value: "YOU"

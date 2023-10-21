@@ -2,38 +2,35 @@
 
 This repository contains code and documentation for the CI/CD JumpStart - an engagement by the Google Cloud Professional Services Organization (PSO) Apps team.
 
-## 📅 Day 0: Infrastructure Setup
+## 📅 Workshop 1: Architecture
 
-[`infra/`](infra/)
+Establishing the foundations for the subsequent Cloud development workshop in your GCP Organization.
 
-Infa-as-Code (IaC) for provisioning an reference deployment in a GCP organization
+[`infra/`](infra/) - Infa-as-Code (IaC)
+- of a simplified infrastructure deployment for the hands-on workshop
+- reference architecture for a GCP organization
 
-### Roadmap 🎯
+## 📅 Workshop 2: Hands-On
 
-- [GKE namespace separation](https://cloud.google.com/kubernetes-engine/docs/how-to/google-groups-rbac)
+Overview of [Software Delivery Shield](https://cloud.google.com/software-supply-chain-security/docs/sds/overview),
+[SLSA](https://slsa.dev/), and
+hands-on exercises ([`exercises/`](exercises/)), e.g.,
+the deployment and customization of a sample application ([`apps/`](apps/)).
 
-## 📅 Day 1: Hands-On
+## 📅 Workshop 3: Continuous Integration (CI)
 
-The hands-on Jumpstart is focus of Day 1. The exercises can be found here:
+Deepdive of Continuous Integration (CI) on Google Cloud and planning of design for customer environment.
 
-[`exercises/`](exercises/)
+## 📅 Workshop 4: Continuous Deployment (CD)
 
-## 📅 Day 2: Continuous Integration (CI)
+Deepdive of Continuous Delivery (CD) on Google Cloud, design of environment(s) fitting customer requirements including multi-tenancy, IPAM, security.
+Creation of a target development environment based on design decisions environment.
 
-Day 2 focuses on a deep dive on CI. 🚧
-
-### References 🔗
+## References 🔗
 
 - [Cloud Build](https://cloud.google.com/build)
-
-## 📅 Day 3: Continuous Deployment (CD)
-
-Day 3 focuses on a deep dive on CD. 🚧
-
-### References 🔗
-
 - [Cloud Deploy](https://cloud.google.com/deploy)
 
-#### Topics of Interest
+### Topics of Interest
 
 - [Restricting deployment to a GKE namespace](https://cloud.google.com/deploy/docs/securing/sa-by-namespace)

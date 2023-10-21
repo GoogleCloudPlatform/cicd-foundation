@@ -15,27 +15,36 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"runtime/debug"
 )
 
+type ReportErrorEvent struct {
+	Type       string `json:"@type"`
+	Message    string `json:"message"`
+	StackTrace string `json:"stack_trace"`
+}
+
 func main() {
-	log.Print("starting server...")
+	log.Println("starting server...")
+	http.HandleFunc("/error", errorHandler)
 	http.HandleFunc("/", handler)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
-		log.Printf("defaulting to port %s", port)
+		log.Println("defaulting to port %d\n", port)
 	}
 
 	// Start HTTP server.
-	log.Printf("listening on port %s", port)
+	log.Println("starting server using port %d\n", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatal(err)
+		logError("failed listening %v", err)
 	}
 }
 
@@ -46,5 +55,21 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		name = "World"
 	}
 	fmt.Fprintf(w, "\nHello %s from %s! 🎉\n\n", name, hostname)
-	log.Printf("Sent response from %s, customization was '%s'", hostname, name)
+}
+
+func errorHandler(w http.ResponseWriter, r *http.Request) {
+	logError("Failed processing request %v", fmt.Errorf("failed_powering_up_flux_compensator"))
+	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+}
+
+func logError(msg string, err error) {
+	var errLine ReportErrorEvent
+	errLine.Type = "type.googleapis.com/google.devtools.clouderrorreporting.v1beta1.ReportedErrorEvent"
+	errLine.Message = fmt.Sprintf("Error: %s", fmt.Sprintf(msg, err))
+	errLine.StackTrace = string(debug.Stack())
+	jsonStr, err := json.Marshal(errLine)
+	if err != nil {
+		log.Fatalf("json.Marshal: %v", err)
+	}
+	fmt.Println(string(jsonStr))
 }

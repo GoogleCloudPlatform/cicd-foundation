@@ -1,0 +1,15 @@
+apiVersion: kritis.grafeas.io/v1beta1
+kind: VulnzSigningPolicy
+metadata:
+  name: sweets-vsp
+spec:
+  imageVulnerabilityRequirements:
+    maximumFixableSeverity: MEDIUM
+    maximumUnfixableSeverity: LOW
+    allowlistCVEs:
+    - projects/goog-vulnz/notes/CVE-2020-14155
+    - projects/goog-vulnz/notes/CVE-2019-25013
+    - projects/goog-vulnz/notes/CVE-2022-40674
+    - projects/goog-vulnz/notes/CVE-2023-39533
+    - projects/goog-vulnz/notes/CVE-2023-39533
+    

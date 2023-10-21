@@ -13,26 +13,55 @@
 # limitations under the License.
 
 steps:
-- name: gcr.io/k8s-skaffold/skaffold:v2.6.2
+- id: build
+  name: gcr.io/k8s-skaffold/skaffold:v2.6.2
   dir: "apps/${_APP_NAME}"
   args:
     - skaffold
     - build
     - "--interactive=false"
     - "--default-repo=${_SKAFFOLD_DEFAULT_REPO}"
-    - "--file-output=/workspace/artifacts.json"
+- name: gcr.io/cloud-builders/docker:20.10.14
+  entrypoint: /bin/sh
+  dir: "apps/${_APP_NAME}"
+  args:
+  - -c
+  - |
+    docker pull "${_SKAFFOLD_DEFAULT_REPO}/${_APP_NAME}:${SHORT_SHA}" &&
+    docker image inspect "${_SKAFFOLD_DEFAULT_REPO}/${_APP_NAME}:${SHORT_SHA}" --format '{{index .RepoDigests 0}}' > image-digest.txt
+  id: fetchImageDigest
+  waitFor: ['build']
+- name: ${_KRITIS_SIGNER_IMAGE}
+  entrypoint: /bin/sh
+  args:
+  - -c
+  - |
+    /kritis/signer \
+    -v=10 \
+    -alsologtostderr \
+    -image="$(cat ./apps/${_APP_NAME}/image-digest.txt)" \
+    -policy=./policy/kritis/vulnz-signing-policy.yaml \
+    -kms_key_name=${_KMS_KEY_NAME} \
+    -kms_digest_alg=${_KMS_DIGEST_ALG} \
+    -note_name=${_NOTE_NAME}
+  waitFor: ['fetchImageDigest']
+  id: vulnsign
 - name: gcr.io/google.com/cloudsdktool/cloud-sdk:439.0.0
   dir: "apps/${_APP_NAME}"
-  entrypoint: gcloud
+  entrypoint: /bin/sh
   args:
-    [
-      "deploy",
-      "releases",
-      "create", "rel-${SHORT_SHA}",
-      "--delivery-pipeline", "${_APP_NAME}",
-      "--region", "${_REGION}",
-      "--annotations", "commitId=${REVISION_ID}",
-      "--build-artifacts", "/workspace/artifacts.json"
-    ]
+  - -c
+  - |
+    gcloud deploy releases create rel-${SHORT_SHA} \
+    --delivery-pipeline=${_PIPELINE_NAME} \
+    --labels="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID" \
+    --annotations="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID" \
+    --region="${_REGION}" \
+    --deploy-parameters="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID" \
+    --images="${_APP_NAME}=$(cat image-digest.txt)"
+  waitFor: ['vulnsign']
+images:
+- "${_SKAFFOLD_DEFAULT_REPO}/${_APP_NAME}:${SHORT_SHA}"
 options:
+  requestedVerifyOption: VERIFIED
   logging: "CLOUD_LOGGING_ONLY"
