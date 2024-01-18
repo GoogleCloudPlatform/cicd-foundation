@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "sa-cluster-prod" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
   project_id   = module.project_prod_service.id
   name         = var.sa_cluster_name
   display_name = "GKE (prod) Service Account"
@@ -24,7 +24,7 @@ module "sa-cluster-prod" {
 }
 
 module "sa-cluster-test" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
   project_id   = module.project_test_service.id
   name         = var.sa_cluster_name
   display_name = "GKE (test) Service Account"
@@ -35,7 +35,7 @@ module "sa-cluster-test" {
 }
 
 module "sa-cluster-dev" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
   project_id   = module.project_dev_service.id
   name         = var.sa_cluster_name
   display_name = "GKE (dev) Service Account"
@@ -46,7 +46,7 @@ module "sa-cluster-dev" {
 }
 
 module "cluster-prod" {
-  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v24.0.0"
+  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
   project_id      = module.project_prod_service.project_id
   name            = var.cluster_name
   location        = var.region
@@ -67,18 +67,20 @@ module "cluster-prod" {
     export_routes           = true
     import_routes           = false
   }
-  tags = [
-    "http-server",
-    "https-server",
-  ]
-  service_account = module.sa-cluster-prod.email
+  node_config = {
+    service_account = module.sa-cluster-prod.email
+    tags = [
+      "http-server",
+      "https-server",
+    ]
+  }
   depends_on = [
     module.project_prod_service
   ]
 }
 
 module "cluster-test" {
-  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v24.0.0"
+  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
   project_id      = module.project_test_service.project_id
   name            = var.cluster_name
   location        = var.region
@@ -99,18 +101,20 @@ module "cluster-test" {
     export_routes           = true
     import_routes           = false
   }
-  tags = [
-    "http-server",
-    "https-server",
-  ]
-  service_account = module.sa-cluster-test.email
+  node_config = {
+    service_account = module.sa-cluster-test.email
+    tags = [
+      "http-server",
+      "https-server",
+    ]
+  }
   depends_on = [
     module.project_test_service
   ]
 }
 
 module "cluster-dev" {
-  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v24.0.0"
+  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
   project_id      = module.project_dev_service.project_id
   name            = var.cluster_name
   location        = var.region
@@ -125,7 +129,6 @@ module "cluster-dev" {
     master_authorized_ranges = var.cluster-dev_network_config.master_authorized_cidr_blocks
     master_ipv4_cidr_block   = var.cluster-dev_network_config.master_cidr_block
   }
-  service_account = module.sa-cluster-dev.email
   private_cluster_config = {
     # for demo purposes: not only private endpoint
     # so public can be used in addition, e.g., with kubectl from CloudShell
@@ -136,10 +139,13 @@ module "cluster-dev" {
     import_routes = false
     project_id    = module.project_dev_host.project_id
   }
-  tags = [
-    "http-server",
-    "https-server",
-  ]
+  node_config = {
+    service_account = module.sa-cluster-dev.email
+    tags = [
+      "http-server",
+      "https-server",
+    ]
+  }
   depends_on = [
     module.project_dev_service
   ]
