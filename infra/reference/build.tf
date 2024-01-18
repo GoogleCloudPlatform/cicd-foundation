@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 # cf. https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts
 module "sa-cb" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
   project_id   = module.project_hub_supplychain.id
   name         = var.sa_cb_name
   display_name = "Cloud Build Service Account"
@@ -70,11 +70,13 @@ resource "google_cloudbuild_worker_pool" "dev" {
 }
 
 module "docker_artifact_registry" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/artifact-registry?ref=v24.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/artifact-registry?ref=v28.0.0"
   project_id = module.project_hub_supplychain.project_id
-  id         = var.registry_id
+  name       = var.registry_id
   location   = var.region
-  format     = "DOCKER"
+  format     = {
+    docker = {}
+  }
   iam = {
     "roles/artifactregistry.reader" = [
       module.sa-cluster-prod.iam_email,

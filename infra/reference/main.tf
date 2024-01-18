@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,44 +13,44 @@
 # limitations under the License.
 
 module "org" {
-  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/organization?ref=v24.0.0"
+  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/organization?ref=v28.0.0"
   organization_id = "organizations/${var.org_id}"
 }
 
 module "folder_hub" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v24.0.0"
+  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v28.0.0"
   name          = "Hub"
   parent        = module.org.organization_id
   folder_create = var.folders_create
-  id            = "folder/${var.folder_hub_id}"
+  id            = var.folder_hub_id
 }
 
 module "folder_prod" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v24.0.0"
+  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v28.0.0"
   name          = "Production"
   parent        = module.org.organization_id
   folder_create = var.folders_create
-  id            = "folder/${var.folder_prod_id}"
+  id            = var.folder_prod_id
 }
 
 module "folder_test" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v24.0.0"
+  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v28.0.0"
   name          = "Testing"
   parent        = module.org.organization_id
   folder_create = var.folders_create
-  id            = "folder/${var.folder_test_id}"
+  id            = var.folder_test_id
 }
 
 module "folder_dev" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v24.0.0"
+  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v28.0.0"
   name          = "Development"
   parent        = module.org.organization_id
   folder_create = var.folders_create
-  id            = "folder/${var.folder_dev_id}"
+  id            = var.folder_dev_id
 }
 
 module "project_hub_host" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v24.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v28.0.0"
   name           = var.project_hub_host
   parent         = module.folder_hub.id
   project_create = var.projects_create
@@ -61,7 +61,7 @@ module "project_hub_host" {
 }
 
 module "project_hub_supplychain" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v24.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v28.0.0"
   name           = var.project_hub_supplychain
   parent         = module.folder_hub.id
   project_create = var.projects_create
@@ -90,7 +90,7 @@ module "project_hub_supplychain" {
 }
 
 module "project_prod_host" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v24.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v28.0.0"
   name           = var.project_prod_host
   parent         = module.folder_prod.id
   project_create = var.projects_create
@@ -101,7 +101,7 @@ module "project_prod_host" {
 }
 
 module "project_prod_supplychain" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v24.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v28.0.0"
   name           = var.project_prod_supplychain
   parent         = module.folder_prod.id
   project_create = var.projects_create
@@ -122,7 +122,7 @@ module "project_prod_supplychain" {
 }
 
 module "project_prod_service" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v24.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v28.0.0"
   name           = var.project_prod_service
   parent         = module.folder_prod.id
   project_create = var.projects_create
@@ -142,7 +142,7 @@ module "project_prod_service" {
 }
 
 module "project_test_host" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v24.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v28.0.0"
   name           = var.project_test_host
   parent         = module.folder_test.id
   project_create = var.projects_create
@@ -153,7 +153,7 @@ module "project_test_host" {
 }
 
 module "project_test_supplychain" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v24.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v28.0.0"
   name           = var.project_test_supplychain
   parent         = module.folder_test.id
   project_create = var.projects_create
@@ -174,7 +174,7 @@ module "project_test_supplychain" {
 }
 
 module "project_test_service" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v24.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v28.0.0"
   name           = var.project_test_service
   parent         = module.folder_test.id
   project_create = var.projects_create
@@ -194,7 +194,7 @@ module "project_test_service" {
 }
 
 module "project_dev_host" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v24.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v28.0.0"
   name           = var.project_dev_host
   parent         = module.folder_dev.id
   project_create = var.projects_create
@@ -205,7 +205,7 @@ module "project_dev_host" {
 }
 
 module "project_dev_supplychain" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v24.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v28.0.0"
   name           = var.project_dev_supplychain
   parent         = module.folder_dev.id
   project_create = var.projects_create
@@ -238,7 +238,7 @@ module "project_dev_supplychain" {
 }
 
 module "project_dev_service" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v24.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v28.0.0"
   name           = var.project_dev_service
   parent         = module.folder_dev.id
   project_create = var.projects_create

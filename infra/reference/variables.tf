@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -112,6 +112,7 @@ variable "project_hub_host_services" {
     "compute.googleapis.com",
     "container.googleapis.com",
     "servicenetworking.googleapis.com",
+    "workstations.googleapis.com",
   ]
 }
 
