@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@ resource "google_workstations_workstation_cluster" "sweets" {
   provider               = google-beta
   project                = module.project_hub_supplychain.project_id
   workstation_cluster_id = var.ws_cluster_name
-  network                = module.vpc-dev.id
-  subnetwork             = module.vpc-dev.subnets["${var.region}/${var.vpc_subnet_name}"].id
+  network                = module.vpc-hub.id
+  subnetwork             = module.vpc-hub.subnets["${var.region}/${var.vpc_subnet_name}"].id
   location               = var.region
 }
 
