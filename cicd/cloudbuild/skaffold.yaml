@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # limitations under the License.
 
 steps:
-- name: gcr.io/k8s-skaffold/skaffold:v2.6.2
+- name: gcr.io/k8s-skaffold/skaffold:v2.9.0
   dir: "apps/${_APP_NAME}"
   args:
     - skaffold
@@ -21,7 +21,7 @@ steps:
     - "--interactive=false"
     - "--default-repo=${_SKAFFOLD_DEFAULT_REPO}"
     - "--file-output=/workspace/artifacts.json"
-- name: gcr.io/google.com/cloudsdktool/cloud-sdk:439.0.0
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk:461.0.0
   dir: "apps/${_APP_NAME}"
   entrypoint: gcloud
   args:

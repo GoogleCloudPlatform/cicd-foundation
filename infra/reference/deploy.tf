@@ -122,6 +122,9 @@ resource "google_clouddeploy_target" "cluster-prod" {
     ]
     service_account = module.sa-cd-prod.email
   }
+  deploy_parameters = {
+    "deploy_replicas" = var.deploy_replicas
+  }
 }
 
 resource "google_clouddeploy_target" "cluster-test" {
@@ -142,6 +145,9 @@ resource "google_clouddeploy_target" "cluster-test" {
     ]
     service_account = module.sa-cd-test.email
   }
+  deploy_parameters = {
+    "deploy_replicas" = var.deploy_replicas
+  }
 }
 
 resource "google_clouddeploy_target" "cluster-dev" {
@@ -161,5 +167,8 @@ resource "google_clouddeploy_target" "cluster-dev" {
       "DEPLOY",
     ]
     service_account = module.sa-cd-dev.email
+  }
+  deploy_parameters = {
+    "deploy_replicas" = var.deploy_replicas
   }
 }

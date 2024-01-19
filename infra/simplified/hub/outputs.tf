@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,29 +21,29 @@ output "cloud_build_sa_id" {
 }
 
 output "cloud_deploy_robot_sa_email" {
-  value = module.project_hub.service_accounts.robots["clouddeploy"]
+  value = module.project.service_accounts.robots["clouddeploy"]
 }
 
 output "cloud_build_robot_sa_email" {
-  value = module.project_hub.service_accounts.robots["cloudbuild"]
+  value = module.project.service_accounts.robots["cloudbuild"]
 }
 
-output "vpc_hub_self_link" {
-  value = module.vpc-hub.self_link
+output "vpc_self_link" {
+  value = module.vpc.self_link
 }
 
 output "vpc_hub_subnet_self_link" {
-  value = module.vpc-hub.subnet_self_links["${var.region}/hub"]
+  value = module.vpc.subnet_self_links["${var.region}/hub"]
 }
 
 output "vpc_dev_subnet_self_link" {
-  value = module.vpc-hub.subnet_self_links["${var.region}/dev"]
+  value = module.vpc.subnet_self_links["${var.region}/dev"]
 }
 
 output "vpc_test_subnet_self_link" {
-  value = module.vpc-hub.subnet_self_links["${var.region}/test"]
+  value = module.vpc.subnet_self_links["${var.region}/test"]
 }
 
 output "vpc_prod_subnet_self_link" {
-  value = module.vpc-hub.subnet_self_links["${var.region}/prod"]
+  value = module.vpc.subnet_self_links["${var.region}/prod"]
 }

@@ -23,6 +23,8 @@ module "sa-cb" {
     (module.project_hub_supplychain.id) : [
       "roles/cloudbuild.builds.builder",
       "roles/clouddeploy.releaser",
+      "roles/containeranalysis.notes.occurrences.viewer",
+      "roles/containeranalysis.occurrences.viewer",
     ],
   }
 }
@@ -74,14 +76,18 @@ module "docker_artifact_registry" {
   project_id = module.project_hub_supplychain.project_id
   name       = var.registry_id
   location   = var.region
-  format     = {
+  format = {
     docker = {}
   }
   iam = {
     "roles/artifactregistry.reader" = [
+      module.sa-cb.iam_email,
       module.sa-cluster-prod.iam_email,
       module.sa-cluster-test.iam_email,
       module.sa-cluster-dev.iam_email,
-    ]
+    ],
+    "roles/artifactregistry.writer" = [
+      module.sa-cb.iam_email,
+    ],
   }
 }

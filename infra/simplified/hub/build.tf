@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,33 +14,17 @@
 
 # cf. https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts
 module "sa-cb" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
-  project_id   = var.project_hub_id
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
+  project_id   = var.project_id
   name         = var.sa_cb_name
   display_name = "Cloud Build Service Account"
   description  = "Terraform-managed."
   iam_project_roles = {
-    (var.project_hub_id) : [
+    (var.project_id) : [
       "roles/cloudbuild.builds.builder",
       "roles/clouddeploy.releaser",
       "roles/containeranalysis.notes.occurrences.viewer",
       "roles/containeranalysis.occurrences.viewer",
     ],
-  }
-}
-
-module "docker_artifact_registry" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/artifact-registry?ref=v24.0.0"
-  project_id = var.project_hub_id
-  id         = var.registry_id
-  location   = var.region
-  format     = "DOCKER"
-  iam = {
-    "roles/artifactregistry.reader" = [
-      "serviceAccount:${module.sa-cb.email}"
-    ],
-    "roles/artifactregistry.writer" = [
-      "serviceAccount:${module.sa-cb.email}"
-    ]
   }
 }

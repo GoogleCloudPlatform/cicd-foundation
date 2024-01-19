@@ -85,7 +85,10 @@ module "project_hub_supplychain" {
     }
   }
   iam = {
-    "roles/workstations.workstationCreator" = var.developers
+    "roles/workstations.workstationCreator" = var.developers,
+    "roles/containeranalysis.notes.attacher" = [
+      module.sa-cb.iam_email
+    ],
   }
 }
 
@@ -139,6 +142,11 @@ module "project_prod_service" {
       ],
     }
   }
+  iam = {
+    "roles/binaryauthorization.attestorsVerifier" = [
+      "serviceAccount:${module.project_prod_service.service_accounts.robots["binaryauthorization"]}"
+    ]
+  }
 }
 
 module "project_test_host" {
@@ -190,6 +198,11 @@ module "project_test_service" {
         "container-engine"
       ],
     }
+  }
+  iam = {
+    "roles/binaryauthorization.attestorsVerifier" = [
+      "serviceAccount:${module.project_test_service.service_accounts.robots["binaryauthorization"]}"
+    ]
   }
 }
 
@@ -254,5 +267,10 @@ module "project_dev_service" {
         "container-engine"
       ]
     }
+  }
+  iam = {
+    "roles/binaryauthorization.attestorsVerifier" = [
+      "serviceAccount:${module.project_dev_service.service_accounts.robots["binaryauthorization"]}"
+    ]
   }
 }

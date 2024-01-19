@@ -46,11 +46,13 @@ module "sa-cluster-dev" {
 }
 
 module "cluster-prod" {
-  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
-  project_id      = module.project_prod_service.project_id
-  name            = var.cluster_name
-  location        = var.region
-  release_channel = var.cluster_release_channel
+  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
+  project_id          = module.project_prod_service.project_id
+  name                = var.cluster_name
+  location            = var.region
+  release_channel     = var.cluster_release_channel
+  min_master_version  = var.cluster_min_version
+  deletion_protection = true
   vpc_config = {
     network    = module.vpc-prod.self_link
     subnetwork = module.vpc-prod.subnet_self_links["${var.region}/${var.vpc_subnet_name}"]
@@ -67,6 +69,9 @@ module "cluster-prod" {
     export_routes           = true
     import_routes           = false
   }
+  enable_features = {
+    binary_authorization = true
+  }
   node_config = {
     service_account = module.sa-cluster-prod.email
     tags = [
@@ -80,11 +85,13 @@ module "cluster-prod" {
 }
 
 module "cluster-test" {
-  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
-  project_id      = module.project_test_service.project_id
-  name            = var.cluster_name
-  location        = var.region
-  release_channel = var.cluster_release_channel
+  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
+  project_id          = module.project_test_service.project_id
+  name                = var.cluster_name
+  location            = var.region
+  release_channel     = var.cluster_release_channel
+  min_master_version  = var.cluster_min_version
+  deletion_protection = true
   vpc_config = {
     network    = module.vpc-test.self_link
     subnetwork = module.vpc-test.subnet_self_links["${var.region}/${var.vpc_subnet_name}"]
@@ -94,6 +101,9 @@ module "cluster-test" {
     }
     master_authorized_ranges = var.cluster-test_network_config.master_authorized_cidr_blocks
     master_ipv4_cidr_block   = var.cluster-test_network_config.master_cidr_block
+  }
+  enable_features = {
+    binary_authorization = true
   }
   private_cluster_config = {
     enable_private_endpoint = true
@@ -114,11 +124,13 @@ module "cluster-test" {
 }
 
 module "cluster-dev" {
-  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
-  project_id      = module.project_dev_service.project_id
-  name            = var.cluster_name
-  location        = var.region
-  release_channel = var.cluster_release_channel
+  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
+  project_id          = module.project_dev_service.project_id
+  name                = var.cluster_name
+  location            = var.region
+  release_channel     = var.cluster_release_channel
+  min_master_version  = var.cluster_min_version
+  deletion_protection = true
   vpc_config = {
     network    = module.vpc-dev.self_link
     subnetwork = module.vpc-dev.subnet_self_links["${var.region}/${var.vpc_subnet_name}"]
@@ -128,6 +140,9 @@ module "cluster-dev" {
     }
     master_authorized_ranges = var.cluster-dev_network_config.master_authorized_cidr_blocks
     master_ipv4_cidr_block   = var.cluster-dev_network_config.master_cidr_block
+  }
+  enable_features = {
+    binary_authorization = false
   }
   private_cluster_config = {
     # for demo purposes: not only private endpoint
