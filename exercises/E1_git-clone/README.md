@@ -8,18 +8,37 @@ First, let's fork or clone the following Git repository:
 https://github.com/googlecloudplatform/cicd-jumpstart
 ```
 
-If you fork the repository in GitHub skip the next section.
-
 ## Get the code
 
-You can skip this part in case you forked the repository.
+### GitHub
+
+👉 Using your GitHub account, **fork** the repository in GitHub.  
+👉 Clone the forked repository after authentication from your Cloud Workstation.
 
 <details>
 <summary>VSCode</summary>
 
 - press `Control`+`Shift`+`P`
-- type `git.clone` and press Enter
-- select a folder and/or press Enter
+- type `git.clone` and press `Enter`
+- select `Clone from GitHub`
+- enter the name of the forked repository
+- authenticate @ GitHub
+</details>
+
+## References 🔗
+
+- [GitHub: Fork a repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
+
+### Fallback Options
+
+You can skip this part in case you forked the repository in GitHub.
+
+<details>
+<summary>VSCode</summary>
+
+- press `Control`+`Shift`+`P`
+- type `git.clone` and press `Enter`
+- select a folder and/or press `Enter`
 - `Open` the cloned repository
 </details><br/>
 
@@ -35,27 +54,11 @@ git clone https://github.com/googlecloudplatform/cicd-jumpstart
 #### References 🔗
 
 - [git-clone](https://git-scm.com/docs/git-clone)
-
-👉 press `Control`+`K` + `Control`+`O`, select the new folder and press Enter
 </details>
 
-## Working with your repository
+## Working with a private repository
 
-Eventually, you need to work with your own source repository when you want to push changes that shall be applied in your real-life environment.
-
-### GitHub
-
-👉 If you have forked the code in GitHub clone the code after authentication.
-
-<details>
-<summary>GitHub</summary>
-
-- press `Control`+`Shift`+`P`
-- type `git.clone` and press Enter
-- select `Clone from GitHub`
-- enter the name of the repo
-- authenticate @ GitHub
-</details>
+Eventually, you may want work with your own, private source repository when you want to push changes that shall be applied in your real-life environment.
 
 ### Cloud Source Repository
 
@@ -96,8 +99,7 @@ git push --all google
 
 ## Open Folder
 
-👉 Press `Ctrl`+`K` + `Ctrl`+`O`
-and select the new directory
+👉 press `Control`+`K` + `Control`+`O`, select the new folder and press `Enter`
 
 ## References 🔗
 

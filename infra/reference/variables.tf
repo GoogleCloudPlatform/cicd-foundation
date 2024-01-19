@@ -124,6 +124,7 @@ variable "project_hub_supplychain_services" {
     "binaryauthorization.googleapis.com",
     "cloudbuild.googleapis.com",
     "clouddeploy.googleapis.com",
+    "cloudkms.googleapis.com",
     "containeranalysis.googleapis.com",
     "containerscanning.googleapis.com",
     "compute.googleapis.com",
@@ -137,6 +138,7 @@ variable "project_prod_host_services" {
   description = "Service APIs to enable"
   type        = list(string)
   default = [
+    "binaryauthorization.googleapis.com",
     "compute.googleapis.com",
     "container.googleapis.com",
     "servicenetworking.googleapis.com",
@@ -147,6 +149,7 @@ variable "project_prod_supplychain_services" {
   description = "Service APIs to enable"
   type        = list(string)
   default = [
+    "binaryauthorization.googleapis.com",
     "cloudbuild.googleapis.com",
     "clouddeploy.googleapis.com",
     "compute.googleapis.com",
@@ -160,6 +163,7 @@ variable "project_prod_service_services" {
   description = "Service APIs to enable"
   type        = list(string)
   default = [
+    "binaryauthorization.googleapis.com",
     "compute.googleapis.com",
     "container.googleapis.com",
     "monitoring.googleapis.com",
@@ -170,6 +174,7 @@ variable "project_test_host_services" {
   description = "Service APIs to enable"
   type        = list(string)
   default = [
+    "binaryauthorization.googleapis.com",
     "compute.googleapis.com",
     "container.googleapis.com",
     "servicenetworking.googleapis.com",
@@ -180,6 +185,7 @@ variable "project_test_supplychain_services" {
   description = "Service APIs to enable"
   type        = list(string)
   default = [
+    "binaryauthorization.googleapis.com",
     "cloudbuild.googleapis.com",
     "clouddeploy.googleapis.com",
     "compute.googleapis.com",
@@ -193,6 +199,7 @@ variable "project_test_service_services" {
   description = "Service APIs to enable"
   type        = list(string)
   default = [
+    "binaryauthorization.googleapis.com",
     "compute.googleapis.com",
     "container.googleapis.com",
     "monitoring.googleapis.com",
@@ -219,6 +226,7 @@ variable "project_dev_supplychain_services" {
   description = "Service APIs to enable"
   type        = list(string)
   default = [
+    "binaryauthorization.googleapis.com",
     "cloudbuild.googleapis.com",
     "clouddeploy.googleapis.com",
     "compute.googleapis.com",
@@ -232,6 +240,7 @@ variable "project_dev_service_services" {
   description = "Service APIs to enable"
   type        = list(string)
   default = [
+    "binaryauthorization.googleapis.com",
     "compute.googleapis.com",
     "container.googleapis.com",
     "monitoring.googleapis.com",
@@ -332,6 +341,7 @@ variable "vpc-dev-build_primary_cidr" {
 variable "registry_id" {
   description = "String used to name Artifact Registry."
   type        = string
+  default     = "registry"
 }
 
 variable "nat_name" {
@@ -345,6 +355,12 @@ variable "cluster_release_channel" {
   description = "GKE Release Channel"
   type        = string
   default     = "REGULAR"
+}
+
+variable "cluster_min_version" {
+  description = "Minimum version of the control nodes, defaults to the version of the most recent official release."
+  type        = string
+  default     = null
 }
 
 variable "cluster_name" {
@@ -432,6 +448,12 @@ variable "cluster-dev_network_config" {
   }
 }
 
+variable "deploy_replicas" {
+  description = "number of replicas per deployment"
+  type        = number
+  default     = 3
+}
+
 variable "developers" {
   description = "list of developers that can create Cloud Workstations"
   type        = list(string)
@@ -441,19 +463,19 @@ variable "developers" {
 variable "ws_cluster_name" {
   description = "name of the Cloud Workstations cluster"
   type        = string
-  default     = "sweets"
+  default     = "cicd-jumpstart"
 }
 
 variable "ws_config_name" {
   description = "name of the Cloud Workstations config"
   type        = string
-  default     = "sweets"
+  default     = "cicd-jumpstart"
 }
 
 variable "ws_name" {
   description = "name of the Cloud Workstations instance"
   type        = string
-  default     = "sweets"
+  default     = "cicd-jumpstart"
 }
 
 variable "ws_config_machine_type" {
@@ -480,7 +502,7 @@ variable "github_owner" {
   description = "Owner of the GitHub repo: usually, your GitHub username."
 }
 
-variable "github_repo_name" {
+variable "github_repo" {
   type        = string
   default     = "professional-services"
   description = "Name of the GitHub repository."
@@ -520,4 +542,15 @@ variable "sa_cd_name" {
   description = "name of the Cloud Deploy Service Account"
   type        = string
   default     = "sa-cloudeploy"
+}
+
+variable "kritis_signer_image" {
+  description = "Image ref to the kritis signer image"
+  type        = string
+}
+
+variable "kms_digest_alg" {
+  description = "KMS Digest Algorithm to be used"
+  type        = string
+  default     = "SHA512"
 }

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 resource "google_binary_authorization_policy" "policy" {
-  project                       = module.project.project_id
+  project                       = module.project_hub_supplychain.project_id
   global_policy_evaluation_mode = "ENABLE"
   default_admission_rule {
     evaluation_mode  = "REQUIRE_ATTESTATION"
@@ -31,7 +31,7 @@ resource "google_binary_authorization_policy" "policy" {
 
 resource "google_container_analysis_note" "vulnz-attestor" {
   name    = "vulnz-attestor"
-  project = module.project.project_id
+  project = module.project_hub_supplychain.project_id
   attestation_authority {
     hint {
       human_readable_name = "Vulnerability Attestor"
@@ -39,16 +39,16 @@ resource "google_container_analysis_note" "vulnz-attestor" {
   }
 }
 
-resource "google_container_analysis_note_iam_member" "vulnz-attestor-services" {
+resource "google_container_analysis_note_iam_member" "vulnz-attestor" {
   project = google_container_analysis_note.vulnz-attestor.project
   note    = google_container_analysis_note.vulnz-attestor.name
   role    = "roles/containeranalysis.notes.occurrences.viewer"
-  member  = "serviceAccount:service-${module.project.number}@gcp-sa-binaryauthorization.iam.gserviceaccount.com"
+  member  = "serviceAccount:${module.project_hub_supplychain.service_accounts.robots["binaryauthorization"]}"
 }
 
 resource "google_binary_authorization_attestor" "vulnz-attestor" {
   name    = "vulnz-attestor"
-  project = module.project.project_id
+  project = module.project_hub_supplychain.project_id
   attestation_authority_note {
     note_reference = google_container_analysis_note.vulnz-attestor.name
     public_keys {
@@ -68,7 +68,7 @@ data "google_kms_crypto_key_version" "vulnz-attestor" {
 resource "google_kms_crypto_key_iam_member" "vulnz-attestor" {
   crypto_key_id = google_kms_crypto_key.vulnz-attestor-key.id
   role          = "roles/cloudkms.signer"
-  member        = "serviceAccount:${var.sa-cb-email}"
+  member        = module.sa-cb.iam_email
 }
 
 resource "google_kms_crypto_key" "vulnz-attestor-key" {
@@ -84,7 +84,7 @@ resource "google_kms_crypto_key" "vulnz-attestor-key" {
 }
 
 resource "google_kms_key_ring" "keyring" {
-  project  = module.project.project_id
-  name     = "test-attestor-key-ring"
+  project  = module.project_hub_supplychain.project_id
+  name     = "attestor-key-ring"
   location = "global"
 }

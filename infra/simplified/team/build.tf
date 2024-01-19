@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,16 +15,18 @@
 # cf. https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts
 
 module "docker_artifact_registry" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/artifact-registry?ref=v24.0.0"
-  project_id = var.project_hub_id
-  id         = "${var.team-prefix}-${var.registry_id}"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/artifact-registry?ref=v28.0.0"
+  project_id = var.project_id
+  name       = "${var.team-prefix}-${var.registry_id}"
   location   = var.region
-  format     = "DOCKER"
+  format = {
+    docker = {}
+  }
   iam = {
     "roles/artifactregistry.reader" = [
-      "serviceAccount:${module.sa-cluster-dev.email}",
-      "serviceAccount:${module.sa-cluster-test.email}",
-      "serviceAccount:${module.sa-cluster-prod.email}",
+      module.sa-cluster-prod.iam_email,
+      module.sa-cluster-test.iam_email,
+      module.sa-cluster-dev.iam_email,
       "serviceAccount:${var.sa-cb-email}"
     ],
     "roles/artifactregistry.writer" = [

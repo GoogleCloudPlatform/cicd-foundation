@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2004 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: hello-world
-spec:
-  defaultBackend:
-    service:
-      name: hello-world
-      port:
-        number: 80
+# the sandbox project to use for deploying all resources for the Hands-On Workshop
+project_id = "REPLACE_WITH_YOUR_PROJECT_ID"
+
+// developer(s) and their GitHub account and (forked) repo to use for the CI/CD
+developers = {
+  "alex@example.com" = {
+    github_user = "REPLACE_WITH_YOUR_GITHUB_USER",
+    github_repo = "cicd-jumpstart",
+  },
+}
+
+# cf. ../README.md
+kritis_signer_image = "gcr.io/REPLACE_WITH_YOUR_PROJECT_ID/kritis-signer@sha256:REPLACE_WITH_SHA256_OF_IMAGE"

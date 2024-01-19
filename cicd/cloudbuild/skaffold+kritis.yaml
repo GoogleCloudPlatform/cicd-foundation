@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 steps:
 - id: build
-  name: gcr.io/k8s-skaffold/skaffold:v2.6.2
+  name: gcr.io/k8s-skaffold/skaffold:v2.9.0
   dir: "apps/${_APP_NAME}"
   args:
     - skaffold
@@ -39,26 +39,26 @@ steps:
     /kritis/signer \
     -v=10 \
     -alsologtostderr \
-    -image="$(cat ./apps/${_APP_NAME}/image-digest.txt)" \
-    -policy=./policy/kritis/vulnz-signing-policy.yaml \
+    -image="$(/bin/cat ./apps/${_APP_NAME}/image-digest.txt)" \
+    -policy=./cicd/kritis/vulnz-signing-policy.yaml \
     -kms_key_name=${_KMS_KEY_NAME} \
     -kms_digest_alg=${_KMS_DIGEST_ALG} \
     -note_name=${_NOTE_NAME}
   waitFor: ['fetchImageDigest']
   id: vulnsign
-- name: gcr.io/google.com/cloudsdktool/cloud-sdk:439.0.0
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk:461.0.0
   dir: "apps/${_APP_NAME}"
   entrypoint: /bin/sh
   args:
   - -c
   - |
     gcloud deploy releases create rel-${SHORT_SHA} \
-    --delivery-pipeline=${_APP_NAME} \
+    --delivery-pipeline=${_PIPELINE_NAME} \
     --labels="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID" \
     --annotations="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID" \
     --region="${_REGION}" \
     --deploy-parameters="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID" \
-    --images="${_APP_NAME}=$(cat image-digest.txt)"
+    --images="${_APP_NAME}=$(/bin/cat image-digest.txt)"
   waitFor: ['vulnsign']
 images:
 - "${_SKAFFOLD_DEFAULT_REPO}/${_APP_NAME}:${SHORT_SHA}"

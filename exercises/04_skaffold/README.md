@@ -13,6 +13,11 @@ gcloud artifacts repositories list
 
 (👉) Create a container repository.
 
+Just in case you would like to work with your own repository.
+Otherwise, a central, shared container repository could be used by developers.
+With Binary Authorization enabled at the runtime (e.g., GKE) it can be ensured that images have been built as part of the CI pipeline.
+Thus, developers can be granted permissions to the repository.
+
 ```sh
 gcloud artifacts repositories create $REPO_NAME --repository-format=docker --location=$REPO_REGION
 ```
@@ -33,9 +38,6 @@ gcloud artifacts repositories describe $REPO_NAME --location=$REPO_REGION
 ```sh
 export SKAFFOLD_DEFAULT_REPO=$(gcloud artifacts repositories describe $REPO_NAME --location=$REPO_REGION 2>&1 | grep "Registry URL" | sed -e 's/Registry URL:\ //')
 ```
-
-⚠️ Note: the returned Registry URL is wrong. _// pending bug validation_
-- Please consult the reference below for the repository names and URLs!
 
 #### References 🔗
 

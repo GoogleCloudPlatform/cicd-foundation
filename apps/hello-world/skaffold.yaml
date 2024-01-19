@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ build:
     ko: {}
 deploy:
   statusCheckDeadlineSeconds: 3600 # deployment should stabilize within 60 minutes (NEG operations can take a little longer)
-
 profiles:
 - name: dev
   activation:
@@ -43,8 +42,6 @@ profiles:
       paths:
       - k8s/test
 - name: prod
-  activation:
-    - command: run
   manifests:
     kustomize:
       paths:

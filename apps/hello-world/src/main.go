@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2023-2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,11 +38,11 @@ func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
-		log.Println("defaulting to port %d\n", port)
+		log.Println("defaulting to Port", port)
 	}
 
 	// Start HTTP server.
-	log.Println("starting server using port %d\n", port)
+	log.Println("starting server using Port", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		logError("failed listening %v", err)
 	}

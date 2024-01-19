@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,13 +31,13 @@ fi
 : "${WS_REGION:=europe-north1}"
 
 # name of the Cloud Workstation cluster
-: "${WS_CLUSTER:=sweets}"
+: "${WS_CLUSTER:=cicd-jumpstart}"
 
 # name of the Cloud Workstation config
-: "${WS_CONFIG:=sweets}"
+: "${WS_CONFIG:=cicd-jumpstart}"
 
 # name of the Cloud Workstation instance
-: "${WS_NAME:=sweets}"
+: "${WS_NAME:=cicd-jumpstart}"
 
 # local port for SSH to use for forwarding
 : "${LOCAL_PORT:=2222}"

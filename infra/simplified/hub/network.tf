@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module "vpc-hub" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v24.0.0"
-  project_id = module.project_hub.project_id
-  name       = "hub"
+module "vpc" {
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v28.0.0"
+  project_id = var.project_id
+  name       = "vpc"
   vpc_create = var.vpc_create
   subnets = [
     {
@@ -53,23 +53,23 @@ module "vpc-hub" {
   ]
   psa_config = {
     ranges = {
-      "default" = var.vpc-dev_psa_cidr
+      "default" = var.vpc-hub_psa_cidr
     }
   }
 }
 
-module "nat_hub" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-cloudnat?ref=v24.0.0"
-  project_id     = module.project_hub.project_id
+module "nat" {
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-cloudnat?ref=v28.0.0"
+  project_id     = var.project_id
   region         = var.region
   name           = var.nat_name
-  router_network = module.vpc-hub.name
+  router_network = module.vpc.name
 }
 
-module "fw-hub" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v24.0.0"
-  project_id = module.project_hub.project_id
-  network    = module.vpc-hub.name
+module "fw" {
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v28.0.0"
+  project_id = var.project_id
+  network    = module.vpc.name
   factories_config = {
     rules_folder  = "firewall/rules"
     cidr_tpl_file = "firewall/cidrs.yaml"

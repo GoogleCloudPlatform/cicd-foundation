@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,46 +13,48 @@
 # limitations under the License.
 
 module "sa-cluster-prod" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
-  project_id   = module.project_service.id
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
+  project_id   = module.project.id
   name         = "${var.team-prefix}-${var.sa_cluster_name}-prod"
   display_name = "GKE (prod) Service Account"
   description  = "Terraform-managed."
   iam_project_roles = {
-    (module.project_service.id) = var.cluster_roles,
+    (module.project.id) = var.cluster_roles,
   }
 }
 
 module "sa-cluster-test" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
-  project_id   = module.project_service.id
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
+  project_id   = module.project.id
   name         = "${var.team-prefix}-${var.sa_cluster_name}-test"
   display_name = "GKE (test) Service Account"
   description  = "Terraform-managed."
   iam_project_roles = {
-    (module.project_service.id) = var.cluster_roles,
+    (module.project.id) = var.cluster_roles,
   }
 }
 
 module "sa-cluster-dev" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
-  project_id   = module.project_service.id
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
+  project_id   = module.project.id
   name         = "${var.team-prefix}-${var.sa_cluster_name}-dev"
   display_name = "GKE (dev) Service Account"
   description  = "Terraform-managed."
   iam_project_roles = {
-    (module.project_service.id) = var.cluster_roles
+    (module.project.id) = var.cluster_roles
   }
 }
 
 module "cluster-prod" {
-  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v24.0.0"
-  project_id      = module.project_service.project_id
-  name            = "${var.team-prefix}-${var.cluster_name}-prod"
-  location        = var.region
-  release_channel = var.cluster_release_channel
+  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
+  project_id          = module.project.project_id
+  name                = "${var.team-prefix}-${var.cluster_name}-prod"
+  location            = var.region
+  release_channel     = var.cluster_release_channel
+  min_master_version  = var.cluster_min_version
+  deletion_protection = false
   vpc_config = {
-    network    = var.vpc_hub_self_link
+    network    = var.vpc_self_link
     subnetwork = var.vpc_prod_subnet_self_link
     secondary_range_names = {
       pods     = "pods"
@@ -70,24 +72,28 @@ module "cluster-prod" {
   enable_features = {
     binary_authorization = true
   }
-  tags = [
-    "http-server",
-    "https-server",
-  ]
-  service_account = module.sa-cluster-prod.email
+  node_config = {
+    service_account = module.sa-cluster-prod.email
+    tags = [
+      "http-server",
+      "https-server",
+    ]
+  }
   depends_on = [
-    module.project_service
+    module.project
   ]
 }
 
 module "cluster-test" {
-  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v24.0.0"
-  project_id      = module.project_service.project_id
-  name            = "${var.team-prefix}-${var.cluster_name}-test"
-  location        = var.region
-  release_channel = var.cluster_release_channel
+  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
+  project_id          = module.project.project_id
+  name                = "${var.team-prefix}-${var.cluster_name}-test"
+  location            = var.region
+  release_channel     = var.cluster_release_channel
+  min_master_version  = var.cluster_min_version
+  deletion_protection = false
   vpc_config = {
-    network    = var.vpc_hub_self_link
+    network    = var.vpc_self_link
     subnetwork = var.vpc_test_subnet_self_link
     secondary_range_names = {
       pods     = "pods"
@@ -105,24 +111,28 @@ module "cluster-test" {
     export_routes           = true
     import_routes           = false
   }
-  tags = [
-    "http-server",
-    "https-server",
-  ]
-  service_account = module.sa-cluster-test.email
+  node_config = {
+    service_account = module.sa-cluster-test.email
+    tags = [
+      "http-server",
+      "https-server",
+    ]
+  }
   depends_on = [
-    module.project_service
+    module.project
   ]
 }
 
 module "cluster-dev" {
-  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v24.0.0"
-  project_id      = module.project_service.project_id
-  name            = "${var.team-prefix}-${var.cluster_name}-dev"
-  location        = var.region
-  release_channel = var.cluster_release_channel
+  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
+  project_id          = module.project.project_id
+  name                = "${var.team-prefix}-${var.cluster_name}-dev"
+  location            = var.region
+  release_channel     = var.cluster_release_channel
+  min_master_version  = var.cluster_min_version
+  deletion_protection = false
   vpc_config = {
-    network    = var.vpc_hub_self_link
+    network    = var.vpc_self_link
     subnetwork = var.vpc_dev_subnet_self_link
     secondary_range_names = {
       pods     = "pods"
@@ -132,9 +142,8 @@ module "cluster-dev" {
     master_ipv4_cidr_block   = var.cluster-dev_network_config.master_cidr_block
   }
   enable_features = {
-    binary_authorization = true
+    binary_authorization = false
   }
-  service_account = module.sa-cluster-dev.email
   private_cluster_config = {
     # for demo purposes: not only private endpoint
     # so public can be used in addition, e.g., with kubectl from CloudShell
@@ -143,13 +152,16 @@ module "cluster-dev" {
     # workaround - manually enable: https://console.cloud.google.com/networking/peering/list
     export_routes = true
     import_routes = false
-    project_id    = module.project_service.project_id
+    project_id    = module.project.project_id
   }
-  tags = [
-    "http-server",
-    "https-server",
-  ]
+  node_config = {
+    service_account = module.sa-cluster-dev.email
+    tags = [
+      "http-server",
+      "https-server",
+    ]
+  }
   depends_on = [
-    module.project_service
+    module.project
   ]
 }
