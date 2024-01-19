@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,12 +18,15 @@ metadata:
   name: cicd-jumpstart
   labels:
     app: hello-world
-    commit-short-sha: "NA"	# from-param: ${commit-short-sha}
-    gcb-build-id: "NA"		# from-param: ${gcb-build-id}
+    commit-short-sha: "NA"  # from-param: ${commit-short-sha}
+    gcb-build-id: "NA"      # from-param: ${gcb-build-id}
   # annotations:
   #  networking.gke.io/certmap: cicd-jumpstart-map
 spec:
-  gatewayClassName: gke-l7-global-external-managed
+  # using an regional internal Application Load-Balancer
+  gatewayClassName: gke-l7-rilb
+  # using a global Application Load-Balancer
+  #gatewayClassName: gke-l7-global-external-managed
   # addresses:
   # - type: NamedAddress
   #  value: cicd-jumpstart-ipv4

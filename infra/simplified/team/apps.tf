@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,17 +15,16 @@
 # you first need to connect the GitHub repository to your GCP project:
 # https://console.cloud.google.com/cloud-build/triggers;region=global/connect
 # before you can create this trigger
-
 resource "google_cloudbuild_trigger" "hello_world" {
   provider        = google-beta
-  name            = "${var.team-prefix}-hello-world-trigger"
-  project         = var.project_hub_id
+  name            = "${var.team-prefix}-hello-world"
+  project         = var.project_id
   service_account = var.sa-cb-id
   description     = "Terraform-managed."
   filename        = "cloudbuild.yaml"
   github {
     owner = var.github_owner
-    name  = var.github_repo_name
+    name  = var.github_repo
     push {
       branch = var.github_branch
     }
@@ -34,19 +33,19 @@ resource "google_cloudbuild_trigger" "hello_world" {
     "apps/hello-world/**"
   ]
   substitutions = {
-    _REGION                = "${var.region}"
-    _SKAFFOLD_DEFAULT_REPO = "${var.region}-docker.pkg.dev/${var.project_hub_id}/${module.docker_artifact_registry.name}"
     _APP_NAME              = "hello-world"
-    _PIPELINE_NAME         = "${google_clouddeploy_delivery_pipeline.hello_world.name}"
     _KMS_DIGEST_ALG        = var.kms_digest_alg
     _KMS_KEY_NAME          = data.google_kms_crypto_key_version.vulnz-attestor.name
+    _KRITIS_SIGNER_IMAGE   = var.kritis_signer_image
     _NOTE_NAME             = google_container_analysis_note.vulnz-attestor.id
-    _KRITIS_SIGNER_IMAGE = var.kritis_signer_image
+    _PIPELINE_NAME         = "${google_clouddeploy_delivery_pipeline.hello_world.name}"
+    _REGION                = "${var.region}"
+    _SKAFFOLD_DEFAULT_REPO = "${var.region}-docker.pkg.dev/${var.project_id}/${module.docker_artifact_registry.name}"
   }
 }
 
 resource "google_clouddeploy_delivery_pipeline" "hello_world" {
-  project     = var.project_hub_id
+  project     = var.project_id
   location    = var.region
   name        = "${var.team-prefix}-hello-world"
   description = "Terraform-managed."

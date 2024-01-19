@@ -27,9 +27,9 @@ gcloud auth login
 
 - select: "Trust `google.com` and all its subdomains"
 - `Copy` the verification code after login
-- close the window (e.g., `Ctrl`+`W`)
-- paste the verification code into the terminal (e.g., `Ctrl`+`V`)
-  and press Enter
+- close the window (e.g., `Control`+`W`)
+- paste the verification code into the terminal (e.g., `Control`+`V`)
+  and press `Enter`
 </details>
 
 ## Set default GCP project

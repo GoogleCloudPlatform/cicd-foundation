@@ -5,7 +5,7 @@
 <details>
 <summary>Terminal</summary>
 
-- press `Ctrl`+`Shift`+<code>`</code>
+- press `Control`+`Shift`+<code>`</code>
 
 or
 - navigate to `Menu` > `Terminal` > `New Terminal`

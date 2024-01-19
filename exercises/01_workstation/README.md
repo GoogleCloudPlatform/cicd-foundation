@@ -16,6 +16,8 @@ Use the [`google_workstations_workstation`](https://registry.terraform.io/provid
 
 ## Access your Cloud Workstation
 
+👉 [Download the `ws.sh` shell script](https://github.com/GoogleCloudPlatform/cicd-jumpstart/tree/main/bin/ws.sh) and place it in your PATH.
+
 👉 Export the following environment variables in your shell:
 - `WS_REGION`: the name of the Google Cloud **region** to use
 - `WS_CLUSTER`: the name of the Cloud Workstation **cluster**
@@ -32,9 +34,9 @@ export WS_REGION=europe-north1
 
 ### Web Browser
 
-👉 Executing the shell script
+👉 Executing the (downloaded) shell script
 ```sh
-./ws.sh
+ws.sh
 ```
 will:
 1. initialize a `gcloud auth login`
@@ -55,8 +57,8 @@ Host ws
   UserKnownHostsFile /dev/null
   LogLevel ERROR
 ```
-- `StrictHostKeyChecking` is disabled as the instance will not have a persistent SSH key and also IP.  
-- For this reason also the `UserKnownHostsFile` is irrelevant.
+- `StrictHostKeyChecking` is disabled as the instance will not have a persistent SSH key; apart, also the IP is not fixed.  
+- For thes reasons also the `UserKnownHostsFile` is irrelevant.
 
 ### Secure Shell (SSH)
 
@@ -73,13 +75,13 @@ ssh ws
 
 In your local VSCode, install the [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) extension pack:
 
-👉 Press `Ctrl`+`P` and enter `ext install ms-vscode-remote.vscode-remote-extensionpack`
+👉 Press `Control`+`P` and enter `ext install ms-vscode-remote.vscode-remote-extensionpack`
 
 #### Remote-SSH
 
 👉 If you have not yet establish a secure tunnel via SSH (see above) do so now.
 
-👉 Press `Ctrl`+`Shift`+`P`, enter "Remote-SSH: Connect to Host...", and select `ws`
+👉 Press `Control`+`Shift`+`P`, enter "Remote-SSH: Connect to Host...", and select `ws`
 
 After successful connection you will see `SSH: ws` in a green box in the bottom left corner of VSCode.
 Now you can work with your Cloud Workstation from your local VSCode application!

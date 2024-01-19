@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,15 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-variable "project_hub_id" {
+variable "region" {
+  description = "Compute region used."
+  type        = string
+  default     = "europe-north1"
+}
+
+variable "project_id" {
   description = "Project-ID that references existing project."
   type        = string
 }
 
-variable "registry_id" {
-  description = "String used to name Artifact Registry."
-  type        = string
-  default     = "hub-registry"
+variable "project_services" {
+  description = "Service APIs to enable"
+  type        = list(string)
+  default = [
+    "artifactregistry.googleapis.com",
+    "binaryauthorization.googleapis.com",
+    "cloudbuild.googleapis.com",
+    "clouddeploy.googleapis.com",
+    "cloudkms.googleapis.com",
+    "compute.googleapis.com",
+    "container.googleapis.com",
+    "containeranalysis.googleapis.com",
+    "containerscanning.googleapis.com",
+    "ondemandscanning.googleapis.com",
+    "orgpolicy.googleapis.com",
+    "servicenetworking.googleapis.com",
+    "workstations.googleapis.com",
+  ]
 }
 
 variable "sa_cb_name" {
@@ -29,48 +49,34 @@ variable "sa_cb_name" {
   default     = "sa-cloudbuild"
 }
 
-variable "project_hub_services" {
-  description = "Service APIs to enable"
-  type        = list(string)
-  default = [
-    "workstations.googleapis.com",
-    "cloudbuild.googleapis.com",
-    "clouddeploy.googleapis.com",
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "servicenetworking.googleapis.com",
-    "artifactregistry.googleapis.com",
-    "binaryauthorization.googleapis.com",
-    "containeranalysis.googleapis.com",
-    "containerscanning.googleapis.com",
-    "ondemandscanning.googleapis.com",
-    "orgpolicy.googleapis.com",
-    "cloudkms.googleapis.com"
-  ]
+variable "registry_id" {
+  description = "String used to name Artifact Registry."
+  type        = string
+  default     = "registry"
 }
 
-variable "region" {
-  description = "Compute region used."
-  type        = string
-  default     = "us-central1"
+variable "developers" {
+  description = "list of developers that can create Cloud Workstations"
+  type        = list(string)
+  default     = []
 }
 
 variable "ws_cluster_name" {
   description = "name of the Cloud Workstations cluster"
   type        = string
-  default     = "sweets"
+  default     = "cicd-jumpstart"
 }
 
 variable "ws_config_name" {
   description = "name of the Cloud Workstations config"
   type        = string
-  default     = "sweets"
+  default     = "cicd-jumpstart"
 }
 
 variable "ws_name" {
   description = "name of the Cloud Workstations instance"
   type        = string
-  default     = "sweets"
+  default     = "cicd-jumpstart"
 }
 
 variable "ws_config_machine_type" {
@@ -158,7 +164,6 @@ variable "nat_name" {
   type        = string
   default     = "nat"
 }
-
 
 variable "vpc-hub_primary_cidr" {
   description = "CIDR for the primary subnet in the hub VPC"
