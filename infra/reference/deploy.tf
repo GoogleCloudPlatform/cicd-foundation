@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "sa-cd-prod" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
   project_id   = module.project_prod_supplychain.id
   name         = var.sa_cd_name
   display_name = "Cloud Deploy Service Account"
@@ -42,7 +42,7 @@ module "sa-cd-prod" {
 }
 
 module "sa-cd-test" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
   project_id   = module.project_test_supplychain.id
   name         = var.sa_cd_name
   display_name = "Cloud Deploy Service Account"
@@ -71,7 +71,7 @@ module "sa-cd-test" {
 }
 
 module "sa-cd-dev" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
   project_id   = module.project_dev_supplychain.id
   name         = var.sa_cd_name
   display_name = "Cloud Deploy Service Account"
@@ -122,6 +122,9 @@ resource "google_clouddeploy_target" "cluster-prod" {
     ]
     service_account = module.sa-cd-prod.email
   }
+  deploy_parameters = {
+    "deploy_replicas" = var.deploy_replicas
+  }
 }
 
 resource "google_clouddeploy_target" "cluster-test" {
@@ -142,6 +145,9 @@ resource "google_clouddeploy_target" "cluster-test" {
     ]
     service_account = module.sa-cd-test.email
   }
+  deploy_parameters = {
+    "deploy_replicas" = var.deploy_replicas
+  }
 }
 
 resource "google_clouddeploy_target" "cluster-dev" {
@@ -161,5 +167,8 @@ resource "google_clouddeploy_target" "cluster-dev" {
       "DEPLOY",
     ]
     service_account = module.sa-cd-dev.email
+  }
+  deploy_parameters = {
+    "deploy_replicas" = var.deploy_replicas
   }
 }

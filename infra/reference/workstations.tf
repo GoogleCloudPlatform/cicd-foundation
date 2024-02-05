@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-resource "google_workstations_workstation_cluster" "sweets" {
+resource "google_workstations_workstation_cluster" "cicd_jumpstart" {
   provider               = google-beta
   project                = module.project_hub_supplychain.project_id
   workstation_cluster_id = var.ws_cluster_name
-  network                = module.vpc-dev.id
-  subnetwork             = module.vpc-dev.subnets["${var.region}/${var.vpc_subnet_name}"].id
+  network                = module.vpc-hub.id
+  subnetwork             = module.vpc-hub.subnets["${var.region}/${var.vpc_subnet_name}"].id
   location               = var.region
 }
 
-resource "google_workstations_workstation_config" "sweets" {
+resource "google_workstations_workstation_config" "cicd_jumpstart" {
   provider               = google-beta
   project                = module.project_hub_supplychain.project_id
   workstation_config_id  = var.ws_config_name
-  workstation_cluster_id = google_workstations_workstation_cluster.sweets.workstation_cluster_id
+  workstation_cluster_id = google_workstations_workstation_cluster.cicd_jumpstart.workstation_cluster_id
   location               = var.region
   host {
     gce_instance {
@@ -36,11 +36,11 @@ resource "google_workstations_workstation_config" "sweets" {
   }
 }
 
-resource "google_workstations_workstation" "sweets" {
+resource "google_workstations_workstation" "cicd_jumpstart" {
   provider               = google-beta
   project                = module.project_hub_supplychain.project_id
   workstation_id         = var.ws_name
-  workstation_config_id  = google_workstations_workstation_config.sweets.workstation_config_id
-  workstation_cluster_id = google_workstations_workstation_cluster.sweets.workstation_cluster_id
+  workstation_config_id  = google_workstations_workstation_config.cicd_jumpstart.workstation_config_id
+  workstation_cluster_id = google_workstations_workstation_cluster.cicd_jumpstart.workstation_cluster_id
   location               = var.region
 }

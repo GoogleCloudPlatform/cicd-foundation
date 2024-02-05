@@ -1,0 +1,67 @@
+# Copyright 2023-2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+steps:
+- id: build
+  name: gcr.io/k8s-skaffold/skaffold:v2.9.0
+  dir: "apps/${_APP_NAME}"
+  args:
+    - skaffold
+    - build
+    - "--interactive=false"
+    - "--default-repo=${_SKAFFOLD_DEFAULT_REPO}"
+- name: gcr.io/cloud-builders/docker:20.10.14
+  entrypoint: /bin/sh
+  dir: "apps/${_APP_NAME}"
+  args:
+  - -c
+  - |
+    docker pull "${_SKAFFOLD_DEFAULT_REPO}/${_APP_NAME}:${SHORT_SHA}" &&
+    docker image inspect "${_SKAFFOLD_DEFAULT_REPO}/${_APP_NAME}:${SHORT_SHA}" --format '{{index .RepoDigests 0}}' > image-digest.txt
+  id: fetchImageDigest
+  waitFor: ['build']
+- name: ${_KRITIS_SIGNER_IMAGE}
+  entrypoint: /bin/sh
+  args:
+  - -c
+  - |
+    /kritis/signer \
+    -v=10 \
+    -alsologtostderr \
+    -image="$(/bin/cat ./apps/${_APP_NAME}/image-digest.txt)" \
+    -policy=./cicd/kritis/vulnz-signing-policy.yaml \
+    -kms_key_name=${_KMS_KEY_NAME} \
+    -kms_digest_alg=${_KMS_DIGEST_ALG} \
+    -note_name=${_NOTE_NAME}
+  waitFor: ['fetchImageDigest']
+  id: vulnsign
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk:461.0.0
+  dir: "apps/${_APP_NAME}"
+  entrypoint: /bin/sh
+  args:
+  - -c
+  - |
+    gcloud deploy releases create rel-${SHORT_SHA} \
+    --delivery-pipeline=${_PIPELINE_NAME} \
+    --labels="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID" \
+    --annotations="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID" \
+    --region="${_REGION}" \
+    --deploy-parameters="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID" \
+    --images="${_APP_NAME}=$(/bin/cat image-digest.txt)"
+  waitFor: ['vulnsign']
+images:
+- "${_SKAFFOLD_DEFAULT_REPO}/${_APP_NAME}:${SHORT_SHA}"
+options:
+  requestedVerifyOption: VERIFIED
+  logging: "CLOUD_LOGGING_ONLY"

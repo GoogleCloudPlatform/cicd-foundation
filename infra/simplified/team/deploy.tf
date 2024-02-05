@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,18 +13,16 @@
 # limitations under the License.
 
 module "sa-cd-prod" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
-  project_id   = var.project_hub_id
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
+  project_id   = module.project.project_id
   name         = "${var.team-prefix}-${var.sa_cd_name}-prod"
   display_name = "Cloud Deploy Service Account"
   description  = "Terraform-managed."
   iam_project_roles = {
-    (var.project_hub_id) : [
+    (module.project.project_id) : [
       "roles/clouddeploy.jobRunner",
       "roles/clouddeploy.releaser",
       "roles/logging.logWriter",
-    ],
-    (module.project_service.project_id) : [
       "roles/container.developer",
     ]
   }
@@ -40,18 +38,16 @@ module "sa-cd-prod" {
 }
 
 module "sa-cd-test" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
-  project_id   = var.project_hub_id
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
+  project_id   = module.project.project_id
   name         = "${var.team-prefix}-${var.sa_cd_name}-test"
   display_name = "Cloud Deploy Service Account"
   description  = "Terraform-managed."
   iam_project_roles = {
-    (var.project_hub_id) : [
+    (module.project.project_id) : [
       "roles/clouddeploy.jobRunner",
       "roles/clouddeploy.releaser",
       "roles/logging.logWriter",
-    ],
-    (module.project_service.project_id) : [
       "roles/container.developer",
     ]
   }
@@ -67,19 +63,17 @@ module "sa-cd-test" {
 }
 
 module "sa-cd-dev" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v24.0.0"
-  project_id   = var.project_hub_id
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
+  project_id   = module.project.project_id
   name         = "${var.team-prefix}-${var.sa_cd_name}-dev"
   display_name = "Cloud Deploy Service Account"
   description  = "Terraform-managed."
   # cf. https://cloud.google.com/deploy/docs/cloud-deploy-service-account#execution_service_account
   iam_project_roles = {
-    (var.project_hub_id) : [
+    (module.project.project_id) : [
       "roles/clouddeploy.jobRunner",
       "roles/clouddeploy.releaser",
       "roles/logging.logWriter",
-    ],
-    (module.project_service.project_id) : [
       "roles/container.developer",
     ]
   }
@@ -99,12 +93,12 @@ module "sa-cd-dev" {
 }
 
 resource "google_clouddeploy_target" "cluster-prod" {
-  project     = var.project_hub_id
+  project     = module.project.project_id
   location    = var.region
   name        = "${var.team-prefix}-cluster-prod"
   description = "Terraform-managed."
   gke {
-    cluster     = "projects/${module.project_service.name}/locations/${module.cluster-prod.location}/clusters/${module.cluster-prod.name}"
+    cluster     = "projects/${module.project.name}/locations/${module.cluster-prod.location}/clusters/${module.cluster-prod.name}"
     internal_ip = false
   }
   require_approval = true
@@ -117,17 +111,17 @@ resource "google_clouddeploy_target" "cluster-prod" {
     service_account = module.sa-cd-prod.email
   }
   deploy_parameters = {
-    "deploy_replicas" = 3
+    "deploy_replicas" = var.deploy_replicas
   }
 }
 
 resource "google_clouddeploy_target" "cluster-test" {
-  project     = var.project_hub_id
+  project     = module.project.project_id
   location    = var.region
   name        = "${var.team-prefix}-cluster-test"
   description = "Terraform-managed."
   gke {
-    cluster     = "projects/${module.project_service.name}/locations/${module.cluster-test.location}/clusters/${module.cluster-test.name}"
+    cluster     = "projects/${module.project.name}/locations/${module.cluster-test.location}/clusters/${module.cluster-test.name}"
     internal_ip = false
   }
   require_approval = false
@@ -140,17 +134,17 @@ resource "google_clouddeploy_target" "cluster-test" {
     service_account = module.sa-cd-test.email
   }
   deploy_parameters = {
-    "deploy_replicas" = 3
+    "deploy_replicas" = var.deploy_replicas
   }
 }
 
 resource "google_clouddeploy_target" "cluster-dev" {
-  project     = var.project_hub_id
+  project     = module.project.project_id
   location    = var.region
   name        = "${var.team-prefix}-cluster-dev"
   description = "Terraform-managed."
   gke {
-    cluster     = "projects/${module.project_service.name}/locations/${module.cluster-dev.location}/clusters/${module.cluster-dev.name}"
+    cluster     = "projects/${module.project.name}/locations/${module.cluster-dev.location}/clusters/${module.cluster-dev.name}"
     internal_ip = false
   }
   require_approval = false
@@ -163,6 +157,6 @@ resource "google_clouddeploy_target" "cluster-dev" {
     service_account = module.sa-cd-dev.email
   }
   deploy_parameters = {
-    "deploy_replicas" = 1
+    "deploy_replicas" = var.deploy_replicas
   }
 }

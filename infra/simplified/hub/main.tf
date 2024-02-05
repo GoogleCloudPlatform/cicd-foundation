@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module "project_hub" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v24.0.0"
-  name           = var.project_hub_id
+module "project" {
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v28.0.0"
+  name           = var.project_id
   project_create = false
-  services       = var.project_hub_services
+  services       = var.project_services
   shared_vpc_host_config = {
-    enabled = true
+    enabled = false
   }
   iam = {
+    "roles/workstations.workstationCreator" = var.developers,
     "roles/containeranalysis.notes.attacher" = [
-      "serviceAccount:${module.sa-cb.email}"
+      module.sa-cb.iam_email
     ]
   }
 }

@@ -1,0 +1,71 @@
+# Copyright 2023-2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: skaffold-build
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.38.0"
+    tekton.dev/categories: Build Tools
+    tekton.dev/tags: build-tool
+    tekton.dev/displayName: "skaffold build"
+    tekton.dev/platforms: "linux/amd64"
+spec:
+  description: >-
+    This Task executes a Skaffold build.
+
+  params:
+    - name: PATH
+      type: string
+      default: .
+
+    - name: SKAFFOLD_DEFAULT_REPO
+      type: string
+
+    - name: SKAFFOLD_VERBOSITY
+      type: string
+      # cf. https://skaffold.dev/docs/references/cli/#skaffold-commands
+      default: warning
+
+    - name: SKAFFOLD_OUTPUT_FILE
+      type: string
+      # cf. https://skaffold.dev/docs/references/cli/#skaffold-build
+      default: "/workspace/artifacts.json"
+
+  workspaces:
+  - name: source
+
+  steps:
+  - name: skaffold
+    image: gcr.io/k8s-skaffold/skaffold@sha256:60d5a69adc877e1dd524ede5b9069b2471d9114eb6fb740648b51f4895196352
+    workingDir: $(workspaces.source.path)/$(params.PATH)
+    command:
+      - skaffold
+    args:
+      - build
+    env:
+    - name: TERM
+      value: linux
+    - name: SKAFFOLD_VERBOSITY
+      value: "$(inputs.params.SKAFFOLD_VERBOSITY)"
+    - name: SKAFFOLD_INTERACTIVE
+      value: "false"
+    - name: SKAFFOLD_DEFAULT_REPO
+      value: "$(inputs.params.SKAFFOLD_DEFAULT_REPO)"
+    # cf. https://skaffold.dev/docs/references/cli/#skaffold-commands
+    - name: SKAFFOLD_OUTPUT_FILE
+      value: "$(inputs.params.SKAFFOLD_OUTPUT_FILE)"

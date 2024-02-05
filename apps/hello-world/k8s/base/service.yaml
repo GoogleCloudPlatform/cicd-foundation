@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@ metadata:
     app: hello-world
     commit-short-sha: "NA"      # from-param ${commit-short-sha}
     gcb-build-id: "NA"          # from-param ${gcb-build-id}
-  # annotations:
-  #  cloud.google.com/neg: '{"ingress": true}'
 spec:
   type: ClusterIP
   selector:

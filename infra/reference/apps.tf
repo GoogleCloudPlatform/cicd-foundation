@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,32 +17,38 @@
 # before you can create this trigger
 resource "google_cloudbuild_trigger" "hello_world" {
   provider        = google-beta
+  name            = "hello-world"
   project         = module.project_hub_supplychain.id
   service_account = module.sa-cb.id
   description     = "Terraform-managed."
   filename        = "cloudbuild.yaml"
   github {
     owner = var.github_owner
-    name  = var.github_repo_name
+    name  = var.github_repo
     push {
       branch = var.github_branch
     }
   }
   included_files = [
-    "apps/${google_clouddeploy_delivery_pipeline.hello_world.name}/**"
+    "apps/hello-world/**"
   ]
   substitutions = {
+    _APP_NAME              = "hello-world"
+    _KMS_DIGEST_ALG        = var.kms_digest_alg
+    _KMS_KEY_NAME          = data.google_kms_crypto_key_version.vulnz-attestor.name
+    _KRITIS_SIGNER_IMAGE   = var.kritis_signer_image
+    _NOTE_NAME             = google_container_analysis_note.vulnz-attestor.id
+    _PIPELINE_NAME         = "${google_clouddeploy_delivery_pipeline.hello_world.name}"
     _REGION                = "${var.region}"
     _SKAFFOLD_DEFAULT_REPO = "${var.region}-docker.pkg.dev/${module.project_hub_supplychain.project_id}/${module.docker_artifact_registry.name}"
-    _APP_NAME              = "${google_clouddeploy_delivery_pipeline.hello_world.name}"
   }
 }
 
 resource "google_clouddeploy_delivery_pipeline" "hello_world" {
   project     = module.project_hub_supplychain.id
-  location    = var.region
   name        = "hello-world"
   description = "Terraform-managed."
+  location    = var.region
   serial_pipeline {
     stages {
       profiles  = ["dev"]
@@ -55,6 +61,24 @@ resource "google_clouddeploy_delivery_pipeline" "hello_world" {
     stages {
       profiles  = ["prod"]
       target_id = google_clouddeploy_target.cluster-prod.name
+      strategy {
+        canary {
+          runtime_config {
+            kubernetes {
+              gateway_service_mesh {
+                deployment             = "hello-world"
+                http_route             = "hello-world"
+                route_update_wait_time = "120s"
+                service                = "hello-world"
+              }
+            }
+          }
+          canary_deployment {
+            percentages = [10, 25, 50]
+            verify      = false # could execute smoke tests to verify canary deployment
+          }
+        }
+      }
     }
   }
 }

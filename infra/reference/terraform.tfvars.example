@@ -1,0 +1,52 @@
+# Copyright 2023-2004 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# gcloud organizations describe $ORG_NAME --format="value(name.segment(1))"
+org_id         = 
+
+folder_hub_id  = 
+folder_prod_id = 
+folder_test_id = 
+folder_dev_id  = 
+
+# projects_create = true
+
+project_hub_host         = ""
+project_hub_supplychain  = ""
+project_prod_host        = ""
+project_prod_supplychain = ""
+project_prod_service     = ""
+project_test_host        = ""
+project_test_supplychain = ""
+project_test_service     = ""
+project_dev_host         = ""
+project_dev_supplychain  = ""
+project_dev_service      = ""
+
+region = "europe-north1"
+zone   = "europe-north1-a"
+
+github_owner = ""
+github_repo  = ""
+
+registry_id = ""
+
+# list of developer(s) (users and or groups) for creating workstations
+developers = [
+  "user:alex@example.com",
+  "group:group@example.com",
+]
+
+# cf. ../README.md
+kritis_signer_image = "gcr.io/REPLACE_WITH_YOUR_PROD_SUPPLYCHAIN_PROJECT_ID/kritis-signer@sha256:REPLACE_WITH_SHA256_OF_IMAGE"
