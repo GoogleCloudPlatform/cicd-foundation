@@ -12,22 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-variable "team-prefix" {
-  type    = string
-  default = "team1"
+variable "user_identity" {
+  type = string
+}
+
+variable "team_prefix" {
+  type = string
 }
 
 variable "github_owner" {
-  type        = any
+  type        = string
   description = "Owner of the GitHub repo: usually, your GitHub username."
 }
 
 variable "github_repo" {
-  type        = any
-  description = "Name of the GitHub repository."
+  type        = string
+  description = "Name of the (forked) GitHub repository."
 }
 
-variable "github_branch" {
+variable "git_branch" {
   type        = string
   default     = "^main$"
   description = "Regular expression of which branches the Cloud Build trigger should run."
@@ -37,12 +40,6 @@ variable "region" {
   description = "Compute region used."
   type        = string
   default     = "europe-north1"
-}
-
-variable "zone" {
-  description = "Compute zone used."
-  type        = string
-  default     = "europe-north1-a"
 }
 
 variable "project_id" {
@@ -63,116 +60,28 @@ variable "project_services" {
   ]
 }
 
-variable "cluster_min_version" {
-  description = "Minimum version of the control nodes, defaults to the version of the most recent official release."
+variable "ws_cluster_id" {
+  description = "ID of the Cloud Workstations Cluster"
   type        = string
-  default     = null
 }
 
-variable "cluster-prod_network_config" {
-  description = "Cluster network configuration."
-  type = object({
-    nodes_cidr_block              = string
-    pods_cidr_block               = string
-    services_cidr_block           = string
-    master_authorized_cidr_blocks = map(string)
-    master_cidr_block             = string
-  })
-  default = {
-    nodes_cidr_block    = "10.76.0.0/22"
-    pods_cidr_block     = "172.19.0.0/19"
-    services_cidr_block = "192.168.12.0/22"
-    master_authorized_cidr_blocks = {
-      internal = "10.0.0.0/8"
-      # permit access to public endpoint, e.g., to kubectl from CloudShell
-      external = "0.0.0.0/0"
-    }
-    master_cidr_block = "10.1.11.0/28"
-  }
-}
-
-variable "cluster-test_network_config" {
-  description = "Cluster network configuration."
-  type = object({
-    nodes_cidr_block              = string
-    pods_cidr_block               = string
-    services_cidr_block           = string
-    master_authorized_cidr_blocks = map(string)
-    master_cidr_block             = string
-  })
-  default = {
-    nodes_cidr_block    = "10.75.0.0/22"
-    pods_cidr_block     = "172.18.0.0/19"
-    services_cidr_block = "192.168.8.0/22"
-    master_authorized_cidr_blocks = {
-      internal = "10.0.0.0/8"
-      # permit access to public endpoint, e.g., to kubectl from CloudShell
-      external = "0.0.0.0/0"
-    }
-    master_cidr_block = "10.1.10.0/28"
-  }
-}
-
-variable "cluster-dev_network_config" {
-  description = "Cluster network configuration."
-  type = object({
-    nodes_cidr_block              = string
-    pods_cidr_block               = string
-    services_cidr_block           = string
-    master_authorized_cidr_blocks = map(string)
-    master_cidr_block             = string
-  })
-  default = {
-    nodes_cidr_block    = "10.73.0.0/22"
-    pods_cidr_block     = "172.16.0.0/19"
-    services_cidr_block = "192.168.0.0/22"
-    master_authorized_cidr_blocks = {
-      internal = "10.0.0.0/8"
-      # permit access to public endpoint, e.g., to kubectl from CloudShell
-      external = "0.0.0.0/0"
-    }
-    master_cidr_block = "10.1.8.0/28"
-  }
-}
-
-variable "cluster_name" {
-  description = "name of the cluster"
+variable "ws_config_id" {
+  description = "ID of the Cloud Workstations Config"
   type        = string
-  default     = "eu"
-}
-
-variable "sa_cluster_name" {
-  description = "name of GKE Service Account(s)"
-  type        = string
-  default     = "sa-gke"
-}
-
-# cf. https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels
-variable "cluster_release_channel" {
-  description = "GKE Release Channel"
-  type        = string
-  default     = "REGULAR"
-}
-
-variable "cluster_roles" {
-  description = "GKE Service Account roles"
-  type        = list(string)
-  default = [
-    "roles/logging.logWriter",
-    "roles/monitoring.viewer",
-    "roles/monitoring.metricWriter",
-    "roles/stackdriver.resourceMetadata.writer",
-  ]
-}
-
-variable "deploy_replicas" {
-  description = "number of replicas per deployment"
-  type        = number
-  default     = 3
 }
 
 variable "kritis_signer_image" {
   description = "Image ref to the kritis signer image"
+  type        = string
+}
+
+variable "kritis_note" {
+  description = "ID of the kritis note"
+  type        = string
+}
+
+variable "kms_key_name" {
+  description = "Name of the KMS key"
   type        = string
 }
 
@@ -182,53 +91,46 @@ variable "kms_digest_alg" {
   default     = "SHA512"
 }
 
-variable "sa_cd_name" {
-  description = "name of the Cloud Deploy Service Account"
-  type        = string
-  default     = "sa-cloudeploy"
-}
-
-variable "sa-cb-email" {
-  description = "email of the Cloud Build Service Account"
-  type        = string
-}
-variable "sa-cb-id" {
-  description = "id of the Cloud Build Service Account"
-  type        = string
-}
-
 variable "registry_id" {
   description = "String used to name Artifact Registry."
   type        = string
   default     = "registry"
 }
 
-variable "cloud_deploy_robot_sa_email" {
-  description = "Email of the hubs cloud deploy robot sa."
+variable "sa-cb-id" {
+  description = "ID of the Cloud Build Service Account"
   type        = string
 }
 
-variable "cloud_build_robot_sa_email" {
-  description = "Email of the hubs cloud build robot sa."
+variable "sa-cb-email" {
+  description = "Email of the Cloud Build Service Account"
   type        = string
 }
 
-variable "vpc_self_link" {
-  type = string
+variable "sa-cluster-prod-email" {
+  description = "Email of the PROD GKE Cluster Service Account"
+  type        = string
+}
+variable "sa-cluster-test-email" {
+  description = "Email of the TEST GKE Cluster Service Account"
+  type        = string
+}
+variable "sa-cluster-dev-email" {
+  description = "Email of the DEV GKE Cluster Service Account"
+  type        = string
 }
 
-variable "vpc_hub_subnet_self_link" {
-  type = string
+variable "cd_target_prod" {
+  description = "Cloud Deploy Target for PROD"
+  type        = string
 }
 
-variable "vpc_dev_subnet_self_link" {
-  type = string
+variable "cd_target_test" {
+  description = "Cloud Deploy Target for TEST"
+  type        = string
 }
 
-variable "vpc_test_subnet_self_link" {
-  type = string
-}
-
-variable "vpc_prod_subnet_self_link" {
-  type = string
+variable "cd_target_dev" {
+  description = "Cloud Deploy Target for DEV"
+  type        = string
 }

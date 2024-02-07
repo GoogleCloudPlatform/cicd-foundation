@@ -56,7 +56,7 @@ gcloud workstations start \
 echo started
 
 echo getting hostname
-WS_URL=https://$(gcloud workstations describe \
+WS_HOST=$(gcloud workstations describe \
   $WS_NAME \
   --cluster=$WS_CLUSTER \
   --config=$WS_CONFIG \
@@ -69,6 +69,7 @@ grep host | sed -e 's/.*: "\(.*\)".*/\1/' \
 sed -e 's/\"\(.*\)\"/https:\/\/\1/' \
 )
 
+WS_URL=https://$WS_HOST
 echo "opening $WS_URL"
 google-chrome $WS_URL &
 

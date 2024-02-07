@@ -20,9 +20,10 @@ module "project" {
   shared_vpc_host_config = {
     enabled = false
   }
-  iam = {
-    "roles/containeranalysis.occurrences.editor" = [
-      "serviceAccount:${var.sa-cb-email}"
-    ]
+  iam_bindings_additive = {
+    cb-ca = {
+      member = "serviceAccount:${var.sa-cb-email}"
+      role   = "roles/containeranalysis.occurrences.editor"
+    }
   }
 }

@@ -18,8 +18,8 @@ metadata:
   name: hello-world
   labels:
     app: hello-world
-    commit-short-sha: "NA"      # from-param ${commit-short-sha}
-    gcb-build-id: "NA"          # from-param ${gcb-build-id}
+    commit-short-sha: "NA"      # from-param: ${commit-short-sha}
+    gcb-build-id: "NA"          # from-param: ${gcb-build-id}
 spec:
   type: ClusterIP
   selector:

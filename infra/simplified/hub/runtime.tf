@@ -15,7 +15,7 @@
 module "sa-cluster-prod" {
   source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
   project_id   = module.project.id
-  name         = "${var.team-prefix}-${var.sa_cluster_name}-prod"
+  name         = "${var.sa_cluster_name}-prod"
   display_name = "GKE (prod) Service Account"
   description  = "Terraform-managed."
   iam_project_roles = {
@@ -26,7 +26,7 @@ module "sa-cluster-prod" {
 module "sa-cluster-test" {
   source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
   project_id   = module.project.id
-  name         = "${var.team-prefix}-${var.sa_cluster_name}-test"
+  name         = "${var.sa_cluster_name}-test"
   display_name = "GKE (test) Service Account"
   description  = "Terraform-managed."
   iam_project_roles = {
@@ -37,7 +37,7 @@ module "sa-cluster-test" {
 module "sa-cluster-dev" {
   source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
   project_id   = module.project.id
-  name         = "${var.team-prefix}-${var.sa_cluster_name}-dev"
+  name         = "${var.sa_cluster_name}-dev"
   display_name = "GKE (dev) Service Account"
   description  = "Terraform-managed."
   iam_project_roles = {
@@ -48,14 +48,14 @@ module "sa-cluster-dev" {
 module "cluster-prod" {
   source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
   project_id          = module.project.project_id
-  name                = "${var.team-prefix}-${var.cluster_name}-prod"
+  name                = "${var.cluster_name}-prod"
   location            = var.region
   release_channel     = var.cluster_release_channel
   min_master_version  = var.cluster_min_version
   deletion_protection = false
   vpc_config = {
-    network    = var.vpc_self_link
-    subnetwork = var.vpc_prod_subnet_self_link
+    network    = module.vpc.self_link
+    subnetwork = module.vpc.subnet_self_links["${var.region}/prod"]
     secondary_range_names = {
       pods     = "pods"
       services = "services"
@@ -87,14 +87,14 @@ module "cluster-prod" {
 module "cluster-test" {
   source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
   project_id          = module.project.project_id
-  name                = "${var.team-prefix}-${var.cluster_name}-test"
+  name                = "${var.cluster_name}-test"
   location            = var.region
   release_channel     = var.cluster_release_channel
   min_master_version  = var.cluster_min_version
   deletion_protection = false
   vpc_config = {
-    network    = var.vpc_self_link
-    subnetwork = var.vpc_test_subnet_self_link
+    network    = module.vpc.self_link
+    subnetwork = module.vpc.subnet_self_links["${var.region}/test"]
     secondary_range_names = {
       pods     = "pods"
       services = "services"
@@ -126,14 +126,14 @@ module "cluster-test" {
 module "cluster-dev" {
   source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
   project_id          = module.project.project_id
-  name                = "${var.team-prefix}-${var.cluster_name}-dev"
+  name                = "${var.cluster_name}-dev"
   location            = var.region
   release_channel     = var.cluster_release_channel
   min_master_version  = var.cluster_min_version
   deletion_protection = false
   vpc_config = {
-    network    = var.vpc_self_link
-    subnetwork = var.vpc_dev_subnet_self_link
+    network    = module.vpc.self_link
+    subnetwork = module.vpc.subnet_self_links["${var.region}/dev"]
     secondary_range_names = {
       pods     = "pods"
       services = "services"
@@ -149,10 +149,9 @@ module "cluster-dev" {
     # so public can be used in addition, e.g., with kubectl from CloudShell
     enable_private_endpoint = false
     master_global_access    = true
-    # workaround - manually enable: https://console.cloud.google.com/networking/peering/list
-    export_routes = true
-    import_routes = false
-    project_id    = module.project.project_id
+    export_routes           = true
+    import_routes           = false
+    project_id              = module.project.project_id
   }
   node_config = {
     service_account = module.sa-cluster-dev.email

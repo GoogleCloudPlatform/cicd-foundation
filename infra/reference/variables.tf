@@ -130,6 +130,7 @@ variable "project_hub_supplychain_services" {
     "compute.googleapis.com",
     "ondemandscanning.googleapis.com",
     "orgpolicy.googleapis.com",
+    "sourcerepo.googleapis.com",
     "workstations.googleapis.com",
   ]
 }
@@ -455,7 +456,7 @@ variable "deploy_replicas" {
 }
 
 variable "developers" {
-  description = "list of developers that can create Cloud Workstations"
+  description = "list of developers, e.g., to create Cloud Workstations"
   type        = list(string)
   default     = []
 }
@@ -496,22 +497,34 @@ variable "ws_config_disable_public_ip" {
   default     = true
 }
 
+variable "ws_pool_size" {
+  description = "Cloud Workstations pool size (to speed up startup time)"
+  type        = number
+  default     = 1
+}
+
+variable "ws_idle_time" {
+  description = "Cloud Workstations idle timeout in seconds"
+  type        = number
+  default     = 1800
+}
+
 variable "github_owner" {
   type        = string
   default     = "GoogleCloudPlaform"
-  description = "Owner of the GitHub repo: usually, your GitHub username."
+  description = "Owner of the GitHub repo."
 }
 
 variable "github_repo" {
   type        = string
-  default     = "professional-services"
+  default     = "cicd-jumpstart"
   description = "Name of the GitHub repository."
 }
 
-variable "github_branch" {
+variable "git_branch" {
   type        = string
-  default     = ".*"
-  description = "Regular expression of which branches the Cloud Build trigger should run. Defaults to all branches."
+  default     = "^main$"
+  description = "Regular expression of which branches the Cloud Build trigger should run."
 }
 
 variable "cb_pool_name" {
@@ -547,6 +560,24 @@ variable "sa_cd_name" {
 variable "kritis_signer_image" {
   description = "Image ref to the kritis signer image"
   type        = string
+}
+
+variable "vulnz_attestor_name" {
+  description = "Name of the Binary Authentication Attestor; also used for the Container Analysis note"
+  type        = string
+  default     = "vulnz-attestor"
+}
+
+variable "kms_key_name" {
+  description = "Name of the KMS key"
+  type        = string
+  default     = "vulnz-attestor-key"
+}
+
+variable "kms_keyring_name" {
+  description = "Name of the KMS keyring"
+  type        = string
+  default     = "vulnz-attestor-keyring"
 }
 
 variable "kms_digest_alg" {

@@ -23,14 +23,14 @@ resource "google_binary_authorization_policy" "policy" {
     ]
   }
   cluster_admission_rules {
-    cluster          = "${var.region}.${module.cluster-dev.name}"
+    cluster          = "${var.region}.${module.cluster-prod.name}"
     evaluation_mode  = "ALWAYS_ALLOW"
     enforcement_mode = "DRYRUN_AUDIT_LOG_ONLY"
   }
 }
 
 resource "google_container_analysis_note" "vulnz-attestor" {
-  name    = "vulnz-attestor"
+  name    = var.vulnz_attestor_name
   project = module.project_hub_supplychain.project_id
   attestation_authority {
     hint {
@@ -47,7 +47,7 @@ resource "google_container_analysis_note_iam_member" "vulnz-attestor" {
 }
 
 resource "google_binary_authorization_attestor" "vulnz-attestor" {
-  name    = "vulnz-attestor"
+  name    = var.vulnz_attestor_name
   project = module.project_hub_supplychain.project_id
   attestation_authority_note {
     note_reference = google_container_analysis_note.vulnz-attestor.name
@@ -72,7 +72,7 @@ resource "google_kms_crypto_key_iam_member" "vulnz-attestor" {
 }
 
 resource "google_kms_crypto_key" "vulnz-attestor-key" {
-  name     = "vulnz-attestor-key"
+  name     = var.kms_key_name
   key_ring = google_kms_key_ring.keyring.id
   purpose  = "ASYMMETRIC_SIGN"
   version_template {
@@ -85,6 +85,6 @@ resource "google_kms_crypto_key" "vulnz-attestor-key" {
 
 resource "google_kms_key_ring" "keyring" {
   project  = module.project_hub_supplychain.project_id
-  name     = "attestor-key-ring"
+  name     = var.kms_keyring_name
   location = "global"
 }

@@ -5,6 +5,20 @@
 
 ## Prerequisites
 
+### GCP Project
+
+For the simplified architecture a single GCP project is required that can be placed in a sandbox environment and deleted after the hands-on workshop.
+
+### List of Participants
+
+For each participant list their Google Identity in the `developers` map in `terraform.tfvars` (cf. [`terraform.tfvars.example`](./simplified/terraform.tfvars.example)).
+This will grant them the permissions to create (and use) a Cloud Workstation in the project.
+
+⚠️ In case GitHub shall be used to trigger the Continuous Integration pipeline, the users need to establish a connection to their GitHub repository before the `google_cloudbuild_trigger` Terraform resource can be created, cf. [this comment](./simplified/team/apps.tf#L15).
+
+In the absence of a `github_user`, a Cloud Source Repository will be provisioned with a respective trigger.
+In the hands-on workshop the participants will be able to check out and work with a repository from GitHub using their Cloud Workstation and GitHub credentials but the CI/CD automation will be based on the (private) Cloud Source Repository where we will be pushing the cloned repository to and where changes will be conducted.
+
 ### Cloud Storage Bucket
 
 This is for storing the Terraform state file.  

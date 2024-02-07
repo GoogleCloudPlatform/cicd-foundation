@@ -12,25 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# cf. https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts
+module "repo" {
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/source-repository?ref=v28.0.0"
+  project_id = var.project_id
+  name       = "${var.team_prefix}-repo"
+  iam = {
+    "roles/source.writer" = [
+      "user:${var.user_identity}"
+    ]
+  }
+}
 
 module "docker_artifact_registry" {
   source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/artifact-registry?ref=v28.0.0"
   project_id = var.project_id
-  name       = "${var.team-prefix}-${var.registry_id}"
+  name       = "${var.team_prefix}-${var.registry_id}"
   location   = var.region
   format = {
     docker = {}
   }
   iam = {
     "roles/artifactregistry.reader" = [
-      module.sa-cluster-prod.iam_email,
-      module.sa-cluster-test.iam_email,
-      module.sa-cluster-dev.iam_email,
-      "serviceAccount:${var.sa-cb-email}"
+      "serviceAccount:${var.sa-cluster-prod-email}",
+      "serviceAccount:${var.sa-cluster-test-email}",
+      "serviceAccount:${var.sa-cluster-dev-email}",
+      "serviceAccount:${var.sa-cb-email}",
     ],
     "roles/artifactregistry.writer" = [
-      "serviceAccount:${var.sa-cb-email}"
+      "serviceAccount:${var.sa-cb-email}",
+      "user:${var.user_identity}",
     ]
   }
 }

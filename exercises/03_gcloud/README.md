@@ -47,3 +47,5 @@ Replace `$GOOGLE_CLOUD_PROJECT` with a GCP project ID if this variable is not de
 
 - [Run gcloud auth login](https://cloud.google.com/sdk/docs/authorizing#auth-login)
 </details><br/>
+
+⚠️ With gcloud you can always specify the `--project` option to explicitly select a (different) GCP project which may not be the active one.

@@ -13,35 +13,51 @@
 # limitations under the License.
 
 module "hub" {
-  source     = "./hub"
+  source = "./hub"
+
   project_id = var.project_id
   region     = var.region
+
+  kritis_signer_image = var.kritis_signer_image
+
   developers = formatlist("user:%s", keys(var.developers))
+
+  ws_pool_size = length(var.developers)
 }
 
 module "team" {
   for_each = var.developers
 
-  source      = "./team"
-  team-prefix = join("", regexall("[a-zA-Z]", split("@", each.key)[0]))
-  project_id  = var.project_id
-  sa-cb-email = module.hub.cloud_build_sa_email
-  sa-cb-id    = module.hub.cloud_build_sa_id
+  source = "./team"
+
+  user_identity = each.key
+  team_prefix   = join("", regexall("[a-zA-Z]", split("@", each.key)[0]))
+
+  project_id = var.project_id
+  region     = var.region
+
+  ws_cluster_id = module.hub.ws_cluster_id
+  ws_config_id  = module.hub.ws_config_id
 
   kritis_signer_image = var.kritis_signer_image
+  kritis_note         = module.hub.kritis_note
+  kms_key_name        = module.hub.kms_key_name
 
-  github_owner  = each.value.github_user
-  github_repo   = each.value.github_repo
-  github_branch = var.github_branch
+  sa-cb-id    = module.hub.cloud_build_sa_id
+  sa-cb-email = module.hub.cloud_build_sa_email
 
-  cloud_build_robot_sa_email  = module.hub.cloud_build_robot_sa_email
-  cloud_deploy_robot_sa_email = module.hub.cloud_deploy_robot_sa_email
+  sa-cluster-prod-email = module.hub.sa-cluster-prod_email
+  sa-cluster-test-email = module.hub.sa-cluster-test_email
+  sa-cluster-dev-email  = module.hub.sa-cluster-dev_email
 
-  vpc_self_link             = module.hub.vpc_self_link
-  vpc_hub_subnet_self_link  = module.hub.vpc_hub_subnet_self_link
-  vpc_dev_subnet_self_link  = module.hub.vpc_dev_subnet_self_link
-  vpc_test_subnet_self_link = module.hub.vpc_test_subnet_self_link
-  vpc_prod_subnet_self_link = module.hub.vpc_prod_subnet_self_link
+  github_owner = each.value.github_user
+  github_repo  = each.value.github_repo
+
+  git_branch = var.git_branch
+
+  cd_target_prod = module.hub.cd_target_prod
+  cd_target_test = module.hub.cd_target_test
+  cd_target_dev  = module.hub.cd_target_dev
 
   depends_on = [
     module.hub,

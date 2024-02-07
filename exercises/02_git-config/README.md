@@ -1,4 +1,4 @@
-# Preparation 2: Configure your VCS Client
+# Preparation 2: Configure your Version Control System (VCS) client
 
 👉 open a terminal
 

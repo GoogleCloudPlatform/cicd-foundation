@@ -12,21 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# you first need to connect the GitHub repository to your GCP project:
-# https://console.cloud.google.com/cloud-build/triggers;region=global/connect
-# before you can create this trigger
 resource "google_cloudbuild_trigger" "hello_world" {
+  count           = var.github_owner != "" && var.github_repo != "" ? 1 : 0
   provider        = google-beta
   name            = "hello-world"
   project         = module.project_hub_supplychain.id
   service_account = module.sa-cb.id
   description     = "Terraform-managed."
-  filename        = "cloudbuild.yaml"
-  github {
-    owner = var.github_owner
-    name  = var.github_repo
-    push {
-      branch = var.github_branch
+  filename        = "cicd/cloudbuild/skaffold+kritis.yaml"
+  dynamic "github" {
+    for_each = var.github_owner != "" && var.github_repo != "" ? [1] : []
+    content {
+      # you first need to connect the GitHub repository to your GCP project:
+      # https://console.cloud.google.com/cloud-build/triggers;region=global/connect
+      # before you can create this trigger
+      owner = var.github_owner
+      name  = var.github_repo
+      push {
+        branch = var.git_branch
+      }
+    }
+  }
+  dynamic "trigger_template" {
+    for_each = var.github_owner != "" && var.github_repo != "" ? [] : [1]
+    content {
+      branch_name = var.git_branch
+      repo_name   = module.repo.name
     }
   }
   included_files = [
@@ -37,6 +48,7 @@ resource "google_cloudbuild_trigger" "hello_world" {
     _KMS_DIGEST_ALG        = var.kms_digest_alg
     _KMS_KEY_NAME          = data.google_kms_crypto_key_version.vulnz-attestor.name
     _KRITIS_SIGNER_IMAGE   = var.kritis_signer_image
+    _NAMESPACE             = "hello-world"
     _NOTE_NAME             = google_container_analysis_note.vulnz-attestor.id
     _PIPELINE_NAME         = "${google_clouddeploy_delivery_pipeline.hello_world.name}"
     _REGION                = "${var.region}"

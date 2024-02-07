@@ -12,20 +12,56 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-output "cloud_build_sa_email" {
-  value = module.sa-cb.email
+output "ws_cluster_id" {
+  value = google_workstations_workstation_cluster.cicd_jumpstart.workstation_cluster_id
+}
+
+output "ws_config_id" {
+  value = google_workstations_workstation_config.cicd_jumpstart.workstation_config_id
+}
+
+output "kritis_note" {
+  value = google_container_analysis_note.vulnz-attestor.id
+}
+
+output "kms_key_name" {
+  value = data.google_kms_crypto_key_version.vulnz-attestor.name
 }
 
 output "cloud_build_sa_id" {
   value = module.sa-cb.id
 }
 
-output "cloud_deploy_robot_sa_email" {
-  value = module.project.service_accounts.robots["clouddeploy"]
+output "cloud_build_sa_email" {
+  value = module.sa-cb.email
 }
 
 output "cloud_build_robot_sa_email" {
   value = module.project.service_accounts.robots["cloudbuild"]
+}
+
+output "sa-cluster-prod_email" {
+  value = module.sa-cluster-prod.email
+}
+
+output "sa-cluster-test_email" {
+  value = module.sa-cluster-test.email
+}
+
+output "sa-cluster-dev_email" {
+  value = module.sa-cluster-dev.email
+}
+
+output "cd_target_prod" {
+  value = google_clouddeploy_target.cluster-prod.name
+}
+
+output "cd_target_test" {
+  value = google_clouddeploy_target.cluster-test.name
+}
+
+output "cd_target_dev" {
+  value = google_clouddeploy_target.cluster-dev.name
 }
 
 output "vpc_self_link" {
