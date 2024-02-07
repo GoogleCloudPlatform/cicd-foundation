@@ -12,21 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# you first need to connect the GitHub repository to your GCP project:
-# https://console.cloud.google.com/cloud-build/triggers;region=global/connect
-# before you can create this trigger
 resource "google_cloudbuild_trigger" "hello_world" {
   provider        = google-beta
-  name            = "${var.team-prefix}-hello-world"
+  name            = "${var.team_prefix}-hello-world"
   project         = var.project_id
+  location        = var.region
   service_account = var.sa-cb-id
   description     = "Terraform-managed."
-  filename        = "cloudbuild.yaml"
-  github {
-    owner = var.github_owner
-    name  = var.github_repo
-    push {
-      branch = var.github_branch
+  filename        = "cicd/cloudbuild/skaffold+kritis.yaml"
+  dynamic "github" {
+    for_each = var.github_owner != "" && var.github_repo != "" ? [1] : []
+    content {
+      # you first need to connect the GitHub repository to your GCP project:
+      # https://console.cloud.google.com/cloud-build/triggers;region=global/connect
+      # before you can create this trigger
+      owner = var.github_owner
+      name  = var.github_repo
+      push {
+        branch = var.git_branch
+      }
+    }
+  }
+  dynamic "trigger_template" {
+    for_each = var.github_owner != "" && var.github_repo != "" ? [] : [1]
+    content {
+      branch_name = var.git_branch
+      repo_name   = module.repo.name
     }
   }
   included_files = [
@@ -35,9 +46,10 @@ resource "google_cloudbuild_trigger" "hello_world" {
   substitutions = {
     _APP_NAME              = "hello-world"
     _KMS_DIGEST_ALG        = var.kms_digest_alg
-    _KMS_KEY_NAME          = data.google_kms_crypto_key_version.vulnz-attestor.name
+    _KMS_KEY_NAME          = var.kms_key_name
     _KRITIS_SIGNER_IMAGE   = var.kritis_signer_image
-    _NOTE_NAME             = google_container_analysis_note.vulnz-attestor.id
+    _NAMESPACE             = var.team_prefix
+    _NOTE_NAME             = var.kritis_note
     _PIPELINE_NAME         = "${google_clouddeploy_delivery_pipeline.hello_world.name}"
     _REGION                = "${var.region}"
     _SKAFFOLD_DEFAULT_REPO = "${var.region}-docker.pkg.dev/${var.project_id}/${module.docker_artifact_registry.name}"
@@ -47,20 +59,20 @@ resource "google_cloudbuild_trigger" "hello_world" {
 resource "google_clouddeploy_delivery_pipeline" "hello_world" {
   project     = var.project_id
   location    = var.region
-  name        = "${var.team-prefix}-hello-world"
+  name        = "${var.team_prefix}-hello-world"
   description = "Terraform-managed."
   serial_pipeline {
     stages {
       profiles  = ["dev"]
-      target_id = google_clouddeploy_target.cluster-dev.name
+      target_id = var.cd_target_dev
     }
     stages {
       profiles  = ["test"]
-      target_id = google_clouddeploy_target.cluster-test.name
+      target_id = var.cd_target_test
     }
     stages {
       profiles  = ["prod"]
-      target_id = google_clouddeploy_target.cluster-prod.name
+      target_id = var.cd_target_prod
       strategy {
         canary {
           runtime_config {

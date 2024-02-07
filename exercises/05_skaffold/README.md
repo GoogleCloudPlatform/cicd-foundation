@@ -1,6 +1,6 @@
-# Configure your Default Container Repository
+# Preparation 5: Configure your default container repository for Skaffold
 
-Get the URL of your container repository and export as `$SKAFFOLD_DEFAULT_REPO`.
+👉 Get the URL of your container repository and export as `$SKAFFOLD_DEFAULT_REPO`.
 
 <details>
 <summary>Artifact Registry</summary>
@@ -46,65 +46,24 @@ export SKAFFOLD_DEFAULT_REPO=$(gcloud artifacts repositories describe $REPO_NAME
 </details><br/>
 
 
-With Skaffold, a default repository can be set per Kubernetes context (see below).
+With Skaffold, a default repository can be set (globally).
+Such repository can also be set on a per Kubernetes context basis (see below).
 
 <details>
-<summary>global default</summary>
+<summary>Skaffold</summary>
 👉 To set a global default repository execute the following command:
 
 ```sh
 skaffold config set --global default-repo $SKAFFOLD_DEFAULT_REPO
 ```
 and replace `$SKAFFOLD_DEFAULT_REPO` with the name of your container repository.
-</details><br/>
+</details>
+
+## Container repository per Kubernetes context
 
 If you would like to associate a Kubernetes context with a particular container repository (recommended) proceed with the following steps:
 
-👉 Prior to setting the default repo, you need to set the Kubernetes context.
-
-<details>
-<summary>Kubernetes Context</summary>
-
-👉 You need to fetch (at least once) the credentials for accessing the Kubernetes cluster.
-
-<details>
-<summary>gcloud</summary>
-
-```sh
-gcloud container clusters get-credentials $CLUSTER_NAME --region $CLUSTER_REGION
-```
-
-💡 You can lookup existing clusters with their name and region with the following command:
-```sh
-gcloud container clusters list
-```
-
-#### References 🔗
-
-- [gcloud container clusters get-credentials](https://cloud.google.com/sdk/gcloud/reference/container/clusters/get-credentials)
-</details><br/>
-
-Alternatively to gcloud, you can directly use `kubectl` in case you already imported the credentials earlier:
-<details>
-<summary>kubectl</summary>
-
-```sh
-kubectl config get-contexts
-```
-
-#### References 🔗
-
-- [kubectl config get-contexts](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#-em-get-contexts-em-)
-
-```sh
-kubectl config use-context $CLUSTER_CONTEXT
-```
-
-#### References 🔗
-
-- [kubectl config use-context](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#-em-use-context-em-)
-</details>
-</details><br/>
+⚠️ Prior to setting the default repo, you need to set the Kubernetes context, cf. [previous task](../04_kubectl/README.md).
 
 👉 Finally set the default container repository.
 
@@ -122,14 +81,14 @@ Replace `$SKAFFOLD_DEFAULT_REPO` with the URL of the repository if necessary.
 (👉) Validate the config.
 
 <details>
-<summary>Skaffold</summary>
+<summary>Skaffold config</summary>
 
 You can inspect the config file of skaffold. Notice the `kubeContexts` in addition to the `global` section.
 
 ```sh
 cat ~/.skaffold/config
 ```
-</details><br/>
+</details>
 
 #### References 🔗
 

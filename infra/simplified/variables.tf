@@ -47,26 +47,15 @@ variable "cluster_min_version" {
 }
 
 variable "developers" {
+  description = "Map of developer(s) with their Google Identity used as the key and a map with their GitHub account and (forked) repo to use for the CI/CD OR an empty map in case they use a Cloud Source Repository"
   type = map(object({
-    github_user = string
-    github_repo = string
+    github_user = optional(string, "")
+    github_repo = optional(string, "cicd-jumpstart")
   }))
 }
 
-variable "github_owner" {
-  type        = string
-  default     = "GoogleCloudPlaform"
-  description = "Owner of the GitHub repo: usually, your GitHub username."
-}
-
-variable "github_repo_name" {
-  type        = string
-  default     = "professional-services"
-  description = "Name of the GitHub repository."
-}
-
-variable "github_branch" {
+variable "git_branch" {
   type        = string
   default     = "^main$"
-  description = "Regular expression of which branches the Cloud Build trigger should run. Defaults to all branches."
+  description = "Regular expression of which branches the Cloud Build trigger should run."
 }

@@ -56,23 +56,42 @@ git clone https://github.com/googlecloudplatform/cicd-jumpstart
 - [git-clone](https://git-scm.com/docs/git-clone)
 </details>
 
+### Open Folder
+
+👉 press `Control`+`K` + `Control`+`O`, select the new folder and press `Enter`
+
 ## Working with a private repository
 
 Eventually, you may want work with your own, private source repository when you want to push changes that shall be applied in your real-life environment.
 
 ### Cloud Source Repository
 
-👉 Create a Cloud Source Repository
+Your (private) Cloud Source Repository has been provisioned, e.g., by a central-IT team.
 
 <details>
-<summary>gcloud</summary>
+<summary>Create a Cloud Source Repository</summary>
+
+#### gcloud
 
 ```sh
 gcloud source repos create $CSR_REPO_NAME
 ```
 
 - Use `$CSR_REPO_NAME` for the name of the repository.
-- Specify the `--project` option to explicitly select a GCP project which may not be the active one.
+
+#### Terraform
+
+Use the [`google_sourcerepo_repository`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sourcerepo_repository) Terraform resource.
+</details><br/>
+
+👉 Configure the gcloud helper
+
+<details>
+<summary>gcloud</summary>
+
+```sh
+git config --global credential.https://source.developers.google.com.helper gcloud.sh
+```
 </details><br/>
 
 👉 Add the repository as a remote repository
@@ -95,11 +114,6 @@ git remote add google $CSR_REPO_URL
 git push --all google
 ```
 </details>
-
-
-## Open Folder
-
-👉 press `Control`+`K` + `Control`+`O`, select the new folder and press `Enter`
 
 ## References 🔗
 

@@ -1,24 +1,66 @@
-# Preparation 1: Create and Access your Cloud Workstation 📝
+# Preparation 1: Create and access your Cloud Workstation 📝
 
-## Create your Cloud Workstation
+## Your Cloud Workstation
 
-### Prerequisites
+Using the [Infra-as-Code](../../infra/README.md) for the [simplified](../../infra/simplified/) architecture, your Cloud Workstation has been provisioned, e.g., by a central-IT team. You can directly jump to "Access your Cloud Workstation section".  
+If you are interested on how to create a workstation, you can have a look at below folded section.
 
-Day 0: A Workstation Cluster ([`google_workstations_workstation_cluster`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/workstations_workstation_cluster)) and Workstation Config ([`google_workstations_workstation_config`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/workstations_workstation_config)) have already been created, e.g., by a central-IT team and your Google Identity has been granted the [`roles/workstations.workstationCreator`](https://cloud.google.com/iam/docs/understanding-roles#workstations.workstationCreator) permissions in the project.
+<details>
+<summary>Create your Cloud Workstation</summary>
+Your Google Identity has been granted the [roles/workstations.workstationCreator](https://cloud.google.com/iam/docs/understanding-roles#workstations.workstationCreator) role in the project and can use the provisioned [Workstation Cluster](../../infra/simplified/hub/workstations.tf#L15) and [Workstation Config](../../infra/simplified/hub/workstations.tf#L24).  
 
-### Terraform
-
-Use the [`google_workstations_workstation`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/workstations_workstation) Terraform resource.
+<br/> 
+Create your workstation with either of the methods below (gloud, Terraform, Google Cloud Console):
 
 ### gcloud
 
 [`gcloud workstations create`](https://cloud.google.com/sdk/gcloud/reference/workstations/create)
 
+### Terraform
+
+Use the [`google_workstations_workstation`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/workstations_workstation) Terraform resource.
+
+### Google Cloud Console
+
+[Open the Workstations page in the Google Cloud Console](https://console.cloud.google.com/workstations/list)
+
+⚠️ Make sure to select the right GCP project.
+
+- Create a new Workstation by using one of the existing Workstation Configuration.
+
+### References 🔗
+
+- [Create and launch a workstation](https://cloud.google.com/workstations/docs/create-workstation)
+</details>
+
 ## Access your Cloud Workstation
 
-👉 [Download the `ws.sh` shell script](https://github.com/GoogleCloudPlatform/cicd-jumpstart/tree/main/bin/ws.sh) and place it in your PATH.
+Access your workstation with either of the methods below (Google Cloud Console, via a script):
+
+### Google Cloud Console
+
+In [Google Cloud Console](https://console.cloud.google.com/workstations/list):
+
+- Start your Workstation.
+- Launch your running Workstation in the browser.
+
+### Using a Script
+
+👉 [Download the `ws.sh` shell script](https://github.com/GoogleCloudPlatform/cicd-jumpstart/tree/main/bin/ws.sh), make it executable, and place it in your PATH.
+
+<details>
+<summary>Linux</summary>
+
+```sh
+curl https://github.com/GoogleCloudPlatform/cicd-jumpstart/tree/main/bin/ws.sh
+chmod a+x ws.sh
+mkdir -p ~/bin
+mv ws.sh ~/bin
+```
+</details><br/>
 
 👉 Export the following environment variables in your shell:
+- `GOOGLE_CLOUD_PROJECT`: the name of the Google Cloud **project** to use
 - `WS_REGION`: the name of the Google Cloud **region** to use
 - `WS_CLUSTER`: the name of the Cloud Workstation **cluster**
 - `WS_CONFIG`: the name of the Cloud Workstation **config**
@@ -31,8 +73,6 @@ export WS_REGION=europe-north1
 
  💡 Tip: add these to your shell profile (cf. [Bash Guide](https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_03_01.html)).
 
-
-### Web Browser
 
 👉 Executing the (downloaded) shell script
 ```sh

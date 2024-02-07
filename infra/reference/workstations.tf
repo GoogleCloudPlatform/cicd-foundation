@@ -27,20 +27,13 @@ resource "google_workstations_workstation_config" "cicd_jumpstart" {
   workstation_config_id  = var.ws_config_name
   workstation_cluster_id = google_workstations_workstation_cluster.cicd_jumpstart.workstation_cluster_id
   location               = var.region
+  idle_timeout           = "${var.ws_idle_time}s"
   host {
     gce_instance {
       machine_type                = var.ws_config_machine_type
       boot_disk_size_gb           = var.ws_config_boot_disk_size_gb
       disable_public_ip_addresses = var.ws_config_disable_public_ip
+      pool_size                   = var.ws_pool_size
     }
   }
-}
-
-resource "google_workstations_workstation" "cicd_jumpstart" {
-  provider               = google-beta
-  project                = module.project_hub_supplychain.project_id
-  workstation_id         = var.ws_name
-  workstation_config_id  = google_workstations_workstation_config.cicd_jumpstart.workstation_config_id
-  workstation_cluster_id = google_workstations_workstation_cluster.cicd_jumpstart.workstation_cluster_id
-  location               = var.region
 }

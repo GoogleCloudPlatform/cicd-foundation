@@ -5,6 +5,27 @@
 ```sh
 cd apps/hello-world/
 ```
+
+<details>
+<summary>Authenticate</summary>
+
+```sh
+gcloud auth login
+gcloud auth configure-docker $REGION-docker.pkg.dev
+```
+
+#### References 🔗
+
+- [gcloud credential helper](https://cloud.google.com/artifact-registry/docs/docker/authentication#gcloud-helper)
+</details><br/>
+
+<details>
+<summary>Adopt namespace</summary>
+
+Set your namespace in `k8s/base/namespace.yaml`.  
+(For the hands-on workshop use the for localpart of your Google Identity without any non-latin characters.)
+</details><br/>
+
 <details>
 <summary>Skaffold</summary>
 
@@ -29,16 +50,16 @@ curl http://127.0.0.1:8080/
 ```
 Note that this is possible due to port-forwarding as defined in the `dev` profile of the `skaffold.yaml`.
 
-In case you deployed an `HTTPRoute` for an **external** `Gateway` (cf. [`gateway.yaml`](../../apps/hello-world/k8s/base/gateway.yaml)) you can lookup the IP-address with:
+In case you deployed an `HTTPRoute` for an **external** `Gateway` (cf. [`gateway.yaml`](../../apps/hello-world/k8s/base/gateway.yaml#L29)) you can lookup the IP-address with:
 ```sh
 kubectl get gateway
 ```
-and use it with the standard port (cf. [`gateway.yaml`](../../apps/hello-world/k8s/base/gateway.yaml)):
+and use it with a standard port (cf. [`gateway.yaml`](../../apps/hello-world/k8s/base/gateway.yaml#L38)):
 ```sh
 curl http://$GATEWAY_IP/
 ```
 
-Note: By default an **internal** Application Load Balancer is used that can only be accessed within the VPC.
+Note: By default an **internal** Application Load Balancer is used that can only be accessed within the VPC network.
 </details>
 
 ### Hot reloading
@@ -46,13 +67,13 @@ Note: By default an **internal** Application Load Balancer is used that can only
 <details>
 <summary>Customize the response</summary>
 
-👉 Uncomment the last 3 lines in [`deployment.yaml`](../../apps/hello-world/k8s/base/deployment.yaml).
+👉 Uncomment the last 3 lines in [`deployment.yaml`](../../apps/hello-world/k8s/base/deployment.yaml#L45).
 
-👉 Watch skaffold do the redeployment.
+👉 Watch `skaffold` do the redeployment.
 
 👉 Test/validate with `curl` as previously to see the effect of your changes.
 
-You may want to customize the value of the `NAME` environment variable as defined in the [`deployment.yaml`](../../apps/hello-world/k8s/base/deployment.yaml).
+You may want to customize the value of the `NAME` environment variable as defined in the [`deployment.yaml`](../../apps/hello-world/k8s/base/deployment.yaml#L46).
 
-Also you can modify [`main.go`](../../apps/hello-world/src/main.go), e.g., by uppercassing `Hello` or translating it to another language.
+Also you can modify [`main.go`](../../apps/hello-world/src/main.go#L55), e.g., by uppercassing `Hello` or translating it to another language.
 </details>

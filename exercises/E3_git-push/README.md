@@ -30,7 +30,7 @@ and
 👉 commit these and push to the repository.
 ```sh
 git commit -m "customized greeting"
-git push
+git push google
 ```
 </details>
 

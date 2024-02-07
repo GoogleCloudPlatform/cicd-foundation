@@ -21,9 +21,51 @@ module "project" {
     enabled = false
   }
   iam = {
-    "roles/workstations.workstationCreator" = var.developers,
-    "roles/containeranalysis.notes.attacher" = [
-      module.sa-cb.iam_email
-    ]
+    "roles/cloudbuild.builds.editor"         = var.developers,
+    "roles/clouddeploy.approver"             = var.developers,
+    "roles/containeranalysis.notes.attacher" = [module.sa-cb.iam_email],
+    "roles/workstations.operationViewer"     = var.developers,
   }
+}
+
+resource "google_project_iam_member" "browser" {
+  count   = length(var.developers)
+  project = module.project.name
+  role    = "roles/browser"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "container_developer" {
+  count   = length(var.developers)
+  project = module.project.name
+  role    = "roles/container.developer"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "deploy_jobrunner" {
+  count   = length(var.developers)
+  project = module.project.name
+  role    = "roles/clouddeploy.jobRunner"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "deploy_releaser" {
+  count   = length(var.developers)
+  project = module.project.name
+  role    = "roles/clouddeploy.releaser"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "logging_viewer" {
+  count   = length(var.developers)
+  project = module.project.name
+  role    = "roles/logging.viewer"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "monitoring_viewer" {
+  count   = length(var.developers)
+  project = module.project.name
+  role    = "roles/monitoring.viewer"
+  member  = var.developers[count.index]
 }

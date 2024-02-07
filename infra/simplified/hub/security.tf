@@ -23,15 +23,15 @@ resource "google_binary_authorization_policy" "policy" {
     ]
   }
   cluster_admission_rules {
-    cluster          = "${var.region}.${module.cluster-dev.name}"
+    cluster          = "${var.region}.${module.cluster-prod.name}"
     evaluation_mode  = "ALWAYS_ALLOW"
     enforcement_mode = "DRYRUN_AUDIT_LOG_ONLY"
   }
 }
 
 resource "google_container_analysis_note" "vulnz-attestor" {
-  name    = "vulnz-attestor"
   project = module.project.project_id
+  name    = var.vulnz_attestor_name
   attestation_authority {
     hint {
       human_readable_name = "Vulnerability Attestor"
@@ -47,8 +47,8 @@ resource "google_container_analysis_note_iam_member" "vulnz-attestor-services" {
 }
 
 resource "google_binary_authorization_attestor" "vulnz-attestor" {
-  name    = "vulnz-attestor"
   project = module.project.project_id
+  name    = var.vulnz_attestor_name
   attestation_authority_note {
     note_reference = google_container_analysis_note.vulnz-attestor.name
     public_keys {
@@ -68,11 +68,11 @@ data "google_kms_crypto_key_version" "vulnz-attestor" {
 resource "google_kms_crypto_key_iam_member" "vulnz-attestor" {
   crypto_key_id = google_kms_crypto_key.vulnz-attestor-key.id
   role          = "roles/cloudkms.signer"
-  member        = "serviceAccount:${var.sa-cb-email}"
+  member        = module.sa-cb.iam_email
 }
 
 resource "google_kms_crypto_key" "vulnz-attestor-key" {
-  name     = "vulnz-attestor-key"
+  name     = var.kms_key_name
   key_ring = google_kms_key_ring.keyring.id
   purpose  = "ASYMMETRIC_SIGN"
   version_template {
@@ -85,6 +85,6 @@ resource "google_kms_crypto_key" "vulnz-attestor-key" {
 
 resource "google_kms_key_ring" "keyring" {
   project  = module.project.project_id
-  name     = "test-attestor-key-ring"
+  name     = var.kms_keyring_name
   location = "global"
 }

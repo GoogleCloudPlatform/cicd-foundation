@@ -15,9 +15,15 @@
 # the sandbox project to use for deploying all resources for the Hands-On Workshop
 project_id = "REPLACE_WITH_YOUR_PROJECT_ID"
 
-// developer(s) and their GitHub account and (forked) repo to use for the CI/CD
+region = "europe-west4"
+zone   = "europe-west4-a"
+
 developers = {
-  "alex@example.com" = {
+  # Alex is using a Cloud Source Repository
+  "alex@example.com" = {},
+
+  # Nur is using a GitHub repository
+  "nur@example.com" = {
     github_user = "REPLACE_WITH_YOUR_GITHUB_USER",
     github_repo = "cicd-jumpstart",
   },

@@ -85,11 +85,33 @@ module "project_hub_supplychain" {
     }
   }
   iam = {
-    "roles/workstations.workstationCreator" = var.developers,
-    "roles/containeranalysis.notes.attacher" = [
-      module.sa-cb.iam_email
-    ],
+    "roles/cloudbuild.builds.viewer"         = var.developers,
+    "roles/clouddeploy.approver"             = var.developers,
+    "roles/clouddeploy.viewer"               = var.developers,
+    "roles/containeranalysis.notes.attacher" = [module.sa-cb.iam_email],
+    "roles/workstations.workstationCreator"  = var.developers,
   }
+}
+
+resource "google_project_iam_member" "hub_container_developer" {
+  count   = length(var.developers)
+  project = module.project_hub_supplychain.name
+  role    = "roles/browser"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "hub_logging_viewer" {
+  count   = length(var.developers)
+  project = module.project_hub_supplychain.name
+  role    = "roles/logging.viewer"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "hub_monitoring_viewer" {
+  count   = length(var.developers)
+  project = module.project_hub_supplychain.name
+  role    = "roles/monitoring.viewer"
+  member  = var.developers[count.index]
 }
 
 module "project_prod_host" {
@@ -145,8 +167,29 @@ module "project_prod_service" {
   iam = {
     "roles/binaryauthorization.attestorsVerifier" = [
       "serviceAccount:${module.project_prod_service.service_accounts.robots["binaryauthorization"]}"
-    ]
+    ],
   }
+}
+
+resource "google_project_iam_member" "prod_browser" {
+  count   = length(var.developers)
+  project = module.project_prod_service.name
+  role    = "roles/browser"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "prod_logging_viewer" {
+  count   = length(var.developers)
+  project = module.project_prod_service.name
+  role    = "roles/logging.viewer"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "prod_monitoring_viewer" {
+  count   = length(var.developers)
+  project = module.project_prod_service.name
+  role    = "roles/monitoring.viewer"
+  member  = var.developers[count.index]
 }
 
 module "project_test_host" {
@@ -202,8 +245,29 @@ module "project_test_service" {
   iam = {
     "roles/binaryauthorization.attestorsVerifier" = [
       "serviceAccount:${module.project_test_service.service_accounts.robots["binaryauthorization"]}"
-    ]
+    ],
   }
+}
+
+resource "google_project_iam_member" "test_browser" {
+  count   = length(var.developers)
+  project = module.project_test_service.name
+  role    = "roles/browser"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "test_logging_viewer" {
+  count   = length(var.developers)
+  project = module.project_test_service.name
+  role    = "roles/logging.viewer"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "test_monitoring_viewer" {
+  count   = length(var.developers)
+  project = module.project_test_service.name
+  role    = "roles/monitoring.viewer"
+  member  = var.developers[count.index]
 }
 
 module "project_dev_host" {
@@ -271,6 +335,34 @@ module "project_dev_service" {
   iam = {
     "roles/binaryauthorization.attestorsVerifier" = [
       "serviceAccount:${module.project_dev_service.service_accounts.robots["binaryauthorization"]}"
-    ]
+    ],
   }
+}
+
+resource "google_project_iam_member" "dev_browser" {
+  count   = length(var.developers)
+  project = module.project_dev_service.name
+  role    = "roles/browser"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "dev_container_developer" {
+  count   = length(var.developers)
+  project = module.project_dev_service.name
+  role    = "roles/container.developer"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "dev_logging_viewer" {
+  count   = length(var.developers)
+  project = module.project_dev_service.name
+  role    = "roles/logging.viewer"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "dev_monitoring_viewer" {
+  count   = length(var.developers)
+  project = module.project_dev_service.name
+  role    = "roles/monitoring.viewer"
+  member  = var.developers[count.index]
 }
