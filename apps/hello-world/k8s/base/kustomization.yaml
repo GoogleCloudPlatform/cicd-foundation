@@ -22,6 +22,4 @@ resources:
 - gateway.yaml
 - route.yaml
 
-# A namespace must not be set (also not in resources)
-# to permit Cloud Deploy parameters.
-#namespace: hello-world
+namespace: hello-world

@@ -85,31 +85,40 @@ module "project_hub_supplychain" {
     }
   }
   iam = {
+    "roles/binaryauthorization.policyViewer" = var.developers,
     "roles/cloudbuild.builds.viewer"         = var.developers,
     "roles/clouddeploy.approver"             = var.developers,
     "roles/clouddeploy.viewer"               = var.developers,
     "roles/containeranalysis.notes.attacher" = [module.sa-cb.iam_email],
     "roles/workstations.workstationCreator"  = var.developers,
+    "roles/workstations.operationViewer"     = var.developers,
   }
 }
 
 resource "google_project_iam_member" "hub_container_developer" {
   count   = length(var.developers)
-  project = module.project_hub_supplychain.name
+  project = module.project_hub_supplychain.id
   role    = "roles/browser"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "hub_container_occurrences_viewer" {
+  count   = length(var.developers)
+  project = module.project_hub_supplychain.id
+  role    = "roles/containeranalysis.occurrences.viewer"
   member  = var.developers[count.index]
 }
 
 resource "google_project_iam_member" "hub_logging_viewer" {
   count   = length(var.developers)
-  project = module.project_hub_supplychain.name
+  project = module.project_hub_supplychain.id
   role    = "roles/logging.viewer"
   member  = var.developers[count.index]
 }
 
 resource "google_project_iam_member" "hub_monitoring_viewer" {
   count   = length(var.developers)
-  project = module.project_hub_supplychain.name
+  project = module.project_hub_supplychain.id
   role    = "roles/monitoring.viewer"
   member  = var.developers[count.index]
 }
@@ -173,21 +182,21 @@ module "project_prod_service" {
 
 resource "google_project_iam_member" "prod_browser" {
   count   = length(var.developers)
-  project = module.project_prod_service.name
+  project = module.project_prod_service.id
   role    = "roles/browser"
   member  = var.developers[count.index]
 }
 
 resource "google_project_iam_member" "prod_logging_viewer" {
   count   = length(var.developers)
-  project = module.project_prod_service.name
+  project = module.project_prod_service.id
   role    = "roles/logging.viewer"
   member  = var.developers[count.index]
 }
 
 resource "google_project_iam_member" "prod_monitoring_viewer" {
   count   = length(var.developers)
-  project = module.project_prod_service.name
+  project = module.project_prod_service.id
   role    = "roles/monitoring.viewer"
   member  = var.developers[count.index]
 }
@@ -251,21 +260,21 @@ module "project_test_service" {
 
 resource "google_project_iam_member" "test_browser" {
   count   = length(var.developers)
-  project = module.project_test_service.name
+  project = module.project_test_service.id
   role    = "roles/browser"
   member  = var.developers[count.index]
 }
 
 resource "google_project_iam_member" "test_logging_viewer" {
   count   = length(var.developers)
-  project = module.project_test_service.name
+  project = module.project_test_service.id
   role    = "roles/logging.viewer"
   member  = var.developers[count.index]
 }
 
 resource "google_project_iam_member" "test_monitoring_viewer" {
   count   = length(var.developers)
-  project = module.project_test_service.name
+  project = module.project_test_service.id
   role    = "roles/monitoring.viewer"
   member  = var.developers[count.index]
 }
@@ -341,28 +350,28 @@ module "project_dev_service" {
 
 resource "google_project_iam_member" "dev_browser" {
   count   = length(var.developers)
-  project = module.project_dev_service.name
+  project = module.project_dev_service.id
   role    = "roles/browser"
   member  = var.developers[count.index]
 }
 
 resource "google_project_iam_member" "dev_container_developer" {
   count   = length(var.developers)
-  project = module.project_dev_service.name
+  project = module.project_dev_service.id
   role    = "roles/container.developer"
   member  = var.developers[count.index]
 }
 
 resource "google_project_iam_member" "dev_logging_viewer" {
   count   = length(var.developers)
-  project = module.project_dev_service.name
+  project = module.project_dev_service.id
   role    = "roles/logging.viewer"
   member  = var.developers[count.index]
 }
 
 resource "google_project_iam_member" "dev_monitoring_viewer" {
   count   = length(var.developers)
-  project = module.project_dev_service.name
+  project = module.project_dev_service.id
   role    = "roles/monitoring.viewer"
   member  = var.developers[count.index]
 }

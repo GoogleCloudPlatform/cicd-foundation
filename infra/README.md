@@ -72,6 +72,11 @@ Get the URL and digest of the pushed image (check the last few lines of the logs
 kritis_signer_image = "gcr.io/…/kritis-signer@sha256:…"
 ```
 
+Re-run terraform
+```
+terraform apply
+```
+
 #### References 🔗
 
 - [Set up the Kritis Signer custom builder](https://cloud.google.com/binary-authorization/docs/creating-attestations-kritis#set_up_the_kritis_signer_custom_builder)

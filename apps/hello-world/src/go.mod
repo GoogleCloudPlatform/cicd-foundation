@@ -14,4 +14,6 @@
 
 module github.com/googlecloudplatform/cicd-jumpstart/apps/hello-world
 
-go 1.21
+go 1.21.5
+
+require gopkg.in/yaml.v2 v2.2.3

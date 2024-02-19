@@ -66,7 +66,7 @@ Eventually, you may want work with your own, private source repository when you 
 
 ### Cloud Source Repository
 
-Your (private) Cloud Source Repository has been provisioned, e.g., by a central-IT team.
+Your (private) Cloud Source Repository has been provisioned, e.g., by a central-IT team. In case you want to know more, unfold the next section. 
 
 <details>
 <summary>Create a Cloud Source Repository</summary>
@@ -105,12 +105,30 @@ git remote add google $CSR_REPO_URL
 ```
 </details><br/>
 
-👉 Push to the remote repository
+👉 Push to the remote repository. Make sure you are using the main branch.  
 
 <details>
 <summary>git</summary>
 
 ```sh
+git push --all google
+```
+</details>
+
+## Set the namespace
+
+In the [`base/kustomization.yaml`](../../apps/hello-world/k8s/base/kustomization.yaml) set the namespace to your unique identifier. This namespace will be used across all the environments (unless overwritten).
+
+For the hands-on workshop use the for localpart of your Google Identity without any non-latin characters for the namespace.
+
+Finally, commit and push your changes to your repository.
+
+<details>
+<summary>git</summary>
+
+```sh
+git add .
+git commit -m "setting namespace"
 git push --all google
 ```
 </details>

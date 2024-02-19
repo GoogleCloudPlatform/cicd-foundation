@@ -45,7 +45,6 @@ export SKAFFOLD_DEFAULT_REPO=$(gcloud artifacts repositories describe $REPO_NAME
 
 </details><br/>
 
-
 With Skaffold, a default repository can be set (globally).
 Such repository can also be set on a per Kubernetes context basis (see below).
 

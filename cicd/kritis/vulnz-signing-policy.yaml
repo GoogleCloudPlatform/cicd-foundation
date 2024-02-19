@@ -21,11 +21,4 @@ spec:
     maximumFixableSeverity: MEDIUM
     maximumUnfixableSeverity: LOW
     allowlistCVEs:
-    - projects/goog-vulnz/notes/CVE-2023-39320
-    - projects/goog-vulnz/notes/CVE-2023-39321
-    - projects/goog-vulnz/notes/CVE-2023-39322
-    - projects/goog-vulnz/notes/CVE-2023-39323
-    - projects/goog-vulnz/notes/CVE-2023-39325
-    - projects/goog-vulnz/notes/CVE-2023-44487
-    - projects/goog-vulnz/notes/CVE-2023-45285
-    - projects/goog-vulnz/notes/CVE-2023-45287
+#    - projects/goog-vulnz/notes/CVE-2023-39321
