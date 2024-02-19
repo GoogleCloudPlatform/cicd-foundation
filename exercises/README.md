@@ -26,17 +26,18 @@ The objectives of this workshop are twofold:
 
 ## Preparations 📝
 
-- [Preparation 1](01_workstation/): Create and access your Cloud Workstation
-- [Preparation 2](02_git-config/): Configure your Version Control System (VCS) client
-- [Preparation 3](03_gcloud/): Setup Google Cloud CLI
-- [Preparation 4](04_kubectl/): Kubernetes cluster credentials and setup
-- [Preparation 5](05_skaffold/): Set Default Container Repository for Skaffold
+- [Preparation 1](E0_preparations/01_workstation): Create and access your Cloud Workstation
+- [Preparation 2](E0_preparations/02_git-config/): Configure your Version Control System (VCS) client
+- [Preparation 3](E0_preparations/03_gcloud/): Setup Google Cloud CLI
+- [Preparation 4](E0_preparations/04_kubectl/): Kubernetes cluster credentials and setup
+- [Preparation 5](E0_preparations/05_skaffold/): Set Default Container Repository for Skaffold
 
 ## Exercises 📝
 
 - [Exercise 1](E1_git-clone/): Source Repositories
 - [Exercise 2](E2_skaffold-dev/): Inner development loop
 - [Exercise 3](E3_git-push/): Outer development loop
+- [Exercise 4](E4_binary_auth/): Verifying the images
 
 ## Product Knowledge
 

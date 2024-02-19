@@ -20,7 +20,7 @@ gcloud auth configure-docker $REGION-docker.pkg.dev
 </details><br/>
 
 <details>
-<summary>Adopt namespace</summary>
+<summary>Adapt namespace</summary>
 
 Set your namespace in `k8s/base/namespace.yaml`.  
 (For the hands-on workshop use the for localpart of your Google Identity without any non-latin characters.)

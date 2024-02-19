@@ -37,6 +37,7 @@ module "docker_artifact_registry" {
       "serviceAccount:${var.sa-cluster-test-email}",
       "serviceAccount:${var.sa-cluster-dev-email}",
       "serviceAccount:${var.sa-cb-email}",
+      "user:${var.user_identity}",
     ],
     "roles/artifactregistry.writer" = [
       "serviceAccount:${var.sa-cb-email}",

@@ -54,6 +54,22 @@ This in trun triggers the CD pipeline.
 <details>
 <summary>curl</summary>
 
+👉 First, fetch the credentials for accessing the Kubernetes cluster in PROD environment.
+
+<details>
+<summary>gcloud</summary>
+
+```sh
+gcloud container clusters get-credentials $CLUSTER_NAME --region $CLUSTER_REGION
+```
+
+#### References 🔗
+
+- [gcloud container clusters get-credentials](https://cloud.google.com/sdk/gcloud/reference/container/clusters/get-credentials)
+</details><br/>
+
+👉 Next, establish port-forwarding. Finally call `curl`.
+
 ```sh
 kubectl port-forward deployments/hello-world 9000:8080 &
 curl http://127.0.0.1:9000

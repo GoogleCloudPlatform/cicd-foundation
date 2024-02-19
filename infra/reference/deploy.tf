@@ -110,7 +110,7 @@ resource "google_clouddeploy_target" "cluster-prod" {
   name        = "cluster-prod"
   description = "Terraform-managed."
   gke {
-    cluster     = "projects/${module.project_prod_service.name}/locations/${module.cluster-prod.location}/clusters/${module.cluster-prod.name}"
+    cluster     = "projects/${module.project_prod_service.id}/locations/${module.cluster-prod.location}/clusters/${module.cluster-prod.name}"
     internal_ip = true
   }
   require_approval = true
@@ -133,7 +133,7 @@ resource "google_clouddeploy_target" "cluster-test" {
   name        = "cluster-test"
   description = "Terraform-managed."
   gke {
-    cluster     = "projects/${module.project_test_service.name}/locations/${module.cluster-test.location}/clusters/${module.cluster-test.name}"
+    cluster     = "projects/${module.project_test_service.id}/locations/${module.cluster-test.location}/clusters/${module.cluster-test.name}"
     internal_ip = true
   }
   require_approval = false
@@ -156,7 +156,7 @@ resource "google_clouddeploy_target" "cluster-dev" {
   name        = "cluster-dev"
   description = "Terraform-managed."
   gke {
-    cluster     = "projects/${module.project_dev_service.name}/locations/${module.cluster-dev.location}/clusters/${module.cluster-dev.name}"
+    cluster     = "projects/${module.project_dev_service.id}/locations/${module.cluster-dev.location}/clusters/${module.cluster-dev.name}"
     internal_ip = true
   }
   require_approval = false

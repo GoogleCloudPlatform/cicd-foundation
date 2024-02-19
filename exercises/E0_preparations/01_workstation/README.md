@@ -7,10 +7,10 @@ If you are interested on how to create a workstation, you can have a look at bel
 
 <details>
 <summary>Create your Cloud Workstation</summary>
-Your Google Identity has been granted the [roles/workstations.workstationCreator](https://cloud.google.com/iam/docs/understanding-roles#workstations.workstationCreator) role in the project and can use the provisioned [Workstation Cluster](../../infra/simplified/hub/workstations.tf#L15) and [Workstation Config](../../infra/simplified/hub/workstations.tf#L24).  
+If your Google Identity has been granted the [roles/workstations.workstationCreator](https://cloud.google.com/iam/docs/understanding-roles#workstations.workstationCreator) role in the project, you can create your workstation and use the provisioned [Workstation Cluster](../../infra/simplified/hub/workstations.tf#L15) and [Workstation Config](../../infra/simplified/hub/workstations.tf#L24).  
 
 <br/> 
-Create your workstation with either of the methods below (gloud, Terraform, Google Cloud Console):
+Create your workstation with either of the methods below (gcloud, Terraform, Google Cloud Console):  
 
 ### gcloud
 
@@ -35,7 +35,7 @@ Use the [`google_workstations_workstation`](https://registry.terraform.io/provid
 
 ## Access your Cloud Workstation
 
-Access your workstation with either of the methods below (Google Cloud Console, via a script):
+Access your workstation with either of the methods below (Google Cloud Console, via a script, in VSCode):
 
 ### Google Cloud Console
 

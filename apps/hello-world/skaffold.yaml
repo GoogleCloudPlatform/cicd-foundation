@@ -41,10 +41,6 @@ profiles:
       - k8s/test
   deploy:
     statusCheckDeadlineSeconds: 3600 # deployment should stabilize within 60 minutes (NEG operations can take a little longer)
-    kubectl:
-      flags:
-        global:
-        - --namespace="hello-world" # from-param: ${namespace}
 - name: prod
   manifests:
     kustomize:
@@ -52,7 +48,3 @@ profiles:
       - k8s/prod
   deploy:
     statusCheckDeadlineSeconds: 3600
-    kubectl:
-      flags:
-        global:
-        - --namespace="hello-world" # from-param: ${namespace}

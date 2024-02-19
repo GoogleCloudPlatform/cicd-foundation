@@ -17,10 +17,10 @@ steps:
   name: gcr.io/k8s-skaffold/skaffold:v2.9.0
   dir: "apps/${_APP_NAME}"
   args:
-    - skaffold
-    - build
-    - "--interactive=false"
-    - "--default-repo=${_SKAFFOLD_DEFAULT_REPO}"
+  - skaffold
+  - build
+  - "--interactive=false"
+  - "--default-repo=${_SKAFFOLD_DEFAULT_REPO}"
 - name: gcr.io/cloud-builders/docker:20.10.14
   entrypoint: /bin/sh
   dir: "apps/${_APP_NAME}"
@@ -37,13 +37,15 @@ steps:
   - -c
   - |
     /kritis/signer \
-    -v=10 \
-    -alsologtostderr \
-    -image="$(/bin/cat ./apps/${_APP_NAME}/image-digest.txt)" \
-    -policy=./cicd/kritis/vulnz-signing-policy.yaml \
-    -kms_key_name=${_KMS_KEY_NAME} \
-    -kms_digest_alg=${_KMS_DIGEST_ALG} \
-    -note_name=${_NOTE_NAME}
+      -v=10 \
+      -alsologtostderr \
+      -image="$(/bin/cat ./apps/${_APP_NAME}/image-digest.txt)" \
+      -policy=./cicd/kritis/vulnz-signing-policy.yaml \
+      -kms_key_name=${_KMS_KEY_NAME} \
+      -kms_digest_alg=${_KMS_DIGEST_ALG} \
+      -note_name=${_NOTE_NAME} \
+    || \
+    true
   waitFor: ['fetchImageDigest']
   id: vulnsign
 - name: gcr.io/google.com/cloudsdktool/cloud-sdk:461.0.0
@@ -53,13 +55,13 @@ steps:
   - -c
   - |
     gcloud deploy releases create rel-${SHORT_SHA} \
-    --delivery-pipeline=${_PIPELINE_NAME} \
-    --labels="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID" \
-    --annotations="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID" \
-    --region="${_REGION}" \
-    --deploy-parameters="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID,namespace=${_NAMESPACE}" \
-    --images="${_APP_NAME}=$(/bin/cat image-digest.txt)"
-  waitFor: ['vulnsign']
+      --delivery-pipeline=${_PIPELINE_NAME} \
+      --labels="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID" \
+      --annotations="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID" \
+      --region="${_REGION}" \
+      --deploy-parameters="commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID,namespace=${_NAMESPACE}" \
+      --images="${_APP_NAME}=$(/bin/cat image-digest.txt)"
+  waitFor: ['build']
 images:
 - "${_SKAFFOLD_DEFAULT_REPO}/${_APP_NAME}:${SHORT_SHA}"
 options:

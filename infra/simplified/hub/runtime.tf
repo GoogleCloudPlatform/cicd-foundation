@@ -142,7 +142,7 @@ module "cluster-dev" {
     master_ipv4_cidr_block   = var.cluster-dev_network_config.master_cidr_block
   }
   enable_features = {
-    binary_authorization = false
+    binary_authorization = true
   }
   private_cluster_config = {
     # for demo purposes: not only private endpoint

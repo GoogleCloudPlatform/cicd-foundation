@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"os"
 	"runtime/debug"
+//	"gopkg.in/yaml.v2"
 )
 
 type ReportErrorEvent struct {
@@ -46,6 +47,12 @@ func main() {
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		logError("failed listening %v", err)
 	}
+
+	// Sample call to an outdated library
+	// var a struct{}
+	// data := []byte("Foo: bar")
+	// err := yaml.Unmarshal(data, &a)
+	// _ = err
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
