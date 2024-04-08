@@ -23,6 +23,11 @@ module "hub" {
   developers = formatlist("user:%s", keys(var.developers))
 
   ws_pool_size = length(var.developers)
+
+  cluster_name                = var.cluster_name
+  cluster_min_version         = var.cluster_min_version
+  cluster_release_channel     = var.cluster_release_channel
+  cluster_deletion_protection = var.cluster_deletion_protection
 }
 
 module "team" {
@@ -50,16 +55,20 @@ module "team" {
   sa-cluster-test-email = module.hub.sa-cluster-test_email
   sa-cluster-dev-email  = module.hub.sa-cluster-dev_email
 
+  apps = var.apps
+
   github_owner = each.value.github_user
   github_repo  = each.value.github_repo
 
   git_branch = var.git_branch
 
+  skaffold_image_tag = var.skaffold_image_tag
+  docker_image_tag   = var.docker_image_tag
+  gcloud_image_tag   = var.gcloud_image_tag
+
   cd_target_prod = module.hub.cd_target_prod
   cd_target_test = module.hub.cd_target_test
   cd_target_dev  = module.hub.cd_target_dev
 
-  depends_on = [
-    module.hub,
-  ]
+  deploy_replicas = var.deploy_replicas
 }

@@ -351,11 +351,10 @@ variable "nat_name" {
   default     = "nat"
 }
 
-# cf. https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels
-variable "cluster_release_channel" {
-  description = "GKE Release Channel"
-  type        = string
-  default     = "REGULAR"
+variable "cluster_deletion_protection" {
+  description = "deletion protection for GKE clusters"
+  type        = bool
+  default     = true
 }
 
 variable "cluster_min_version" {
@@ -367,13 +366,14 @@ variable "cluster_min_version" {
 variable "cluster_name" {
   description = "name of the cluster"
   type        = string
-  default     = "eu"
+  default     = "gke"
 }
 
-variable "sa_cluster_name" {
-  description = "name of GKE Service Account(s)"
+# cf. https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels
+variable "cluster_release_channel" {
+  description = "GKE Release Channel"
   type        = string
-  default     = "sa-gke"
+  default     = "REGULAR"
 }
 
 variable "cluster_roles" {
@@ -387,19 +387,27 @@ variable "cluster_roles" {
   ]
 }
 
+variable "sa_cluster_name" {
+  description = "name of GKE Service Account(s)"
+  type        = string
+  default     = "sa-gke"
+}
+
 variable "cluster-prod_network_config" {
   description = "Cluster network configuration."
   type = object({
     nodes_cidr_block              = string
+    proxy_only_subnet_cidr_block  = string
     pods_cidr_block               = string
     services_cidr_block           = string
     master_authorized_cidr_blocks = map(string)
     master_cidr_block             = string
   })
   default = {
-    nodes_cidr_block    = "10.76.0.0/22"
-    pods_cidr_block     = "172.19.0.0/19"
-    services_cidr_block = "192.168.12.0/22"
+    nodes_cidr_block             = "10.76.0.0/22"
+    proxy_only_subnet_cidr_block = "10.76.128.0/22"
+    pods_cidr_block              = "172.19.0.0/19"
+    services_cidr_block          = "192.168.12.0/22"
     master_authorized_cidr_blocks = {
       internal = "10.0.0.0/8"
     }
@@ -411,15 +419,17 @@ variable "cluster-test_network_config" {
   description = "Cluster network configuration."
   type = object({
     nodes_cidr_block              = string
+    proxy_only_subnet_cidr_block  = string
     pods_cidr_block               = string
     services_cidr_block           = string
     master_authorized_cidr_blocks = map(string)
     master_cidr_block             = string
   })
   default = {
-    nodes_cidr_block    = "10.75.0.0/22"
-    pods_cidr_block     = "172.18.0.0/19"
-    services_cidr_block = "192.168.8.0/22"
+    nodes_cidr_block             = "10.75.0.0/22"
+    proxy_only_subnet_cidr_block = "10.75.128.0/22"
+    pods_cidr_block              = "172.18.0.0/19"
+    services_cidr_block          = "192.168.8.0/22"
     master_authorized_cidr_blocks = {
       internal = "10.0.0.0/8"
     }
@@ -431,15 +441,17 @@ variable "cluster-dev_network_config" {
   description = "Cluster network configuration."
   type = object({
     nodes_cidr_block              = string
+    proxy_only_subnet_cidr_block  = string
     pods_cidr_block               = string
     services_cidr_block           = string
     master_authorized_cidr_blocks = map(string)
     master_cidr_block             = string
   })
   default = {
-    nodes_cidr_block    = "10.73.0.0/22"
-    pods_cidr_block     = "172.16.0.0/19"
-    services_cidr_block = "192.168.0.0/22"
+    nodes_cidr_block             = "10.73.0.0/22"
+    proxy_only_subnet_cidr_block = "10.73.128.0/22"
+    pods_cidr_block              = "172.16.0.0/19"
+    services_cidr_block          = "192.168.0.0/22"
     master_authorized_cidr_blocks = {
       internal = "10.0.0.0/8"
       # permit access to public endpoint, e.g., to kubectl from CloudShell
@@ -447,18 +459,6 @@ variable "cluster-dev_network_config" {
     }
     master_cidr_block = "10.1.8.0/28"
   }
-}
-
-variable "deploy_replicas" {
-  description = "number of replicas per deployment"
-  type        = number
-  default     = 3
-}
-
-variable "developers" {
-  description = "list of developers, e.g., to create Cloud Workstations"
-  type        = list(string)
-  default     = []
 }
 
 variable "ws_cluster_name" {
@@ -509,24 +509,6 @@ variable "ws_idle_time" {
   default     = 1800
 }
 
-variable "github_owner" {
-  type        = string
-  default     = "GoogleCloudPlaform"
-  description = "Owner of the GitHub repo."
-}
-
-variable "github_repo" {
-  type        = string
-  default     = "cicd-jumpstart"
-  description = "Name of the GitHub repository."
-}
-
-variable "git_branch" {
-  type        = string
-  default     = "^main$"
-  description = "Regular expression of which branches the Cloud Build trigger should run."
-}
-
 variable "cb_pool_name" {
   description = "name of the Cloud Build worker pool"
   type        = string
@@ -554,7 +536,7 @@ variable "sa_cb_name" {
 variable "sa_cd_name" {
   description = "name of the Cloud Deploy Service Account"
   type        = string
-  default     = "sa-cloudeploy"
+  default     = "sa-clouddeploy"
 }
 
 variable "kritis_signer_image" {
@@ -584,4 +566,63 @@ variable "kms_digest_alg" {
   description = "KMS Digest Algorithm to be used"
   type        = string
   default     = "SHA512"
+}
+
+variable "developers" {
+  description = "list of developers, e.g., to create Cloud Workstations"
+  type        = list(string)
+  default     = []
+}
+
+variable "apps" {
+  description = "List of application names as found within the apps/ folder."
+  type        = list(string)
+  default = [
+    "go-hello-world",
+    "java-hello-world",
+    "node-hello-world",
+    "python-hello-world",
+  ]
+}
+
+variable "github_repo" {
+  type        = string
+  default     = "cicd-jumpstart"
+  description = "Name of the GitHub repository."
+}
+
+variable "git_branch" {
+  type        = string
+  default     = "^main$"
+  description = "Regular expression of which branches the Cloud Build trigger should run."
+}
+
+variable "skaffold_image_tag" {
+  type        = string
+  default     = "v2.10.1"
+  description = "Tag of the Skaffold container image"
+}
+
+variable "docker_image_tag" {
+  type        = string
+  default     = "20.10.24"
+  description = "Tag of the Docker container image"
+}
+
+variable "gcloud_image_tag" {
+  type        = string
+  default     = "468.0.0"
+  description = "Tag of the GCloud container image"
+}
+
+variable "github_owner" {
+  type        = string
+  default     = "GoogleCloudPlaform"
+  description = "Owner of the GitHub repo."
+}
+
+variable "deploy_replicas" {
+  description = "number of replicas per deployment"
+  type        = number
+  default     = 3
 }

@@ -17,15 +17,24 @@
 # This script
 # - initializes a login
 # - starts a workstation after authentication
-# - establishes a secure tunnel with port forwarding for SSH
+# - establishes a secure tunnel with port-forwarding for SSH
+
+if ! command -v gcloud &> /dev/null
+then
+    echo "Please install the gcloud CLI: https://cloud.google.com/sdk/docs/install"
+    exit 1
+fi
 
 if [ -z "$GOOGLE_CLOUD_PROJECT" ]
 then
   echo "environment variable GOOGLE_CLOUD_PROJECT not found"
   echo "=> please enter the name of the project ID"
-  echo "   hosting the Cloud Workstation resources: "
+  echo "   hosting your Cloud Workstation: "
   read GOOGLE_CLOUD_PROJECT
 fi
+
+# web browser to use
+: "${BROWSER:=google-chrome}"
 
 # name of the Google Cloud region to use
 : "${WS_REGION:=europe-north1}"
@@ -42,10 +51,14 @@ fi
 # local port for SSH to use for forwarding
 : "${LOCAL_PORT:=2222}"
 
-echo login
-gcloud auth login
+if [ "$1" != "-n" ]
+then
+  echo login
+  gcloud auth login
+else
+  shift
+fi
 
-# echo starting workstation
 gcloud workstations start \
   $WS_NAME \
   --cluster=$WS_CLUSTER \
@@ -53,7 +66,7 @@ gcloud workstations start \
   --region=$WS_REGION \
   --project=$GOOGLE_CLOUD_PROJECT \
 && \
-echo started
+echo started workstation
 
 echo getting hostname
 WS_HOST=$(gcloud workstations describe \
@@ -63,7 +76,6 @@ WS_HOST=$(gcloud workstations describe \
   --region=$WS_REGION \
   --project=$GOOGLE_CLOUD_PROJECT \
 | \
-#jq '.host' \
 grep host | sed -e 's/.*: "\(.*\)".*/\1/' \
 | \
 sed -e 's/\"\(.*\)\"/https:\/\/\1/' \
@@ -71,7 +83,7 @@ sed -e 's/\"\(.*\)\"/https:\/\/\1/' \
 
 WS_URL=https://$WS_HOST
 echo "opening $WS_URL"
-google-chrome $WS_URL &
+$BROWSER $WS_URL &
 
 if [ ! -d "$HOME/.ssh/" ]
 then

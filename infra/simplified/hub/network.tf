@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "vpc" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v28.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v29.0.0"
   project_id = var.project_id
   name       = "vpc"
   vpc_create = var.vpc_create
@@ -51,6 +51,15 @@ module "vpc" {
       }
     },
   ]
+  // Proxy-only subnet for Regional Internal Application Load Balancer
+  subnets_proxy_only = [
+    {
+      ip_cidr_range = var.proxy_only_subnet_cidr_block
+      name          = "proxy"
+      region        = var.region
+      active        = true
+    },
+  ]
   psa_config = {
     ranges = {
       "default" = var.vpc-hub_psa_cidr
@@ -59,7 +68,7 @@ module "vpc" {
 }
 
 module "nat" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-cloudnat?ref=v28.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-cloudnat?ref=v29.0.0"
   project_id     = var.project_id
   region         = var.region
   name           = var.nat_name
@@ -67,7 +76,7 @@ module "nat" {
 }
 
 module "fw" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v28.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v29.0.0"
   project_id = var.project_id
   network    = module.vpc.name
   factories_config = {

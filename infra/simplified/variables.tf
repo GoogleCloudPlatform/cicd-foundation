@@ -40,10 +40,29 @@ variable "registry_id" {
   default     = "registry"
 }
 
+# cf. https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels
+variable "cluster_release_channel" {
+  description = "GKE Release Channel"
+  type        = string
+  default     = "REGULAR"
+}
+
+variable "cluster_deletion_protection" {
+  description = "deletion protection for GKE clusters"
+  type        = bool
+  default     = false
+}
+
 variable "cluster_min_version" {
   description = "Minimum version of the control nodes, defaults to the version of the most recent official release."
   type        = string
   default     = null
+}
+
+variable "cluster_name" {
+  description = "name of the cluster"
+  type        = string
+  default     = "gke"
 }
 
 variable "developers" {
@@ -54,8 +73,43 @@ variable "developers" {
   }))
 }
 
+variable "apps" {
+  description = "List of application names as found within the apps/ folder."
+  type        = list(string)
+  default = [
+    "go-hello-world",
+    "java-hello-world",
+    "node-hello-world",
+    "python-hello-world",
+  ]
+}
+
+variable "skaffold_image_tag" {
+  type        = string
+  default     = "v2.10.1"
+  description = "Tag of the Skaffold container image"
+}
+
+variable "docker_image_tag" {
+  type        = string
+  default     = "20.10.24"
+  description = "Tag of the Docker container image"
+}
+
+variable "gcloud_image_tag" {
+  type        = string
+  default     = "468.0.0"
+  description = "Tag of the GCloud container image"
+}
+
 variable "git_branch" {
   type        = string
   default     = "^main$"
   description = "Regular expression of which branches the Cloud Build trigger should run."
+}
+
+variable "deploy_replicas" {
+  description = "Number of replicas per deployment"
+  type        = number
+  default     = 3
 }

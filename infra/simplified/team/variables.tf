@@ -32,14 +32,32 @@ variable "github_repo" {
 
 variable "git_branch" {
   type        = string
-  default     = "^main$"
   description = "Regular expression of which branches the Cloud Build trigger should run."
+}
+
+variable "skaffold_image_tag" {
+  type        = string
+  description = "Tag of the Skaffold container image"
+}
+
+variable "docker_image_tag" {
+  type        = string
+  description = "Tag of the Docker container image"
+}
+
+variable "gcloud_image_tag" {
+  type        = string
+  description = "Tag of the GCloud container image"
+}
+
+variable "apps" {
+  description = "List of application names as found within the apps/ folder."
+  type        = list(string)
 }
 
 variable "region" {
   description = "Compute region used."
   type        = string
-  default     = "europe-north1"
 }
 
 variable "project_id" {
@@ -133,4 +151,9 @@ variable "cd_target_test" {
 variable "cd_target_dev" {
   description = "Cloud Deploy Target for DEV"
   type        = string
+}
+
+variable "deploy_replicas" {
+  description = "Number of replicas per deployment"
+  type        = number
 }
