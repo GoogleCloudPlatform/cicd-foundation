@@ -15,7 +15,6 @@
 variable "region" {
   description = "Compute region used."
   type        = string
-  default     = "europe-north1"
 }
 
 variable "project_id" {
@@ -53,7 +52,7 @@ variable "sa_cb_name" {
 variable "sa_cd_name" {
   description = "Name of the Cloud Deploy Service Account"
   type        = string
-  default     = "sa-cloudeploy"
+  default     = "sa-clouddeploy"
 }
 
 variable "registry_id" {
@@ -66,6 +65,30 @@ variable "developers" {
   description = "list of developers that can create Cloud Workstations"
   type        = list(string)
   default     = []
+}
+
+variable "vpc_create" {
+  description = "Flag indicating whether the VPC should be created or not."
+  type        = bool
+  default     = true
+}
+
+variable "vpc-hub_primary_cidr" {
+  description = "CIDR for the primary subnet in the hub VPC"
+  type        = string
+  default     = "10.8.0.0/16"
+}
+
+variable "vpc-hub_psa_cidr" {
+  description = "PSA CIDR range"
+  type        = string
+  default     = "10.60.0.0/16"
+}
+
+variable "proxy_only_subnet_cidr_block" {
+  description = "IP range for the proxy-only subnet"
+  type        = string
+  default     = "10.127.0.0/16"
 }
 
 variable "ws_cluster_name" {
@@ -90,12 +113,6 @@ variable "ws_idle_time" {
   description = "Cloud Workstations idle timeout in seconds"
   type        = number
   default     = 1800
-}
-
-variable "ws_name" {
-  description = "name of the Cloud Workstations instance"
-  type        = string
-  default     = "cicd-jumpstart"
 }
 
 variable "ws_config_machine_type" {
@@ -143,12 +160,6 @@ variable "kms_digest_alg" {
   description = "KMS Digest Algorithm to be used"
   type        = string
   default     = "SHA512"
-}
-
-variable "cluster_min_version" {
-  description = "Minimum version of the control nodes, defaults to the version of the most recent official release."
-  type        = string
-  default     = null
 }
 
 variable "cluster-prod_network_config" {
@@ -217,16 +228,21 @@ variable "cluster-dev_network_config" {
   }
 }
 
+variable "cluster_deletion_protection" {
+  description = "deletion protection for GKE clusters"
+  type        = bool
+  default     = true
+}
+
+variable "cluster_min_version" {
+  description = "Minimum version of the control nodes, defaults to the version of the most recent official release."
+  type        = string
+  default     = null
+}
+
 variable "cluster_name" {
   description = "name of the cluster"
   type        = string
-  default     = "eu"
-}
-
-variable "sa_cluster_name" {
-  description = "name of GKE Service Account(s)"
-  type        = string
-  default     = "sa-gke"
 }
 
 # cf. https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels
@@ -247,32 +263,14 @@ variable "cluster_roles" {
   ]
 }
 
-variable "deploy_replicas" {
-  description = "Number of replicas per deployment"
-  type        = number
-  default     = 3
+variable "sa_cluster_name" {
+  description = "name of GKE Service Account(s)"
+  type        = string
+  default     = "sa-gke"
 }
 
 variable "nat_name" {
   description = "name of the CloudNAT instance"
   type        = string
   default     = "nat"
-}
-
-variable "vpc_create" {
-  description = "Flag indicating whether the VPC should be created or not."
-  type        = bool
-  default     = true
-}
-
-variable "vpc-hub_primary_cidr" {
-  description = "CIDR for the primary subnet in the hub VPC"
-  type        = string
-  default     = "10.8.0.0/16"
-}
-
-variable "vpc-hub_psa_cidr" {
-  description = "PSA CIDR range"
-  type        = string
-  default     = "10.60.0.0/16"
 }

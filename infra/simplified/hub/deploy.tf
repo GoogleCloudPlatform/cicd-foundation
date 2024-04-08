@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "sa-cd-prod" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
   project_id   = module.project.project_id
   name         = "${var.sa_cd_name}-prod"
   display_name = "Cloud Deploy Service Account"
@@ -35,7 +35,7 @@ module "sa-cd-prod" {
 }
 
 module "sa-cd-test" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
   project_id   = module.project.project_id
   name         = "${var.sa_cd_name}-test"
   display_name = "Cloud Deploy Service Account"
@@ -57,7 +57,7 @@ module "sa-cd-test" {
 }
 
 module "sa-cd-dev" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
   project_id   = module.project.project_id
   name         = "${var.sa_cd_name}-dev"
   display_name = "Cloud Deploy Service Account"
@@ -96,9 +96,6 @@ resource "google_clouddeploy_target" "cluster-prod" {
     ]
     service_account = module.sa-cd-prod.email
   }
-  deploy_parameters = {
-    "deploy_replicas" = var.deploy_replicas
-  }
 }
 
 resource "google_clouddeploy_target" "cluster-test" {
@@ -119,9 +116,6 @@ resource "google_clouddeploy_target" "cluster-test" {
     ]
     service_account = module.sa-cd-test.email
   }
-  deploy_parameters = {
-    "deploy_replicas" = var.deploy_replicas
-  }
 }
 
 resource "google_clouddeploy_target" "cluster-dev" {
@@ -141,8 +135,5 @@ resource "google_clouddeploy_target" "cluster-dev" {
       "DEPLOY",
     ]
     service_account = module.sa-cd-dev.email
-  }
-  deploy_parameters = {
-    "deploy_replicas" = var.deploy_replicas
   }
 }

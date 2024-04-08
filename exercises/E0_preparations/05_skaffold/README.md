@@ -11,21 +11,9 @@
 gcloud artifacts repositories list
 ```
 
-(👉) Create a container repository.
-
-Just in case you would like to work with your own repository.
-Otherwise, a central, shared container repository could be used by developers.
+A central, shared container repository could be used by developers.
 With Binary Authorization enabled at the runtime (e.g., GKE) it can be ensured that images have been built as part of the CI pipeline.
 Thus, developers can be granted permissions to the repository.
-
-```sh
-gcloud artifacts repositories create $REPO_NAME --repository-format=docker --location=$REPO_REGION
-```
-
-#### References 🔗
-
-- [Artifact Registry: Create Reposistory](https://cloud.google.com/artifact-registry/docs/repositories/create-repos)
-- [Artifact Registry Locations](https://cloud.google.com/artifact-registry/docs/repositories/repo-locations)
 
 👉 Get the URL of the repository
 
@@ -77,18 +65,20 @@ skaffold config set default-repo $SKAFFOLD_DEFAULT_REPO
 Replace `$SKAFFOLD_DEFAULT_REPO` with the URL of the repository if necessary.
 </details><br/>
 
-(👉) Validate the config.
+#### References 🔗
+
+- [Image Repository Handling](https://skaffold.dev/docs/environment/image-registries/)
+
+##  Validate the config.
+
+👉 Inspect your skaffold config file.
 
 <details>
 <summary>Skaffold config</summary>
 
-You can inspect the config file of skaffold. Notice the `kubeContexts` in addition to the `global` section.
+Notice the `kubeContexts` in addition to the `global` section and look for `default-repo` entries.
 
 ```sh
 cat ~/.skaffold/config
 ```
 </details>
-
-#### References 🔗
-
-- [Image Repository Handling](https://skaffold.dev/docs/environment/image-registries/)

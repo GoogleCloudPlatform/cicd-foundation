@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "sa-cluster-prod" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
   project_id   = module.project.id
   name         = "${var.sa_cluster_name}-prod"
   display_name = "GKE (prod) Service Account"
@@ -24,7 +24,7 @@ module "sa-cluster-prod" {
 }
 
 module "sa-cluster-test" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
   project_id   = module.project.id
   name         = "${var.sa_cluster_name}-test"
   display_name = "GKE (test) Service Account"
@@ -35,7 +35,7 @@ module "sa-cluster-test" {
 }
 
 module "sa-cluster-dev" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v28.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
   project_id   = module.project.id
   name         = "${var.sa_cluster_name}-dev"
   display_name = "GKE (dev) Service Account"
@@ -46,13 +46,13 @@ module "sa-cluster-dev" {
 }
 
 module "cluster-prod" {
-  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
+  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v29.0.0"
   project_id          = module.project.project_id
   name                = "${var.cluster_name}-prod"
   location            = var.region
   release_channel     = var.cluster_release_channel
   min_master_version  = var.cluster_min_version
-  deletion_protection = false
+  deletion_protection = var.cluster_deletion_protection
   vpc_config = {
     network    = module.vpc.self_link
     subnetwork = module.vpc.subnet_self_links["${var.region}/prod"]
@@ -79,19 +79,16 @@ module "cluster-prod" {
       "https-server",
     ]
   }
-  depends_on = [
-    module.project
-  ]
 }
 
 module "cluster-test" {
-  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
+  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v29.0.0"
   project_id          = module.project.project_id
   name                = "${var.cluster_name}-test"
   location            = var.region
   release_channel     = var.cluster_release_channel
   min_master_version  = var.cluster_min_version
-  deletion_protection = false
+  deletion_protection = var.cluster_deletion_protection
   vpc_config = {
     network    = module.vpc.self_link
     subnetwork = module.vpc.subnet_self_links["${var.region}/test"]
@@ -124,13 +121,13 @@ module "cluster-test" {
 }
 
 module "cluster-dev" {
-  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v28.0.0"
+  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v29.0.0"
   project_id          = module.project.project_id
   name                = "${var.cluster_name}-dev"
   location            = var.region
   release_channel     = var.cluster_release_channel
   min_master_version  = var.cluster_min_version
-  deletion_protection = false
+  deletion_protection = var.cluster_deletion_protection
   vpc_config = {
     network    = module.vpc.self_link
     subnetwork = module.vpc.subnet_self_links["${var.region}/dev"]
@@ -160,7 +157,4 @@ module "cluster-dev" {
       "https-server",
     ]
   }
-  depends_on = [
-    module.project
-  ]
 }
