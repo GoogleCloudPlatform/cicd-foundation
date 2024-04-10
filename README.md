@@ -6,7 +6,7 @@ This repository contains code and documentation for the CI/CD JumpStart - an eng
 
 Establishing the foundations for the subsequent Cloud development workshop in your GCP Organization.
 
-[`infra/`](infra/) - Infa-as-Code (IaC)
+[`infra/`](infra/) - Infra-as-Code (IaC)
 - of a simplified infrastructure deployment for the hands-on workshop
 - reference architecture for a GCP organization
 
