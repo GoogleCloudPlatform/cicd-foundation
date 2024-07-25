@@ -19,23 +19,35 @@ metadata:
 build:
   artifacts:
   - image: java-hello-world
+    context: src/java-hello-world
     #jib: {}
     buildpacks:
       env:
       # cf. https://cloud.google.com/docs/buildpacks/java#specify_a_java_version
       - GOOGLE_RUNTIME_VERSION=17
+manifests:
+  hooks:
+    before:
+    - host:
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "../../bin/generate.sh 2>/dev/null || true"
 deploy:
   statusCheckDeadlineSeconds: 3600 # deployment should stabilize within 60 minutes (NEG operations can take a little longer)
   tolerateFailuresUntilDeadline: true
   kubectl: {}
+  # cloudrun: {}
 profiles:
 - name: dev
   activation:
     - command: dev
   manifests:
+    # rawYaml:
+    #   - envs/dev/knative.yaml
     kustomize:
       paths:
-      - k8s/dev
+      - envs/dev
   portForward:
     - resourceType: Deployment
       resourceName: java-hello-world
@@ -43,11 +55,15 @@ profiles:
       localPort: 8080
 - name: test
   manifests:
+    # rawYaml:
+    #   - envs/test/knative.yaml
     kustomize:
       paths:
-      - k8s/test
+      - envs/test
 - name: prod
   manifests:
+    # rawYaml:
+    #   - envs/prod/knative.yaml
     kustomize:
       paths:
-      - k8s/prod
+      - envs/prod

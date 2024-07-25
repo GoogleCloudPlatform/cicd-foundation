@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "sa-cd-prod" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v32.0.0"
   project_id   = module.project_prod_supplychain.id
   name         = var.sa_cd_name
   display_name = "Cloud Deploy Service Account"
@@ -42,7 +42,7 @@ module "sa-cd-prod" {
 }
 
 module "sa-cd-test" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v32.0.0"
   project_id   = module.project_test_supplychain.id
   name         = var.sa_cd_name
   display_name = "Cloud Deploy Service Account"
@@ -71,7 +71,7 @@ module "sa-cd-test" {
 }
 
 module "sa-cd-dev" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v32.0.0"
   project_id   = module.project_dev_supplychain.id
   name         = var.sa_cd_name
   display_name = "Cloud Deploy Service Account"

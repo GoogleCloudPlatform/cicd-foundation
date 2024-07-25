@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "hello_world"
+version = "0.1.0"
+description = "A Hello World application in Python."
+authors = ["sce-taid <sce@taid.me>"]
+license = "Apache-2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Flask = "^3.0.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

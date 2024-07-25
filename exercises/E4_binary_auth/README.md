@@ -36,7 +36,7 @@ require gopkg.in/yaml.v2 v2.2.3
 ```sh
 git add .
 git commit -m "introduced an old library with vulnerabilities"
-git push google
+git push private
 ```
 
 👉 Check the results of [Cloud Build](https://console.cloud.google.com/cloud-build/builds) and [Cloud Deploy](https://console.cloud.google.com/deploy/delivery-pipelines).  

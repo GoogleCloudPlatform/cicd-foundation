@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "sa-cd-prod" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v32.0.0"
   project_id   = module.project.project_id
   name         = "${var.sa_cd_name}-prod"
   display_name = "Cloud Deploy Service Account"
@@ -24,6 +24,7 @@ module "sa-cd-prod" {
       "roles/clouddeploy.releaser",
       "roles/logging.logWriter",
       "roles/container.developer",
+      "roles/run.developer",
     ]
   }
   iam = {
@@ -35,7 +36,7 @@ module "sa-cd-prod" {
 }
 
 module "sa-cd-test" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v32.0.0"
   project_id   = module.project.project_id
   name         = "${var.sa_cd_name}-test"
   display_name = "Cloud Deploy Service Account"
@@ -46,6 +47,7 @@ module "sa-cd-test" {
       "roles/clouddeploy.releaser",
       "roles/logging.logWriter",
       "roles/container.developer",
+      "roles/run.developer",
     ]
   }
   iam = {
@@ -57,7 +59,7 @@ module "sa-cd-test" {
 }
 
 module "sa-cd-dev" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v32.0.0"
   project_id   = module.project.project_id
   name         = "${var.sa_cd_name}-dev"
   display_name = "Cloud Deploy Service Account"
@@ -68,6 +70,7 @@ module "sa-cd-dev" {
       "roles/clouddeploy.releaser",
       "roles/logging.logWriter",
       "roles/container.developer",
+      "roles/run.developer",
     ]
   }
   iam = {
@@ -126,6 +129,63 @@ resource "google_clouddeploy_target" "cluster-dev" {
   gke {
     cluster     = "projects/${module.project.id}/locations/${module.cluster-dev.location}/clusters/${module.cluster-dev.name}"
     internal_ip = false
+  }
+  require_approval = false
+  execution_configs {
+    #worker_pool = "projects/${google_cloudbuild_worker_pool.dev.project}/locations/${google_cloudbuild_worker_pool.dev.location}/workerPools/${google_cloudbuild_worker_pool.dev.name}"
+    usages = [
+      "RENDER",
+      "DEPLOY",
+    ]
+    service_account = module.sa-cd-dev.email
+  }
+}
+
+resource "google_clouddeploy_target" "run-prod" {
+  project     = module.project.project_id
+  location    = var.region
+  name        = "run-prod"
+  description = "Terraform-managed."
+  run {
+    location = "projects/${module.project.id}/locations/${var.region}"
+  }
+  require_approval = true
+  execution_configs {
+    #worker_pool = "projects/${google_cloudbuild_worker_pool.prod.project}/locations/${google_cloudbuild_worker_pool.prod.location}/workerPools/${google_cloudbuild_worker_pool.prod.name}"
+    usages = [
+      "RENDER",
+      "DEPLOY",
+    ]
+    service_account = module.sa-cd-prod.email
+  }
+}
+
+resource "google_clouddeploy_target" "run-test" {
+  project     = module.project.project_id
+  location    = var.region
+  name        = "run-test"
+  description = "Terraform-managed."
+  run {
+    location = "projects/${module.project.id}/locations/${var.region}"
+  }
+  require_approval = false
+  execution_configs {
+    #worker_pool = "projects/${google_cloudbuild_worker_pool.test.project}/locations/${google_cloudbuild_worker_pool.test.location}/workerPools/${google_cloudbuild_worker_pool.test.name}"
+    usages = [
+      "RENDER",
+      "DEPLOY",
+    ]
+    service_account = module.sa-cd-test.email
+  }
+}
+
+resource "google_clouddeploy_target" "run-dev" {
+  project     = module.project.project_id
+  location    = var.region
+  name        = "run-dev"
+  description = "Terraform-managed."
+  run {
+    location = "projects/${module.project.id}/locations/${var.region}"
   }
   require_approval = false
   execution_configs {

@@ -44,14 +44,17 @@ kubectl config use-context $CLUSTER_CONTEXT
 
 👉 Configure the context to use your preferred namespace.
 
+For the hands-on workshop use the localpart of your Google Identity without any non-latin characters for the namespace.
+
 <details>
 <summary>kubectl</summary>
 
 ```sh
-kubectl config set-context --current --namespace=$NAMESPACE
-```
+export GOOGLE_IDENTITY="alex@example.com"
 
-For the hands-on workshop use the for localpart of your Google Identity without any non-latin characters for `$NAMESPACE`.
+export TEAM=$(echo "${GOOGLE_IDENTITY%%@*}" | tr -dc '[:alnum:]')
+kubectl config set-context --current --namespace=$TEAM
+```
 </details>
 
 #### References 🔗

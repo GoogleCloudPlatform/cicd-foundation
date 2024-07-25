@@ -1,0 +1,46 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: ${TEAM_PREFIX}go-hello-world-${ENV}
+  annotations:
+    run.googleapis.com/ingress: all
+  labels:
+    commit-short-sha: ""          # from-param: ${commit-short-sha}
+    gcb-build-id: ""              # from-param: ${gcb-build-id}
+spec:
+  template:
+    spec:
+      serviceAccountName: sa-demo-${ENV}
+      containers:
+      - name: go-hello-world
+        image: go-hello-world
+        ports:
+        - name: http1
+          containerPort: 8080
+        resources:
+          limits:
+            cpu: 500m
+            memory: 256Mi
+        startupProbe:
+          timeoutSeconds: 240
+          periodSeconds: 240
+          failureThreshold: 1
+          tcpSocket:
+            port: 8080
+        # env:
+        #  - name: NAME
+        #    value: "YOU"

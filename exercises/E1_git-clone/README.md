@@ -2,7 +2,7 @@
 
 Having opened your Cloud Workstation, let's deploy an Hello World application to GKE Autopilot!
 
-First, let's fork or clone the following Git repository:
+First, let's fork and/or clone the following Git repository:
 
 ```
 https://github.com/googlecloudplatform/cicd-jumpstart
@@ -62,64 +62,62 @@ git clone https://github.com/googlecloudplatform/cicd-jumpstart
 
 ## Working with a private repository
 
-Eventually, you may want work with your own, private source repository when you want to push changes that shall be applied in your real-life environment.
+Eventually, you may want to work with your own, private source repository when you push changes that shall be applied in your real-life environment.
 
-### Cloud Source Repository
+### Secure Source Manager
 
-Your (private) Cloud Source Repository has been provisioned, e.g., by a central-IT team. In case you want to know more, unfold the next section. 
+A Secure Source Manager (SSM) instance has been provisioned, e.g., by a central-IT team.
+Also a Git repository within this instance has been created with write permissions for you.
 
-<details>
-<summary>Create a Cloud Source Repository</summary>
-
-#### gcloud
+To work with Secure Source Manager configure the `gcloud` helper (cf. [documentation](https://cloud.google.com/secure-source-manager/docs/use-git#install_git_and)):
 
 ```sh
-gcloud source repos create $CSR_REPO_NAME
+git config --global credential.'https://*.*.sourcemanager.dev'.helper gcloud.sh
 ```
-
-- Use `$CSR_REPO_NAME` for the name of the repository.
-
-#### Terraform
-
-Use the [`google_sourcerepo_repository`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sourcerepo_repository) Terraform resource.
 </details><br/>
 
-👉 Configure the gcloud helper
+👉 Add the Git repository as a remote repository
 
 <details>
 <summary>gcloud</summary>
 
 ```sh
-git config --global credential.https://source.developers.google.com.helper gcloud.sh
+export GOOGLE_IDENTITY="alex@example.com"
+export SSM_INSTANCE_NAME="cicd-jumpstart"
+
+export TEAM=$(echo "${GOOGLE_IDENTITY%%@*}" | tr -dc '[:alnum:]')
+export PROJECT_NUMBER=$(gcloud projects describe $GOOGLE_CLOUD_PROJECT --format='value(projectNumber)')
+export GIT_URL="https://${SSM_INSTANCE_NAME}-${PROJECT_NUMBER}-git.${REGION}.sourcemanager.dev/${GOOGLE_CLOUD_PROJECT}/${TEAM}.git"
+
+git remote add private $GIT_URL
+
 ```
 </details><br/>
 
-👉 Add the repository as a remote repository
-
-<details>
-<summary>gcloud</summary>
-
-```sh
-export CSR_REPO_URL=$(gcloud source repos describe $CSR_REPO_NAME | grep "url:" | sed -e 's/url: //')
-git remote add google $CSR_REPO_URL
-```
-</details><br/>
-
-👉 Push to the remote repository. Make sure you are using the main branch.  
+👉 Push to the remote repository.
 
 <details>
 <summary>git</summary>
 
 ```sh
-git push --all google
+git push --all private
 ```
 </details>
 
 ## Set the namespace
 
-In the [`base/kustomization.yaml`](../../apps/hello-world/k8s/base/kustomization.yaml) set the namespace to your unique identifier. This namespace will be used across all the environments (unless overwritten).
+In the following files set the namespace to your team identifier:
+- [`envs/base/kustomization.yaml`](../../apps/go-hello-world/envs/base/kustomization.yaml)
+- [`envs/base/namespace.yaml`](../../apps/go-hello-world/envs/base/namespace.yaml)
 
-For the hands-on workshop use the for localpart of your Google Identity without any non-latin characters for the namespace.
+You can use the following commands to output your team identifier (specify your Google Identity):
+```sh
+export GOOGLE_IDENTITY="alex@example.com"
+export TEAM=$(echo "${GOOGLE_IDENTITY%%@*}" | tr -dc '[:alnum:]')
+echo $TEAM
+```
+
+This namespace will be used across all the environments (unless overwritten).
 
 Finally, commit and push your changes to your repository.
 
@@ -129,13 +127,12 @@ Finally, commit and push your changes to your repository.
 ```sh
 git add .
 git commit -m "setting namespace"
-git push --all google
+git push private
 ```
 </details>
 
 ## References 🔗
 
 - [Version control with Cloud Workstations](https://cloud.google.com/workstations/docs/version-control#clone_a_repository)
-- [Cloud Source Repositories](https://cloud.google.com/source-repositories)
-- [Clone using the gcloud CLI](https://cloud.google.com/source-repositories/docs/cloning-repositories#clone-using-the-cloud-sdk)
-- [`gcloud source repos`](https://cloud.google.com/sdk/gcloud/reference/source/repos)
+- [Secure Source Manager](https://cloud.google.com/secure-source-manager)
+  - [Use Git source code management](https://cloud.google.com/secure-source-manager/docs/use-git)

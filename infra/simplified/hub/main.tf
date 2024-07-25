@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "project" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v29.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v32.0.0"
   name           = var.project_id
   project_create = false
   services       = var.project_services
@@ -55,6 +55,13 @@ resource "google_project_iam_member" "container_developer" {
   count   = length(var.developers)
   project = module.project.id
   role    = "roles/container.developer"
+  member  = var.developers[count.index]
+}
+
+resource "google_project_iam_member" "run_developer" {
+  count   = length(var.developers)
+  project = module.project.id
+  role    = "roles/run.developer"
   member  = var.developers[count.index]
 }
 

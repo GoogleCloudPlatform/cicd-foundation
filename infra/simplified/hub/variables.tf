@@ -37,8 +37,10 @@ variable "project_services" {
     "containerscanning.googleapis.com",
     "ondemandscanning.googleapis.com",
     "orgpolicy.googleapis.com",
+    "run.googleapis.com",
     "servicenetworking.googleapis.com",
-    "sourcerepo.googleapis.com",
+    "secretmanager.googleapis.com",
+    "securesourcemanager.googleapis.com",
     "workstations.googleapis.com",
   ]
 }
@@ -91,6 +93,12 @@ variable "proxy_only_subnet_cidr_block" {
   default     = "10.127.0.0/16"
 }
 
+variable "ssm_instance_name" {
+  description = "name of the Secure Source Manager instance"
+  type        = string
+  default     = "cicd-jumpstart"
+}
+
 variable "ws_cluster_name" {
   description = "name of the Cloud Workstations cluster"
   type        = string
@@ -125,6 +133,30 @@ variable "ws_config_boot_disk_size_gb" {
   description = "disk size of Cloud Workstations instance"
   type        = number
   default     = 35
+}
+
+variable "ws_pd_disk_size_gb" {
+  description = "disk size of Cloud Workstations mounted persistent disk"
+  type        = number
+  default     = 200
+}
+
+variable "ws_pd_disk_fs_type" {
+  description = "filesystem type of the Cloud Workstations persistent disk"
+  type        = string
+  default     = "ext4"
+}
+
+variable "ws_pd_disk_type" {
+  description = "disk type of the Cloud Workstations persistent disk"
+  type        = string
+  default     = "pd-standard"
+}
+
+variable "ws_pd_disk_reclaim_policy" {
+  description = "reclaim policy of the Cloud Workstations persistent disk"
+  type        = string
+  default     = "DELETE"
 }
 
 variable "ws_config_disable_public_ip" {

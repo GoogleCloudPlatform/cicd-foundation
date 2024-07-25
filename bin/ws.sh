@@ -15,8 +15,7 @@
 # limitations under the License.
 
 # This script
-# - initializes a login
-# - starts a workstation after authentication
+# - starts a workstation
 # - establishes a secure tunnel with port-forwarding for SSH
 
 if ! command -v gcloud &> /dev/null
@@ -27,14 +26,16 @@ fi
 
 if [ -z "$GOOGLE_CLOUD_PROJECT" ]
 then
-  echo "environment variable GOOGLE_CLOUD_PROJECT not found"
-  echo "=> please enter the name of the project ID"
+  echo "Environment variable GOOGLE_CLOUD_PROJECT not found"
+  echo "=> Please enter the name of the project ID"
   echo "   hosting your Cloud Workstation: "
   read GOOGLE_CLOUD_PROJECT
 fi
 
 # web browser to use
-: "${BROWSER:=google-chrome}"
+# set an empty variable to not open the Workstation in a browser:
+# BROWSER=""; ws.sh
+: "${BROWSER=google-chrome}"
 
 # name of the Google Cloud region to use
 : "${WS_REGION:=europe-north1}"
@@ -49,15 +50,9 @@ fi
 : "${WS_NAME:=cicd-jumpstart}"
 
 # local port for SSH to use for forwarding
-: "${LOCAL_PORT:=2222}"
-
-if [ "$1" != "-n" ]
-then
-  echo login
-  gcloud auth login
-else
-  shift
-fi
+# set an empty variable to not establish an SSH tunnel:
+# WS_LOCAL_PORT=""; ws.sh
+: "${WS_LOCAL_PORT=2222}"
 
 gcloud workstations start \
   $WS_NAME \
@@ -65,10 +60,8 @@ gcloud workstations start \
   --config=$WS_CONFIG \
   --region=$WS_REGION \
   --project=$GOOGLE_CLOUD_PROJECT \
-&& \
-echo started workstation
 
-echo getting hostname
+echo -n "Getting hostname: "
 WS_HOST=$(gcloud workstations describe \
   $WS_NAME \
   --cluster=$WS_CLUSTER \
@@ -80,16 +73,34 @@ grep host | sed -e 's/.*: "\(.*\)".*/\1/' \
 | \
 sed -e 's/\"\(.*\)\"/https:\/\/\1/' \
 )
-
-WS_URL=https://$WS_HOST
-echo "opening $WS_URL"
-$BROWSER $WS_URL &
-
-if [ ! -d "$HOME/.ssh/" ]
+if [ -n "$WS_HOST" ]
 then
-  mkdir $HOME/.ssh/
+  echo "$WS_HOST"
+else
+  echo "Unable to lookup hostname!"
+  exit 2
 fi
-grep -q "^Host ws$" $HOME/.ssh/config || cat >> $HOME/.ssh/config << EOF
+
+if [ -n "$BROWSER" ]
+then
+  WS_URL="https://$WS_HOST"
+  echo "Opening $WS_URL"
+  $BROWSER $WS_URL &
+fi
+
+SSH_DIR="$HOME/.ssh"
+if [ ! -d "$SSH_DIR" ]
+then
+  echo "creating $SSH_DIR"
+  mkdir $SSH_DIR
+fi
+
+SSH_CONFIG=$SSH_DIR/config
+grep -q "^Host ws$" $SSH_CONFIG \
+|| \
+echo "Creating \"ws\" host entry in $SSH_DIR" \
+&& \
+cat >> $SSH_CONFIG << EOF
 Host ws
   HostName 127.0.0.1
   Port 2222
@@ -99,14 +110,17 @@ Host ws
   LogLevel ERROR
 EOF
 
-echo starting SSH tunnel
-# cf. https://cloud.google.com/workstations/docs/ssh-support
-gcloud beta workstations \
-  start-tcp-tunnel \
-  --project=$GOOGLE_CLOUD_PROJECT \
-  --region=$WS_REGION \
-  --cluster=$WS_CLUSTER \
-  --config=$WS_CONFIG \
-  --local-host-port=:$LOCAL_PORT \
-  $WS_NAME \
-  22
+if [ -n "$WS_LOCAL_PORT" ]
+then
+  echo "Starting SSH tunnel. (You can ssh into your Workstation with \"ssh ws\".)"
+  # cf. https://cloud.google.com/workstations/docs/ssh-support
+  gcloud beta workstations \
+    start-tcp-tunnel \
+    --project=$GOOGLE_CLOUD_PROJECT \
+    --region=$WS_REGION \
+    --cluster=$WS_CLUSTER \
+    --config=$WS_CONFIG \
+    --local-host-port=:$WS_LOCAL_PORT \
+    $WS_NAME \
+    22
+fi

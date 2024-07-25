@@ -16,8 +16,18 @@ variable "user_identity" {
   type = string
 }
 
-variable "team_prefix" {
+variable "team" {
   type = string
+}
+
+variable "ssm_instance_name" {
+  type        = string
+  description = "Name of the Secure Source Manager instance."
+}
+
+variable "webhook_trigger_secret" {
+  type        = string
+  description = "The secret for the webhook trigger."
 }
 
 variable "github_owner" {
@@ -40,6 +50,18 @@ variable "skaffold_image_tag" {
   description = "Tag of the Skaffold container image"
 }
 
+variable "skaffold_quiet" {
+  type        = bool
+  description = "suppress Skaffold output"
+  default     = false
+}
+
+variable "skaffold_output" {
+  type        = string
+  description = "the artifacts json output filename from skaffold"
+  default     = "artifacts.json"
+}
+
 variable "docker_image_tag" {
   type        = string
   description = "Tag of the Docker container image"
@@ -48,6 +70,12 @@ variable "docker_image_tag" {
 variable "gcloud_image_tag" {
   type        = string
   description = "Tag of the GCloud container image"
+}
+
+variable "policy_file" {
+  type        = string
+  description = "path of the policy file within the repository"
+  default     = "./tools/kritis/vulnz-signing-policy.yaml"
 }
 
 variable "apps" {

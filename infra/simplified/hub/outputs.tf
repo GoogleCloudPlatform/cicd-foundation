@@ -20,6 +20,14 @@ output "ws_config_id" {
   value = google_workstations_workstation_config.cicd_jumpstart.workstation_config_id
 }
 
+output "webhook_trigger_secret" {
+  value = google_secret_manager_secret_version.webhook_trigger.id
+}
+
+output "ssm_instance_name" {
+  value = google_secure_source_manager_instance.source.name
+}
+
 output "kritis_note" {
   value = google_container_analysis_note.vulnz-attestor.id
 }
@@ -52,16 +60,28 @@ output "sa-cluster-dev_email" {
   value = module.sa-cluster-dev.email
 }
 
-output "cd_target_prod" {
+output "cd_target_cluster-prod" {
   value = google_clouddeploy_target.cluster-prod.name
 }
 
-output "cd_target_test" {
+output "cd_target_cluster-test" {
   value = google_clouddeploy_target.cluster-test.name
 }
 
-output "cd_target_dev" {
+output "cd_target_cluster-dev" {
   value = google_clouddeploy_target.cluster-dev.name
+}
+
+output "cd_target_run-prod" {
+  value = google_clouddeploy_target.run-prod.name
+}
+
+output "cd_target_run-test" {
+  value = google_clouddeploy_target.run-test.name
+}
+
+output "cd_target_run-dev" {
+  value = google_clouddeploy_target.run-dev.name
 }
 
 output "vpc_self_link" {

@@ -20,58 +20,6 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
   location        = var.region
   service_account = module.sa-cb.id
   description     = "Terraform-managed."
-  build {
-    step {
-      id   = "build"
-      dir  = "apps/$${_APP_NAME}"
-      name = "gcr.io/k8s-skaffold/skaffold:$${_SKAFFOLD_IMAGE_TAG}"
-      args = [
-        "skaffold",
-        "build",
-        "--interactive=false",
-        "--default-repo=$${_SKAFFOLD_DEFAULT_REPO}",
-      ]
-    }
-    step {
-      id         = "fetchImageDigest"
-      wait_for   = ["build"]
-      dir        = "apps/$${_APP_NAME}"
-      name       = "gcr.io/cloud-builders/docker:$${_DOCKER_IMAGE_TAG}"
-      entrypoint = "/bin/sh"
-      args = [
-        "-c",
-        "docker pull $${_SKAFFOLD_DEFAULT_REPO}/$${_APP_NAME}:$${SHORT_SHA} && docker image inspect $${_SKAFFOLD_DEFAULT_REPO}/$${_APP_NAME}:$${SHORT_SHA} --format '{{index .RepoDigests 0}}' > image-digest.txt",
-      ]
-    }
-    step {
-      id         = "vulnsign"
-      wait_for   = ["fetchImageDigest"]
-      name       = "$_KRITIS_SIGNER_IMAGE"
-      entrypoint = "/bin/sh"
-      args = [
-        "-c",
-        "/kritis/signer -v=10 -alsologtostderr -image=$$(/bin/cat ./apps/$${_APP_NAME}/image-digest.txt) -policy=./tools/kritis/vulnz-signing-policy.yaml -kms_key_name=$${_KMS_KEY_NAME} -kms_digest_alg=$${_KMS_DIGEST_ALG} -note_name=$${_NOTE_NAME} || true",
-      ]
-    }
-    step {
-      id         = "createRelease"
-      wait_for   = ["vulnsign"]
-      dir        = "apps/$${_APP_NAME}"
-      name       = "gcr.io/google.com/cloudsdktool/cloud-sdk:$${_GCLOUD_IMAGE_TAG}"
-      entrypoint = "/bin/sh"
-      args = [
-        "-c",
-        "gcloud deploy releases create rel-$${SHORT_SHA} --delivery-pipeline=$${_PIPELINE_NAME} --labels=commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID --annotations=commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID --region=$${_REGION} --deploy-parameters=commit-sha=$COMMIT_SHA,commit-short-sha=$SHORT_SHA,commitId=$REVISION_ID,gcb-build-id=$BUILD_ID,namespace=$${_NAMESPACE},deploy_replicas=$${_REPLICAS} --images=$${_APP_NAME}=$(/bin/cat image-digest.txt)",
-      ]
-    }
-    images = [
-      "$${_SKAFFOLD_DEFAULT_REPO}/$${_APP_NAME}:$${SHORT_SHA}"
-    ]
-    options {
-      requested_verify_option = "VERIFIED"
-      logging                 = "CLOUD_LOGGING_ONLY"
-    }
-  }
   dynamic "github" {
     for_each = var.github_owner != "" && var.github_repo != "" ? [1] : []
     content {
@@ -85,11 +33,152 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
       }
     }
   }
-  dynamic "trigger_template" {
+  dynamic "webhook_config" {
     for_each = var.github_owner != "" && var.github_repo != "" ? [] : [1]
     content {
-      branch_name = var.git_branch
-      repo_name   = module.repo.name
+      secret = google_secret_manager_secret_version.webhook_trigger.secret
+    }
+  }
+  dynamic "source_to_build" {
+    for_each = var.github_owner != "" && var.github_repo != "" ? [] : [1]
+    content {
+      uri       = google_secure_source_manager_repository.repo.name
+      ref       = "refs/heads/main"
+      repo_type = "UNKNOWN"
+    }
+  }
+  build {
+    step {
+      id   = "build"
+      dir  = "apps/$${_APP_NAME}"
+      name = "gcr.io/k8s-skaffold/skaffold:$${_SKAFFOLD_IMAGE_TAG}"
+      args = [
+        "skaffold",
+        "build",
+        "--default-repo=$${_SKAFFOLD_DEFAULT_REPO}",
+        "--interactive=false",
+        "--file-output=$${_SKAFFOLD_OUTPUT}",
+        "--quiet=$${_SKAFFOLD_QUIET}",
+      ]
+    }
+    step {
+      id         = "fetchImageDigest"
+      wait_for   = ["build"]
+      dir        = "apps/$${_APP_NAME}"
+      name       = "gcr.io/cloud-builders/docker:$${_DOCKER_IMAGE_TAG}"
+      entrypoint = "/bin/sh"
+      args = [
+        "-c",
+        join(" ", [
+          "/bin/grep",
+          "-Po",
+          "'\"tag\":\"\\K[^\"]*'",
+          "$${_SKAFFOLD_OUTPUT}",
+          ">",
+          "images.txt",
+          ";",
+          "IMAGES=$$(/bin/cat images.txt)",
+          ";",
+          "for IMAGE in $$IMAGES",
+          ";",
+          "do",
+          "DIGEST_FILENAME=$$(/bin/echo \"$$IMAGE\" | /bin/sed 's/.*@sha256://').digest",
+          ";",
+          "docker",
+          "pull",
+          "$$IMAGE",
+          "&&",
+          "docker",
+          "image",
+          "inspect",
+          "$$IMAGE",
+          "--format='{{index .RepoDigests 0}}'",
+          ">",
+          "$$DIGEST_FILENAME",
+          ";",
+          "done",
+          ]
+        )
+      ]
+      allow_failure = true
+    }
+    step {
+      id         = "vulnsign"
+      wait_for   = ["fetchImageDigest"]
+      name       = "$_KRITIS_SIGNER_IMAGE"
+      entrypoint = "/bin/sh"
+      args = [
+        "-c",
+        join(" ", [
+          "IMAGES=$$(/bin/cat ./apps/$${_APP_NAME}/images.txt)",
+          ";",
+          "for IMAGE in $$IMAGES",
+          ";",
+          "do",
+          "DIGEST_FILENAME=$$(/bin/echo \"$$IMAGE\" | /bin/sed 's/.*@sha256://').digest",
+          ";",
+          "/kritis/signer",
+          "-v=10",
+          "-alsologtostderr",
+          "-image=$$(/bin/cat ./apps/$${_APP_NAME}/$$DIGEST_FILENAME)",
+          "-policy=$${_POLICY_FILE}",
+          "-kms_key_name=$${_KMS_KEY_NAME}",
+          "-kms_digest_alg=$${_KMS_DIGEST_ALG}",
+          "-note_name=$${_NOTE_NAME}",
+          ";",
+          "done",
+          ]
+        )
+      ]
+      allow_failure = true
+    }
+    step {
+      id         = "createRelease"
+      wait_for   = ["vulnsign"]
+      dir        = "apps/$${_APP_NAME}"
+      name       = "gcr.io/google.com/cloudsdktool/cloud-sdk:$${_GCLOUD_IMAGE_TAG}"
+      entrypoint = "/bin/sh"
+      args = [
+        "-c",
+        join(" ", [
+          "gcloud",
+          "deploy",
+          "releases",
+          "create",
+          "rel-$${SHORT_SHA}",
+          "--delivery-pipeline=$${_PIPELINE_NAME}",
+          "--build-artifacts=$${_SKAFFOLD_OUTPUT}",
+          join(",", [
+            "--labels=commit-sha=$COMMIT_SHA",
+            "commit-short-sha=$SHORT_SHA",
+            "commitId=$REVISION_ID",
+            "gcb-build-id=$BUILD_ID",
+            ]
+          ),
+          join(",", [
+            "--annotations=commit-sha=$COMMIT_SHA",
+            "commit-short-sha=$SHORT_SHA",
+            "commitId=$REVISION_ID",
+            "gcb-build-id=$BUILD_ID",
+            ]
+          ),
+          "--region=$${_REGION}",
+          join(",", [
+            "--deploy-parameters=commit-sha=$COMMIT_SHA",
+            "commit-short-sha=$SHORT_SHA",
+            "commitId=$REVISION_ID",
+            "gcb-build-id=$BUILD_ID",
+            "namespace=$${_NAMESPACE}",
+            "deploy_replicas=$${_REPLICAS}",
+            ]
+          ),
+          ]
+        )
+      ]
+    }
+    options {
+      requested_verify_option = "VERIFIED"
+      logging                 = "CLOUD_LOGGING_ONLY"
     }
   }
   included_files = [
@@ -104,11 +193,14 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
     _KRITIS_SIGNER_IMAGE   = var.kritis_signer_image
     _NAMESPACE             = var.apps[count.index]
     _NOTE_NAME             = google_container_analysis_note.vulnz-attestor.id
-    _PIPELINE_NAME         = "${google_clouddeploy_delivery_pipeline.continuous-delivery[count.index].name}"
-    _REGION                = "${var.region}"
+    _PIPELINE_NAME         = google_clouddeploy_delivery_pipeline.continuous-delivery[count.index].name
+    _POLICY_FILE           = var.policy_file
+    _REGION                = var.region
     _REPLICAS              = var.deploy_replicas
     _SKAFFOLD_DEFAULT_REPO = "${var.region}-docker.pkg.dev/${module.project_hub_supplychain.project_id}/${module.docker_artifact_registry.name}"
     _SKAFFOLD_IMAGE_TAG    = var.skaffold_image_tag
+    _SKAFFOLD_OUTPUT       = var.skaffold_output
+    _SKAFFOLD_QUIET        = var.skaffold_quiet
   }
 }
 
