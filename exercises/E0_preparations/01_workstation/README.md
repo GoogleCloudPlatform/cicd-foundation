@@ -9,7 +9,7 @@ If you are interested on how to create a workstation, you can have a look at bel
 <summary>Create your Cloud Workstation</summary>
 If your Google Identity has been granted the [roles/workstations.workstationCreator](https://cloud.google.com/iam/docs/understanding-roles#workstations.workstationCreator) role in the project, you can create your workstation and use the provisioned [Workstation Cluster](../../infra/simplified/hub/workstations.tf#L15) and [Workstation Config](../../infra/simplified/hub/workstations.tf#L24).  
 
-<br/> 
+<br/>
 Create your workstation with either of the methods below (gcloud, Terraform, Google Cloud Console):  
 
 ### gcloud
@@ -52,10 +52,9 @@ In [Google Cloud Console](https://console.cloud.google.com/workstations/list):
 <summary>Linux</summary>
 
 ```sh
-curl https://github.com/GoogleCloudPlatform/cicd-jumpstart/tree/main/bin/ws.sh
-chmod a+x ws.sh
 mkdir -p ~/bin
-mv ws.sh ~/bin
+curl -o ~/bin/ws.sh https://github.com/GoogleCloudPlatform/cicd-jumpstart/tree/main/bin/ws.sh
+chmod a+x ~/bin/ws.sh
 ```
 </details><br/>
 
@@ -78,8 +77,7 @@ export WS_REGION=europe-north1
 ```sh
 ws.sh
 ```
-will:
-1. initialize a `gcloud auth login`
+will (by default):
 1. start the Cloud Workstation after authentication
 1. open the Cloud Workstation in a web browser 
 1. add below entry in `~/.ssh/config` if not found
@@ -102,11 +100,22 @@ Host ws
 
 ### Secure Shell (SSH)
 
-👉 Establish a secure tunnel to your Cloud Workstation by executing the `ws.sh` script (if not done already).  
-👉 SSH into your Cloud Workstation by (simply) executing:
-
+👉 Establish (if not done already) a secure tunnel to your Cloud Workstation by executing the `ws.sh` script (and keep the terminal open).  
+👉 SSH into your Cloud Workstation by (simply) executing (in another terminal):
 ```sh
 ssh ws
+```
+
+#### Transfer data
+
+to copy a file or directory execute something like:
+```sh
+scp -r ws:$REMOTE_DIR/ $LOCAL_DIR/
+```
+
+If you need / prefer to use `rsync` for transfer, install the package in your Workstation - or make sure the container image (see below link for customizing the container images) contains the package:
+```sh
+sudo apt-get install -y rsync
 ```
 
 ### Visual Studio Code (VSCode)
@@ -125,18 +134,6 @@ In your local VSCode, install the [Remote Development](https://marketplace.visua
 
 After successful connection you will see `SSH: ws` in a green box in the bottom left corner of VSCode.
 Now you can work with your Cloud Workstation from your local VSCode application!
-
-#### Transfer data
-
-to copy a file or directory execute something like:
-```sh
-scp -r ws:$REMOTE_DIR/ $LOCAL_DIR/
-```
-
-If you need / prefer to use `rsync` for transfer, install the package in your Workstation - or make sure the container image (see below link for customizing the container images) contains the package:
-```sh
-sudo apt-get install -y rsync
-```
 
 ### References 🔗
 

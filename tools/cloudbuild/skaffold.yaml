@@ -12,6 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This is an example of a generic Cloud Build pipeline, showcasing how to use
+# Skaffold in conjunction with Cloud Deploy.
+# Generalization is realized through the _APP_NAME Cloud Build parameter
+# (both used for the source directory and Cloud Deploy pipeline name).
+# The first "build" step generates a container image and
+# uploads it to a container repository (_SKAFFOLD_DEFAULT_REPO parameter)
+# The second "createRelease" step creates a Cloud Deploy release based on the
+# generated artifacts.json (from the first step) and triggers a
+# Continuous Deploy pipeline for the application.
+
 steps:
 - id: "build"
   name: gcr.io/k8s-skaffold/skaffold:v2.10.1

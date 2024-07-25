@@ -15,7 +15,7 @@
 resource "google_workstations_workstation" "cicd_jumpstart" {
   provider               = google-beta
   project                = var.project_id
-  workstation_id         = var.team_prefix
+  workstation_id         = var.team
   workstation_config_id  = var.ws_config_id
   workstation_cluster_id = var.ws_cluster_id
   location               = var.region

@@ -75,7 +75,7 @@ variable "developers" {
 
 variable "apps" {
   description = "List of application names as found within the apps/ folder."
-  type        = list(string)
+  type = list(string)
   default = [
     "go-hello-world",
     "java-hello-world",
@@ -86,7 +86,7 @@ variable "apps" {
 
 variable "skaffold_image_tag" {
   type        = string
-  default     = "v2.10.1"
+  default     = "v2.13.1"
   description = "Tag of the Skaffold container image"
 }
 
@@ -98,7 +98,7 @@ variable "docker_image_tag" {
 
 variable "gcloud_image_tag" {
   type        = string
-  default     = "468.0.0"
+  default     = "485.0.0"
   description = "Tag of the GCloud container image"
 }
 

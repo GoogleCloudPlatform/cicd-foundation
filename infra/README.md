@@ -12,12 +12,12 @@ For the simplified architecture a single GCP project is required that can be pla
 ### List of Participants
 
 For each participant list their Google Identity in the `developers` map in `terraform.tfvars` (cf. [`terraform.tfvars.example`](./simplified/terraform.tfvars.example)).
-This will grant them the permissions to create (and use) a Cloud Workstation in the project.
+This will provision respective resources (such as a Cloud Workstation) for them and grant required permissions.
 
 ⚠️ In case GitHub shall be used to trigger the Continuous Integration pipeline, the users need to establish a connection to their GitHub repository before the `google_cloudbuild_trigger` Terraform resource can be created, cf. [this comment](./simplified/team/apps.tf#L15).
 
-In the absence of a `github_user`, a Cloud Source Repository will be provisioned with a respective trigger.
-In the hands-on workshop the participants will be able to check out and work with a repository from GitHub using their Cloud Workstation and GitHub credentials but the CI/CD automation will be based on the (private) Cloud Source Repository where we will be pushing the cloned repository to and where changes will be conducted.
+In the absence of a `github_user`, a repository in the shared Secure Source Manager instance will be provisioned.
+In the hands-on workshop the participants will be able to check out and work with a repository from GitHub using their Cloud Workstation and GitHub credentials but the CI/CD automation will be based on the (private) repositories where we will be pushing the cloned code to and where changes will be conducted.
 
 ### Cloud Storage Bucket
 
@@ -66,13 +66,13 @@ Build and register Kritis Signer custom builder:
 gcloud builds submit . --config deploy/kritis-signer/cloudbuild.yaml
 ```
 
-Get the URL and digest of the pushed image (check the last few lines of the logs) and specify the full image URL (without a protocol) in your `terraform.tfvars` file:
+Get the URL and digest of the pushed image (check the last few lines of the logs) and define the `kritis_signer_image` variable in your `terraform.tfvars` file by specifing the full image URL (without a protocol). This should look like this:
 
 ```
 kritis_signer_image = "gcr.io/…/kritis-signer@sha256:…"
 ```
 
-Re-run terraform
+Re-run terraform:
 ```
 terraform apply
 ```

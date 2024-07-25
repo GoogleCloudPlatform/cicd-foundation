@@ -130,7 +130,8 @@ variable "project_hub_supplychain_services" {
     "compute.googleapis.com",
     "ondemandscanning.googleapis.com",
     "orgpolicy.googleapis.com",
-    "sourcerepo.googleapis.com",
+    "secretmanager.googleapis.com",
+    "securesourcemanager.googleapis.com",
     "workstations.googleapis.com",
   ]
 }
@@ -168,6 +169,7 @@ variable "project_prod_service_services" {
     "compute.googleapis.com",
     "container.googleapis.com",
     "monitoring.googleapis.com",
+    "run.googleapis.com",
   ]
 }
 
@@ -204,6 +206,7 @@ variable "project_test_service_services" {
     "compute.googleapis.com",
     "container.googleapis.com",
     "monitoring.googleapis.com",
+    "run.googleapis.com",
   ]
 }
 
@@ -245,6 +248,7 @@ variable "project_dev_service_services" {
     "compute.googleapis.com",
     "container.googleapis.com",
     "monitoring.googleapis.com",
+    "run.googleapis.com",
   ]
 }
 
@@ -491,6 +495,30 @@ variable "ws_config_boot_disk_size_gb" {
   default     = 35
 }
 
+variable "ws_pd_disk_size_gb" {
+  description = "disk size of Cloud Workstations mounted persistent disk"
+  type        = number
+  default     = 200
+}
+
+variable "ws_pd_disk_fs_type" {
+  description = "filesystem type of the Cloud Workstations persistent disk"
+  type        = string
+  default     = "ext4"
+}
+
+variable "ws_pd_disk_type" {
+  description = "disk type of the Cloud Workstations persistent disk"
+  type        = string
+  default     = "pd-standard"
+}
+
+variable "ws_pd_disk_reclaim_policy" {
+  description = "reclaim policy of the Cloud Workstations persistent disk"
+  type        = string
+  default     = "RETAIN"
+}
+
 variable "ws_config_disable_public_ip" {
   description = "private Cloud Workstations instance?"
   type        = bool
@@ -507,6 +535,12 @@ variable "ws_idle_time" {
   description = "Cloud Workstations idle timeout in seconds"
   type        = number
   default     = 1800
+}
+
+variable "ssm_instance_name" {
+  description = "name of the Secure Source Manager instance"
+  type        = string
+  default     = "cicd-jumpstart"
 }
 
 variable "cb_pool_name" {
@@ -597,9 +631,21 @@ variable "git_branch" {
   description = "Regular expression of which branches the Cloud Build trigger should run."
 }
 
+variable "skaffold_output" {
+  type        = string
+  description = "the artifacts json output filename from skaffold"
+  default     = "artifacts.json"
+}
+
+variable "skaffold_quiet" {
+  type        = bool
+  description = "suppress Skaffold output"
+  default     = false
+}
+
 variable "skaffold_image_tag" {
   type        = string
-  default     = "v2.10.1"
+  default     = "v2.13.1"
   description = "Tag of the Skaffold container image"
 }
 
@@ -611,8 +657,14 @@ variable "docker_image_tag" {
 
 variable "gcloud_image_tag" {
   type        = string
-  default     = "468.0.0"
+  default     = "485.0.0"
   description = "Tag of the GCloud container image"
+}
+
+variable "policy_file" {
+  type        = string
+  description = "path of the policy file within the repository"
+  default     = "./tools/kritis/vulnz-signing-policy.yaml"
 }
 
 variable "github_owner" {

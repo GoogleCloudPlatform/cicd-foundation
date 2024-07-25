@@ -36,4 +36,13 @@ resource "google_workstations_workstation_config" "cicd_jumpstart" {
       pool_size                   = var.ws_pool_size
     }
   }
+  persistent_directories {
+    mount_path = "/home"
+    gce_pd {
+      size_gb        = var.ws_pd_disk_size_gb
+      fs_type        = var.ws_pd_disk_fs_type
+      disk_type      = var.ws_pd_disk_type
+      reclaim_policy = var.ws_pd_disk_reclaim_policy
+    }
+  }
 }

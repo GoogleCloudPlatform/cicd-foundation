@@ -19,20 +19,31 @@ metadata:
 build:
   artifacts:
   - image: node-hello-world
-    context: src
+    context: src/node-hello-world
     buildpacks: {}
+manifests:
+  hooks:
+    before:
+    - host:
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "../../bin/generate.sh 2>/dev/null || true"
 deploy:
   statusCheckDeadlineSeconds: 3600 # deployment should stabilize within 60 minutes (NEG operations can take a little longer)
   tolerateFailuresUntilDeadline: true
   kubectl: {}
+  # cloudrun: {}
 profiles:
 - name: dev
   activation:
     - command: dev
   manifests:
+    # rawYaml:
+    #   - envs/dev/knative.yaml
     kustomize:
       paths:
-      - k8s/dev
+      - envs/dev
   portForward:
     - resourceType: Deployment
       resourceName: node-hello-world
@@ -40,11 +51,15 @@ profiles:
       localPort: 8080
 - name: test
   manifests:
+    # rawYaml:
+    #   - envs/test/knative.yaml
     kustomize:
       paths:
-      - k8s/test
+      - envs/test
 - name: prod
   manifests:
+    # rawYaml:
+    #   - envs/prod/knative.yaml
     kustomize:
       paths:
-      - k8s/prod
+      - envs/prod

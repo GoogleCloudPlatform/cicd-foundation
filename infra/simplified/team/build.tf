@@ -12,23 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# no Terraform resource available yet for creating repo in Secure Source Manager instance
-
-module "repo" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/source-repository?ref=v29.0.0"
-  project_id = var.project_id
-  name       = "${var.team_prefix}-repo"
-  iam = {
-    "roles/source.writer" = [
-      "user:${var.user_identity}"
-    ]
-  }
-}
-
 module "docker_artifact_registry" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/artifact-registry?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/artifact-registry?ref=v32.0.0"
   project_id = var.project_id
-  name       = "${var.team_prefix}-${var.registry_id}"
+  name       = "${var.team}-${var.registry_id}"
   location   = var.region
   format = {
     docker = {}

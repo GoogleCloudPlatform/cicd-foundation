@@ -14,7 +14,7 @@
 
 # cf. https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts
 module "sa-cb" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v32.0.0"
   project_id   = var.project_id
   name         = var.sa_cb_name
   display_name = "Cloud Build Service Account"
@@ -28,19 +28,3 @@ module "sa-cb" {
     ],
   }
 }
-
-# preparing for Secure Source Manager
-# resource "google_secure_source_manager_instance" "ssm" {
-#   project     = var.project_id
-#   location    = var.region
-#   instance_id = "ssm"
-# }
-
-# resource "google_secure_source_manager_instance_iam_member" "ssm" {
-#   count       = length(var.developers)
-#   project     = google_secure_source_manager_instance.ssm.project
-#   location    = google_secure_source_manager_instance.ssm.location
-#   instance_id = google_secure_source_manager_instance.ssm.instance_id
-#   role        = "roles/securesourcemanager.instanceRepositoryCreator"
-#   member      = var.developers[count.index]
-# }
