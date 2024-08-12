@@ -13,9 +13,9 @@
 # limitations under the License.
 
 resource "google_cloudbuild_trigger" "continuous-integration" {
-  count           = length(var.apps)
+  for_each        = var.apps
   provider        = google-beta
-  name            = "${var.team}-${var.apps[count.index]}"
+  name            = "${var.team}-${each.key}"
   project         = var.project_id
   location        = var.region
   service_account = var.sa-cb-id
@@ -169,7 +169,6 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
             "commitId=$REVISION_ID",
             "gcb-build-id=$BUILD_ID",
             "namespace=$${_NAMESPACE}",
-            "deploy_replicas=$${_REPLICAS}",
             ]
           ),
           ]
@@ -182,10 +181,10 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
     }
   }
   included_files = [
-    "apps/${var.apps[count.index]}/**"
+    "apps/${each.key}/**"
   ]
   substitutions = {
-    _APP_NAME              = var.apps[count.index]
+    _APP_NAME              = each.key
     _DOCKER_IMAGE_TAG      = var.docker_image_tag
     _GCLOUD_IMAGE_TAG      = var.gcloud_image_tag
     _KMS_DIGEST_ALG        = var.kms_digest_alg
@@ -193,10 +192,9 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
     _KRITIS_SIGNER_IMAGE   = var.kritis_signer_image
     _NAMESPACE             = var.team
     _NOTE_NAME             = var.kritis_note
-    _PIPELINE_NAME         = google_clouddeploy_delivery_pipeline.continuous-delivery[count.index].name
+    _PIPELINE_NAME         = google_clouddeploy_delivery_pipeline.continuous-delivery[each.key].name
     _POLICY_FILE           = var.policy_file
     _REGION                = var.region
-    _REPLICAS              = var.deploy_replicas
     _SKAFFOLD_DEFAULT_REPO = "${var.region}-docker.pkg.dev/${var.project_id}/${module.docker_artifact_registry.name}"
     _SKAFFOLD_IMAGE_TAG    = var.skaffold_image_tag
     _SKAFFOLD_OUTPUT       = var.skaffold_output
@@ -205,55 +203,44 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
 }
 
 resource "google_clouddeploy_delivery_pipeline" "continuous-delivery" {
-  count       = length(var.apps)
+  for_each    = var.apps
   project     = var.project_id
   location    = var.region
-  name        = "${var.team}-${var.apps[count.index]}"
+  name        = "${var.team}-${each.key}"
   description = "Terraform-managed."
   serial_pipeline {
-    stages {
-      profiles  = ["dev"]
-      target_id = var.cd_target_dev
-      deploy_parameters {
-        values = {
-          ENV = "dev"
+    dynamic "stages" {
+      for_each = var.stages
+      content {
+        profiles  = [stages.value]
+        target_id = each.value.runtime == "gke" ? "cluster-${stages.value}" : "run-${stages.value}"
+        dynamic "deploy_parameters" {
+          for_each = each.value.stages[stages.value]
+          content {
+            values = {
+              "ENV"                      = "${stages.value}"
+              "${deploy_parameters.key}" = "${deploy_parameters.value}"
+            }
+          }
         }
-      }
-    }
-    stages {
-      profiles  = ["test"]
-      target_id = var.cd_target_test
-      deploy_parameters {
-        values = {
-          ENV = "test"
-        }
-      }
-    }
-    stages {
-      profiles  = ["prod"]
-      target_id = var.cd_target_prod
-      deploy_parameters {
-        values = {
-          ENV = "prod"
-        }
-      }
-      dynamic "strategy" {
-        for_each = strcontains(var.cd_target_prod, "cluster-") ? [1] : []
-        content {
-          canary {
-            runtime_config {
-              kubernetes {
-                gateway_service_mesh {
-                  deployment             = var.apps[count.index]
-                  http_route             = var.apps[count.index]
-                  route_update_wait_time = "120s"
-                  service                = var.apps[count.index]
+        dynamic "strategy" {
+          for_each = stages.value == "prod" && each.value.runtime == "gke" ? [1] : []
+          content {
+            canary {
+              runtime_config {
+                kubernetes {
+                  gateway_service_mesh {
+                    deployment             = each.key
+                    http_route             = each.key
+                    route_update_wait_time = "120s"
+                    service                = each.key
+                  }
                 }
               }
-            }
-            canary_deployment {
-              percentages = [10, 25, 50]
-              verify      = false # could execute smoke tests to verify canary deployment
+              canary_deployment {
+                percentages = [10, 25, 50]
+                verify      = false # could execute smoke tests to verify canary deployment
+              }
             }
           }
         }
@@ -263,11 +250,11 @@ resource "google_clouddeploy_delivery_pipeline" "continuous-delivery" {
 }
 
 resource "google_clouddeploy_automation" "promote-release" {
-  count             = length(var.apps)
-  name              = "${var.team}-${var.apps[count.index]}"
-  project           = google_clouddeploy_delivery_pipeline.continuous-delivery[count.index].project
-  location          = google_clouddeploy_delivery_pipeline.continuous-delivery[count.index].location
-  delivery_pipeline = google_clouddeploy_delivery_pipeline.continuous-delivery[count.index].name
+  for_each          = var.apps
+  name              = "${var.team}-${each.key}"
+  project           = google_clouddeploy_delivery_pipeline.continuous-delivery[each.key].project
+  location          = google_clouddeploy_delivery_pipeline.continuous-delivery[each.key].location
+  delivery_pipeline = google_clouddeploy_delivery_pipeline.continuous-delivery[each.key].name
   description       = "Terraform-managed."
   service_account   = var.sa-cb-email
   selector {

@@ -65,23 +65,10 @@ variable "cluster_name" {
   default     = "gke"
 }
 
-variable "developers" {
-  description = "Map of developer(s) with their Google Identity used as the key and a map with their GitHub account and (forked) repo to use for the CI/CD OR an empty map in case they use a Cloud Source Repository"
-  type = map(object({
-    github_user = optional(string, "")
-    github_repo = optional(string, "cicd-jumpstart")
-  }))
-}
-
-variable "apps" {
-  description = "List of application names as found within the apps/ folder."
-  type = list(string)
-  default = [
-    "go-hello-world",
-    "java-hello-world",
-    "node-hello-world",
-    "python-hello-world",
-  ]
+variable "git_branch" {
+  type        = string
+  default     = "^main$"
+  description = "Regular expression of which branches the Cloud Build trigger should run."
 }
 
 variable "skaffold_image_tag" {
@@ -102,14 +89,88 @@ variable "gcloud_image_tag" {
   description = "Tag of the GCloud container image"
 }
 
-variable "git_branch" {
-  type        = string
-  default     = "^main$"
-  description = "Regular expression of which branches the Cloud Build trigger should run."
+variable "developers" {
+  description = "Map of developer(s) with their Google Identity used as the key and a map with their GitHub account and (forked) repo to use for the CI/CD OR an empty map in case they use Secure Source Manager"
+  type = map(object({
+    github_user = optional(string, "")
+    github_repo = optional(string, "cicd-jumpstart")
+  }))
 }
 
-variable "deploy_replicas" {
-  description = "Number of replicas per deployment"
-  type        = number
-  default     = 3
+variable "runtimes" {
+  type        = list(string)
+  description = "List of runtime solutions."
+  default     = ["gke", "cloudrun"]
+}
+
+variable "stages" {
+  type        = list(string)
+  description = "List of deployment stages."
+  default     = ["dev", "test", "prod"]
+}
+
+variable "apps" {
+  description = "Map of applications as found within the apps/ folder, their deployment stages and parameters."
+  type = map(object({
+    runtime = optional(string, "cloudrun")
+    stages  = map(map(string))
+  }))
+  default = {
+    "go-hello-world" : {
+      runtime = "gke",
+      stages = {
+        "dev" : {
+          "replicas" : 1
+        },
+        "test" : {
+          "replicas" : 3
+        },
+        "prod" : {
+          "replicas" : 3
+        },
+      }
+    },
+    "java-hello-world" : {
+      runtime = "cloudrun",
+      stages = {
+        "dev" : {
+          "replicas" : 1
+        },
+        "test" : {
+          "replicas" : 3
+        },
+        "prod" : {
+          "replicas" : 3
+        },
+      }
+    },
+    "node-hello-world" : {
+      runtime = "gke",
+      stages = {
+        "dev" : {
+          "replicas" : 1
+        },
+        "test" : {
+          "replicas" : 3
+        },
+        "prod" : {
+          "replicas" : 3
+        },
+      }
+    },
+    "python-hello-world" : {
+      runtime = "gke",
+      stages = {
+        "dev" : {
+          "replicas" : 1
+        },
+        "test" : {
+          "replicas" : 3
+        },
+        "prod" : {
+          "replicas" : 3
+        },
+      }
+    },
+  }
 }

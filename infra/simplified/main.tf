@@ -44,7 +44,7 @@ module "team" {
   ws_cluster_id = module.hub.ws_cluster_id
   ws_config_id  = module.hub.ws_config_id
 
-  ssm_instance_name = module.hub.ssm_instance_name
+  ssm_instance_name      = module.hub.ssm_instance_name
   webhook_trigger_secret = module.hub.webhook_trigger_secret
 
   kritis_signer_image = var.kritis_signer_image
@@ -58,7 +58,9 @@ module "team" {
   sa-cluster-test-email = module.hub.sa-cluster-test_email
   sa-cluster-dev-email  = module.hub.sa-cluster-dev_email
 
-  apps = var.apps
+  runtimes = var.runtimes
+  stages   = var.stages
+  apps     = var.apps
 
   github_owner = each.value.github_user
   github_repo  = each.value.github_repo
@@ -68,16 +70,4 @@ module "team" {
   skaffold_image_tag = var.skaffold_image_tag
   docker_image_tag   = var.docker_image_tag
   gcloud_image_tag   = var.gcloud_image_tag
-
-  # for GKE
-  cd_target_prod = module.hub.cd_target_cluster-prod
-  cd_target_test = module.hub.cd_target_cluster-test
-  cd_target_dev  = module.hub.cd_target_cluster-dev
-
-  # for Cloud Run
-  # cd_target_prod = module.hub.cd_target_run-prod
-  # cd_target_test = module.hub.cd_target_run-test
-  # cd_target_dev  = module.hub.cd_target_run-dev
-
-  deploy_replicas = var.deploy_replicas
 }

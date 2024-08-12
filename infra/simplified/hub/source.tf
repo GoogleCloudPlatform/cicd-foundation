@@ -24,7 +24,7 @@ resource "random_id" "random" {
 }
 
 resource "google_secret_manager_secret" "webhook_trigger" {
-  project     = module.project.id
+  project   = module.project.id
   secret_id = "webhook-trigger"
   replication {
     user_managed {
