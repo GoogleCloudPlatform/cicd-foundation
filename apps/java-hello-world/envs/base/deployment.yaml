@@ -20,7 +20,7 @@ metadata:
     commit-short-sha: ""          # from-param: ${commit-short-sha}
     gcb-build-id: ""              # from-param: ${gcb-build-id}
 spec:
-  replicas: 3                     # from-param: ${deploy_replicas}
+  replicas: 3                     # from-param: ${replicas}
   template:
     metadata:
       labels:

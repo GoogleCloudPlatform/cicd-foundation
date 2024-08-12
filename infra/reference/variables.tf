@@ -608,15 +608,88 @@ variable "developers" {
   default     = []
 }
 
-variable "apps" {
-  description = "List of application names as found within the apps/ folder."
+variable "runtimes" {
   type        = list(string)
-  default = [
-    "go-hello-world",
-    "java-hello-world",
-    "node-hello-world",
-    "python-hello-world",
-  ]
+  description = "List of runtime solutions."
+  default     = ["gke", "cloudrun"]
+}
+
+variable "stages" {
+  type        = list(string)
+  description = "List of deployment stages."
+  default     = ["dev", "test", "prod"]
+}
+
+variable "apps" {
+  description = "Map of applications as found within the apps/ folder, their deployment stages and parameters."
+  type = map(object({
+    runtime = optional(string, "cloudrun")
+    stages  = map(map(string))
+  }))
+  default = {
+    "go-hello-world" : {
+      runtime = "gke",
+      stages = {
+        "dev" : {
+          "replicas" : 1
+        },
+        "test" : {
+          "replicas" : 3
+        },
+        "prod" : {
+          "replicas" : 3
+        },
+      }
+    },
+    "java-hello-world" : {
+      runtime = "cloudrun",
+      stages = {
+        "dev" : {
+          "replicas" : 1
+        },
+        "test" : {
+          "replicas" : 3
+        },
+        "prod" : {
+          "replicas" : 3
+        },
+      }
+    },
+    "node-hello-world" : {
+      runtime = "gke",
+      stages = {
+        "dev" : {
+          "replicas" : 1
+        },
+        "test" : {
+          "replicas" : 3
+        },
+        "prod" : {
+          "replicas" : 3
+        },
+      }
+    },
+    "python-hello-world" : {
+      runtime = "gke",
+      stages = {
+        "dev" : {
+          "replicas" : 1
+        },
+        "test" : {
+          "replicas" : 3
+        },
+        "prod" : {
+          "replicas" : 3
+        },
+      }
+    },
+  }
+}
+
+variable "github_owner" {
+  type        = string
+  default     = "GoogleCloudPlaform"
+  description = "Owner of the GitHub repo."
 }
 
 variable "github_repo" {
@@ -665,16 +738,4 @@ variable "policy_file" {
   type        = string
   description = "path of the policy file within the repository"
   default     = "./tools/kritis/vulnz-signing-policy.yaml"
-}
-
-variable "github_owner" {
-  type        = string
-  default     = "GoogleCloudPlaform"
-  description = "Owner of the GitHub repo."
-}
-
-variable "deploy_replicas" {
-  description = "number of replicas per deployment"
-  type        = number
-  default     = 3
 }

@@ -78,9 +78,22 @@ variable "policy_file" {
   default     = "./tools/kritis/vulnz-signing-policy.yaml"
 }
 
-variable "apps" {
-  description = "List of application names as found within the apps/ folder."
+variable "runtimes" {
   type        = list(string)
+  description = "List of runtime solutions."
+}
+
+variable "stages" {
+  type        = list(string)
+  description = "List of deployment stages."
+}
+
+variable "apps" {
+  description = "Map of applications as found within the apps/ folder, their deployment stages and parameters."
+  type = map(object({
+    runtime = optional(string, "cloudrun")
+    stages  = map(map(string))
+  }))
 }
 
 variable "region" {
@@ -164,24 +177,4 @@ variable "sa-cluster-test-email" {
 variable "sa-cluster-dev-email" {
   description = "Email of the DEV GKE Cluster Service Account"
   type        = string
-}
-
-variable "cd_target_prod" {
-  description = "Cloud Deploy Target for PROD"
-  type        = string
-}
-
-variable "cd_target_test" {
-  description = "Cloud Deploy Target for TEST"
-  type        = string
-}
-
-variable "cd_target_dev" {
-  description = "Cloud Deploy Target for DEV"
-  type        = string
-}
-
-variable "deploy_replicas" {
-  description = "Number of replicas per deployment"
-  type        = number
 }

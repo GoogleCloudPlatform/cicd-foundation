@@ -34,7 +34,7 @@ fi
 
 # web browser to use
 # set an empty variable to not open the Workstation in a browser:
-# BROWSER=""; ws.sh
+# BROWSER="" ws.sh
 : "${BROWSER=google-chrome}"
 
 # name of the Google Cloud region to use
@@ -51,7 +51,7 @@ fi
 
 # local port for SSH to use for forwarding
 # set an empty variable to not establish an SSH tunnel:
-# WS_LOCAL_PORT=""; ws.sh
+# WS_LOCAL_PORT="" ws.sh
 : "${WS_LOCAL_PORT=2222}"
 
 gcloud workstations start \
@@ -103,7 +103,7 @@ echo "Creating \"ws\" host entry in $SSH_DIR" \
 cat >> $SSH_CONFIG << EOF
 Host ws
   HostName 127.0.0.1
-  Port 2222
+  Port $WS_LOCAL_PORT
   User user
   StrictHostKeyChecking no
   UserKnownHostsFile /dev/null
