@@ -23,6 +23,11 @@ resource "google_binary_authorization_policy" "policy" {
     ]
   }
   cluster_admission_rules {
+    cluster          = "${var.region}.${module.cluster-prod.name}"
+    evaluation_mode  = "ALWAYS_ALLOW"
+    enforcement_mode = "DRYRUN_AUDIT_LOG_ONLY"
+  }
+  cluster_admission_rules {
     cluster          = "${var.region}.${module.cluster-test.name}"
     evaluation_mode  = "ALWAYS_ALLOW"
     enforcement_mode = "DRYRUN_AUDIT_LOG_ONLY"
