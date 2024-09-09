@@ -96,19 +96,31 @@ variable "proxy_only_subnet_cidr_block" {
 variable "ssm_instance_name" {
   description = "name of the Secure Source Manager instance"
   type        = string
-  default     = "cicd-jumpstart"
+  default     = "cicd-foundation"
+}
+
+variable "ssm_region" {
+  description = "region for the Secure Source Manager instance, cf. https://cloud.google.com/secure-source-manager/docs/locations"
+  type        = string
+  default     = "europe-west4"
+}
+
+variable "sa_ws_name" {
+  description = "name of the Cloud Workstations Service Account"
+  type        = string
+  default     = "sa-workstations"
 }
 
 variable "ws_cluster_name" {
   description = "name of the Cloud Workstations cluster"
   type        = string
-  default     = "cicd-jumpstart"
+  default     = "cicd-foundation"
 }
 
 variable "ws_config_name" {
   description = "name of the Cloud Workstations config"
   type        = string
-  default     = "cicd-jumpstart"
+  default     = "cicd-foundation"
 }
 
 variable "ws_pool_size" {
@@ -135,6 +147,11 @@ variable "ws_config_boot_disk_size_gb" {
   default     = 35
 }
 
+variable "ws_nested_virtualization" {
+  description = "nested virtualization to be enabled for Workstations?"
+  type        = bool
+  default     = false
+}
 variable "ws_pd_disk_size_gb" {
   description = "disk size of Cloud Workstations mounted persistent disk"
   type        = number

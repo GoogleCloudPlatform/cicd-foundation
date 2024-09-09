@@ -13,12 +13,12 @@
 # limitations under the License.
 
 module "org" {
-  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/organization?ref=v29.0.0"
+  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/organization?ref=v34.0.0"
   organization_id = "organizations/${var.org_id}"
 }
 
 module "folder_hub" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v29.0.0"
+  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v34.0.0"
   name          = "Hub"
   parent        = module.org.organization_id
   folder_create = var.folders_create
@@ -26,7 +26,7 @@ module "folder_hub" {
 }
 
 module "folder_prod" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v29.0.0"
+  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v34.0.0"
   name          = "Production"
   parent        = module.org.organization_id
   folder_create = var.folders_create
@@ -34,7 +34,7 @@ module "folder_prod" {
 }
 
 module "folder_test" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v29.0.0"
+  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v34.0.0"
   name          = "Testing"
   parent        = module.org.organization_id
   folder_create = var.folders_create
@@ -42,7 +42,7 @@ module "folder_test" {
 }
 
 module "folder_dev" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v29.0.0"
+  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v34.0.0"
   name          = "Development"
   parent        = module.org.organization_id
   folder_create = var.folders_create
@@ -50,9 +50,9 @@ module "folder_dev" {
 }
 
 module "project_hub_host" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v29.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v32.0.0"
   name           = var.project_hub_host
-  parent         = module.folder_hub.id
+  parent         = "folders/${module.folder_hub.id}"
   project_create = var.projects_create
   services       = var.project_hub_host_services
   shared_vpc_host_config = {
@@ -61,9 +61,9 @@ module "project_hub_host" {
 }
 
 module "project_hub_supplychain" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v29.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v32.0.0"
   name           = var.project_hub_supplychain
-  parent         = module.folder_hub.id
+  parent         = "folders/${module.folder_hub.id}"
   project_create = var.projects_create
   services       = var.project_hub_supplychain_services
   # org_policies = {
@@ -124,9 +124,9 @@ resource "google_project_iam_member" "hub_monitoring_viewer" {
 }
 
 module "project_prod_host" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v29.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v32.0.0"
   name           = var.project_prod_host
-  parent         = module.folder_prod.id
+  parent         = "folders/${module.folder_prod.id}"
   project_create = var.projects_create
   services       = var.project_prod_host_services
   shared_vpc_host_config = {
@@ -135,9 +135,9 @@ module "project_prod_host" {
 }
 
 module "project_prod_supplychain" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v29.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v32.0.0"
   name           = var.project_prod_supplychain
-  parent         = module.folder_prod.id
+  parent         = "folders/${module.folder_prod.id}"
   project_create = var.projects_create
   services       = var.project_prod_supplychain_services
   # org_policies = {
@@ -156,9 +156,9 @@ module "project_prod_supplychain" {
 }
 
 module "project_prod_service" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v29.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v32.0.0"
   name           = var.project_prod_service
-  parent         = module.folder_prod.id
+  parent         = "folders/${module.folder_prod.id}"
   project_create = var.projects_create
   services       = var.project_prod_service_services
   shared_vpc_service_config = {
@@ -202,9 +202,9 @@ resource "google_project_iam_member" "prod_monitoring_viewer" {
 }
 
 module "project_test_host" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v29.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v32.0.0"
   name           = var.project_test_host
-  parent         = module.folder_test.id
+  parent         = "folders/${module.folder_test.id}"
   project_create = var.projects_create
   services       = var.project_test_host_services
   shared_vpc_host_config = {
@@ -213,9 +213,9 @@ module "project_test_host" {
 }
 
 module "project_test_supplychain" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v29.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v32.0.0"
   name           = var.project_test_supplychain
-  parent         = module.folder_test.id
+  parent         = "folders/${module.folder_test.id}"
   project_create = var.projects_create
   services       = var.project_test_supplychain_services
   # org_policies = {
@@ -234,9 +234,9 @@ module "project_test_supplychain" {
 }
 
 module "project_test_service" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v29.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v32.0.0"
   name           = var.project_test_service
-  parent         = module.folder_test.id
+  parent         = "folders/${module.folder_test.id}"
   project_create = var.projects_create
   services       = var.project_test_service_services
   shared_vpc_service_config = {
@@ -280,9 +280,9 @@ resource "google_project_iam_member" "test_monitoring_viewer" {
 }
 
 module "project_dev_host" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v29.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v32.0.0"
   name           = var.project_dev_host
-  parent         = module.folder_dev.id
+  parent         = "folders/${module.folder_dev.id}"
   project_create = var.projects_create
   services       = var.project_dev_host_services
   shared_vpc_host_config = {
@@ -291,9 +291,9 @@ module "project_dev_host" {
 }
 
 module "project_dev_supplychain" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v29.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v32.0.0"
   name           = var.project_dev_supplychain
-  parent         = module.folder_dev.id
+  parent         = "folders/${module.folder_dev.id}"
   project_create = var.projects_create
   services       = var.project_dev_supplychain_services
   # cf. https://cloud.google.com/deploy/docs/cloud-deploy-service-account#using_service_accounts_from_a_different_project
@@ -324,9 +324,9 @@ module "project_dev_supplychain" {
 }
 
 module "project_dev_service" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v29.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v32.0.0"
   name           = var.project_dev_service
-  parent         = module.folder_dev.id
+  parent         = "folders/${module.folder_dev.id}"
   project_create = var.projects_create
   services       = var.project_dev_service_services
   shared_vpc_service_config = {

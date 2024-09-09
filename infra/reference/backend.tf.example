@@ -17,6 +17,6 @@ terraform {
   backend "gcs" {
     bucket = "YOUR_BUCKET"
     # folder in the bucket (will be created) to store the .tfstate
-    prefix = "cicd-jumpstart"
+    prefix = "cicd-foundation"
   }
 }

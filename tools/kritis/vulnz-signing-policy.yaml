@@ -15,7 +15,7 @@
 apiVersion: kritis.grafeas.io/v1beta1
 kind: VulnzSigningPolicy
 metadata:
-  name: cicd-jumpstart
+  name: cicd-foundation
 spec:
   imageVulnerabilityRequirements:
     maximumFixableSeverity: MEDIUM

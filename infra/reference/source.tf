@@ -14,7 +14,7 @@
 
 resource "google_secure_source_manager_instance" "source" {
   project     = module.project_hub_supplychain.id
-  location    = var.region
+  location    = var.ssm_region
   instance_id = var.ssm_instance_name
 }
 

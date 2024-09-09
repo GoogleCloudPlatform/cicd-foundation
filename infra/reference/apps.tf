@@ -29,7 +29,7 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
       owner = var.github_owner
       name  = var.github_repo
       push {
-        branch = var.git_branch
+        branch = var.git_branch_trigger_regexp
       }
     }
   }
@@ -43,7 +43,7 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
     for_each = var.github_owner != "" && var.github_repo != "" ? [] : [1]
     content {
       uri       = google_secure_source_manager_repository.repo.name
-      ref       = "refs/heads/main"
+      ref       = "refs/heads/${var.git_branch_trigger}"
       repo_type = "UNKNOWN"
     }
   }
@@ -82,11 +82,22 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
           "for IMAGE in $$IMAGES",
           ";",
           "do",
+          "IMAGE_NAME=$$(/bin/echo \"$$IMAGE\" | /bin/sed 's/\\([^:]*\\).*/\\1/')",
+          ";",
           "DIGEST_FILENAME=$$(/bin/echo \"$$IMAGE\" | /bin/sed 's/.*@sha256://').digest",
           ";",
           "docker",
           "pull",
           "$$IMAGE",
+          "&&",
+          "docker",
+          "tag",
+          "$$IMAGE",
+          "$$IMAGE_NAME:latest",
+          "&&",
+          "docker",
+          "push",
+          "$$IMAGE_NAME:latest",
           "&&",
           "docker",
           "image",
@@ -175,9 +186,11 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
         )
       ]
     }
+    timeout = each.value.build != null ? "${each.value.build.timeout}s" : "${var.build_timeout_default}s"
     options {
       requested_verify_option = "VERIFIED"
       logging                 = "CLOUD_LOGGING_ONLY"
+      machine_type            = each.value.build != null ? each.value.build.machine_type : var.build_machine_type_default
     }
   }
   included_files = [
@@ -195,7 +208,7 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
     _PIPELINE_NAME         = google_clouddeploy_delivery_pipeline.continuous-delivery[each.key].name
     _POLICY_FILE           = var.policy_file
     _REGION                = var.region
-    _SKAFFOLD_DEFAULT_REPO = "${var.region}-docker.pkg.dev/${module.project_hub_supplychain.project_id}/${module.docker_artifact_registry.name}"
+    _SKAFFOLD_DEFAULT_REPO = module.docker_artifact_registry.url
     _SKAFFOLD_IMAGE_TAG    = var.skaffold_image_tag
     _SKAFFOLD_OUTPUT       = var.skaffold_output
     _SKAFFOLD_QUIET        = var.skaffold_quiet

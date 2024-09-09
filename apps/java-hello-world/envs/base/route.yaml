@@ -22,7 +22,7 @@ metadata:
 spec:
   parentRefs:
   - kind: Gateway
-    name: cicd-jumpstart-java
+    name: cicd-foundation-java
   rules:
   - backendRefs:
     - name: java-hello-world

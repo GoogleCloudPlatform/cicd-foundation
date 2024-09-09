@@ -41,13 +41,13 @@ fi
 : "${WS_REGION:=europe-north1}"
 
 # name of the Cloud Workstation cluster
-: "${WS_CLUSTER:=cicd-jumpstart}"
+: "${WS_CLUSTER:=cicd-foundation}"
 
 # name of the Cloud Workstation config
-: "${WS_CONFIG:=cicd-jumpstart}"
+: "${WS_CONFIG:=cicd-foundation}"
 
 # name of the Cloud Workstation instance
-: "${WS_NAME:=cicd-jumpstart}"
+: "${WS_NAME:=cicd-foundation}"
 
 # local port for SSH to use for forwarding
 # set an empty variable to not establish an SSH tunnel:
@@ -96,12 +96,18 @@ then
 fi
 
 SSH_CONFIG=$SSH_DIR/config
-grep -q "^Host ws$" $SSH_CONFIG \
+SSH_HOST_NAME="ws"
+grep -q "^Host ${SSH_HOST_NAME}$" $SSH_CONFIG \
 || \
-echo "Creating \"ws\" host entry in $SSH_DIR" \
+( \
+echo "Creating \"${SSH_HOST_NAME}\" host entry in $SSH_CONFIG" \
+&& \
+echo "Press Enter to continue and establish an SSH tunnel or Ctrl-C to abort." \
+&& \
+read \
 && \
 cat >> $SSH_CONFIG << EOF
-Host ws
+Host ${SSH_HOST_NAME}
   HostName 127.0.0.1
   Port $WS_LOCAL_PORT
   User user
@@ -109,10 +115,12 @@ Host ws
   UserKnownHostsFile /dev/null
   LogLevel ERROR
 EOF
+)
 
 if [ -n "$WS_LOCAL_PORT" ]
 then
-  echo "Starting SSH tunnel. (You can ssh into your Workstation with \"ssh ws\".)"
+  echo "Starting SSH tunnel."
+  echo "You can ssh into your Workstation with \"ssh ${SSH_HOST_NAME}\"."
   # cf. https://cloud.google.com/workstations/docs/ssh-support
   gcloud beta workstations \
     start-tcp-tunnel \

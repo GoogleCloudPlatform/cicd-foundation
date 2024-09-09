@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-resource "google_workstations_workstation" "cicd_jumpstart" {
+resource "google_workstations_workstation" "cicd_foundation" {
   provider               = google-beta
   project                = var.project_id
   workstation_id         = var.team
@@ -32,9 +32,9 @@ data "google_iam_policy" "workstations_user" {
 resource "google_workstations_workstation_iam_policy" "policy" {
   provider               = google-beta
   project                = var.project_id
-  location               = google_workstations_workstation.cicd_jumpstart.location
-  workstation_cluster_id = google_workstations_workstation.cicd_jumpstart.workstation_cluster_id
-  workstation_config_id  = google_workstations_workstation.cicd_jumpstart.workstation_config_id
-  workstation_id         = google_workstations_workstation.cicd_jumpstart.workstation_id
+  location               = google_workstations_workstation.cicd_foundation.location
+  workstation_cluster_id = google_workstations_workstation.cicd_foundation.workstation_cluster_id
+  workstation_config_id  = google_workstations_workstation.cicd_foundation.workstation_config_id
+  workstation_id         = google_workstations_workstation.cicd_foundation.workstation_id
   policy_data            = data.google_iam_policy.workstations_user.policy_data
 }

@@ -22,7 +22,7 @@ metadata:
 spec:
   parentRefs:
   - kind: Gateway
-    name: cicd-jumpstart-node
+    name: cicd-foundation-node
   rules:
   - backendRefs:
     - name: node-hello-world

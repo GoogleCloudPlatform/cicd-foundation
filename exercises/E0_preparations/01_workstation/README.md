@@ -46,14 +46,14 @@ In [Google Cloud Console](https://console.cloud.google.com/workstations/list):
 
 ### Using a Script
 
-👉 [Download the `ws.sh` shell script](https://github.com/GoogleCloudPlatform/cicd-jumpstart/tree/main/bin/ws.sh), make it executable, and place it in your PATH.
+👉 [Download the `ws.sh` shell script](https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/bin/ws.sh), make it executable, and place it in your PATH.
 
 <details>
 <summary>Linux</summary>
 
 ```sh
 mkdir -p ~/bin
-curl -o ~/bin/ws.sh https://github.com/GoogleCloudPlatform/cicd-jumpstart/tree/main/bin/ws.sh
+curl -o ~/bin/ws.sh https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/bin/ws.sh
 chmod a+x ~/bin/ws.sh
 ```
 </details><br/>

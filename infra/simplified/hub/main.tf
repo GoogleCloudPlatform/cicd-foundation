@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "project" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v32.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v34.0.0"
   name           = var.project_id
   project_create = false
   services       = var.project_services

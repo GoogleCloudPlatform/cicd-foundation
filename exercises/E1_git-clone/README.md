@@ -5,7 +5,7 @@ Having opened your Cloud Workstation, let's deploy an Hello World application to
 First, let's fork and/or clone the following Git repository:
 
 ```
-https://github.com/googlecloudplatform/cicd-jumpstart
+https://github.com/googlecloudplatform/cicd-foundation
 ```
 
 ## Get the code
@@ -48,7 +48,7 @@ You can skip this part in case you forked the repository in GitHub.
 👉 press `Control`+`Shift`+<code>`</code>
 
 ```sh
-git clone https://github.com/googlecloudplatform/cicd-jumpstart
+git clone https://github.com/googlecloudplatform/cicd-foundation
 ```
 
 #### References 🔗
@@ -83,7 +83,7 @@ git config --global credential.'https://*.*.sourcemanager.dev'.helper gcloud.sh
 
 ```sh
 export GOOGLE_IDENTITY="alex@example.com"
-export SSM_INSTANCE_NAME="cicd-jumpstart"
+export SSM_INSTANCE_NAME="cicd-foundation"
 
 export TEAM=$(echo "${GOOGLE_IDENTITY%%@*}" | tr -dc '[:alnum:]')
 export PROJECT_NUMBER=$(gcloud projects describe $GOOGLE_CLOUD_PROJECT --format='value(projectNumber)')

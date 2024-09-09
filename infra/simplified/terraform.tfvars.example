@@ -18,16 +18,33 @@ project_id = "REPLACE_WITH_YOUR_PROJECT_ID"
 region = "europe-west4"
 zone   = "europe-west4-a"
 
+# cf. ../README.md
+kritis_signer_image = "gcr.io/REPLACE_WITH_YOUR_PROJECT_ID/kritis-signer@sha256:REPLACE_WITH_SHA256_OF_IMAGE"
+
 developers = {
-  # Alex is using a Cloud Source Repository
+  # Alex is using Secure Source Manager
   "alex@example.com" = {},
 
-  # Nur is using a GitHub repository
+  # Nur is using a GitHub
   "nur@example.com" = {
     github_user = "REPLACE_WITH_YOUR_GITHUB_USER",
-    github_repo = "cicd-jumpstart",
+    github_repo = "cicd-foundation",
   },
 }
 
-# cf. ../README.md
-kritis_signer_image = "gcr.io/REPLACE_WITH_YOUR_PROJECT_ID/kritis-signer@sha256:REPLACE_WITH_SHA256_OF_IMAGE"
+# apps = {
+#   "go-hello-world" : {
+#     runtime = "gke",
+#     stages = {
+#       "dev" : {
+#         "replicas" : 1
+#       },
+#       "test" : {
+#         "replicas" : 3
+#       },
+#       "prod" : {
+#         "replicas" : 3
+#       },
+#     }
+#   },
+# }

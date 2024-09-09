@@ -13,19 +13,22 @@
 # limitations under the License.
 
 module "docker_artifact_registry" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/artifact-registry?ref=v32.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/artifact-registry?ref=v34.0.0"
   project_id = var.project_id
   name       = "${var.team}-${var.registry_id}"
   location   = var.region
   format = {
-    docker = {}
+    docker = {
+      standard = {}
+    }
   }
   iam = {
     "roles/artifactregistry.reader" = [
+      "serviceAccount:${var.sa-cb-email}",
+      "serviceAccount:${var.sa-ws-email}",
       "serviceAccount:${var.sa-cluster-prod-email}",
       "serviceAccount:${var.sa-cluster-test-email}",
       "serviceAccount:${var.sa-cluster-dev-email}",
-      "serviceAccount:${var.sa-cb-email}",
       "user:${var.user_identity}",
     ],
     "roles/artifactregistry.writer" = [

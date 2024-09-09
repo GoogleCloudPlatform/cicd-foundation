@@ -13,11 +13,15 @@
 # limitations under the License.
 
 output "ws_cluster_id" {
-  value = google_workstations_workstation_cluster.cicd_jumpstart.workstation_cluster_id
+  value = google_workstations_workstation_cluster.cicd_foundation.workstation_cluster_id
 }
 
 output "ws_config_id" {
-  value = google_workstations_workstation_config.cicd_jumpstart.workstation_config_id
+  value = google_workstations_workstation_config.cicd_foundation.workstation_config_id
+}
+
+output "workstations_sa_email" {
+  value = module.sa-ws.email
 }
 
 output "webhook_trigger_secret" {
@@ -45,7 +49,7 @@ output "cloud_build_sa_email" {
 }
 
 output "cloud_build_robot_sa_email" {
-  value = module.project.service_accounts.robots["cloudbuild"]
+  value = module.project.service_agents["cloudbuild"].iam_email
 }
 
 output "sa-cluster-prod_email" {

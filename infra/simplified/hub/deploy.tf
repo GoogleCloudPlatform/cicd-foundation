@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "sa-cd-prod" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v32.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v34.0.0"
   project_id   = module.project.project_id
   name         = "${var.sa_cd_name}-prod"
   display_name = "Cloud Deploy Service Account"
@@ -30,13 +30,13 @@ module "sa-cd-prod" {
   iam = {
     "roles/iam.serviceAccountUser" = concat([
       module.sa-cb.iam_email,
-      "serviceAccount:${module.project.service_accounts.robots["clouddeploy"]}",
+      module.project.service_agents["clouddeploy"].iam_email,
     ], var.developers),
   }
 }
 
 module "sa-cd-test" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v32.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v34.0.0"
   project_id   = module.project.project_id
   name         = "${var.sa_cd_name}-test"
   display_name = "Cloud Deploy Service Account"
@@ -53,13 +53,13 @@ module "sa-cd-test" {
   iam = {
     "roles/iam.serviceAccountUser" = concat([
       module.sa-cb.iam_email,
-      "serviceAccount:${module.project.service_accounts.robots["clouddeploy"]}",
+      module.project.service_agents["clouddeploy"].iam_email,
     ], var.developers),
   }
 }
 
 module "sa-cd-dev" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v32.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v34.0.0"
   project_id   = module.project.project_id
   name         = "${var.sa_cd_name}-dev"
   display_name = "Cloud Deploy Service Account"
@@ -76,7 +76,7 @@ module "sa-cd-dev" {
   iam = {
     "roles/iam.serviceAccountUser" = [
       module.sa-cb.iam_email,
-      "serviceAccount:${module.project.service_accounts.robots["clouddeploy"]}",
+      module.project.service_agents["clouddeploy"].iam_email,
     ],
   }
 }

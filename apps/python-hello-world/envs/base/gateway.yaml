@@ -15,7 +15,7 @@
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway
 metadata:
-  name: cicd-jumpstart-python
+  name: cicd-foundation-python
 spec:
   gatewayClassName: gke-l7-rilb
   listeners:

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-resource "google_workstations_workstation_cluster" "cicd_jumpstart" {
+resource "google_workstations_workstation_cluster" "cicd_foundation" {
   provider               = google-beta
   project                = var.project_id
   workstation_cluster_id = var.ws_cluster_name
@@ -21,19 +21,29 @@ resource "google_workstations_workstation_cluster" "cicd_jumpstart" {
   location               = var.region
 }
 
-resource "google_workstations_workstation_config" "cicd_jumpstart" {
+module "sa-ws" {
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v34.0.0"
+  project_id   = google_workstations_workstation_cluster.cicd_foundation.project
+  name         = var.sa_ws_name
+  display_name = "Cloud Workstation Service Account"
+  description  = "Terraform-managed."
+}
+
+resource "google_workstations_workstation_config" "cicd_foundation" {
   provider               = google-beta
-  project                = var.project_id
+  project                = google_workstations_workstation_cluster.cicd_foundation.project
   workstation_config_id  = var.ws_config_name
-  workstation_cluster_id = google_workstations_workstation_cluster.cicd_jumpstart.workstation_cluster_id
-  location               = var.region
+  workstation_cluster_id = google_workstations_workstation_cluster.cicd_foundation.workstation_cluster_id
+  location               = google_workstations_workstation_cluster.cicd_foundation.location
   idle_timeout           = "${var.ws_idle_time}s"
   host {
     gce_instance {
-      machine_type                = var.ws_config_machine_type
-      boot_disk_size_gb           = var.ws_config_boot_disk_size_gb
-      disable_public_ip_addresses = var.ws_config_disable_public_ip
-      pool_size                   = var.ws_pool_size
+      machine_type                 = var.ws_config_machine_type
+      boot_disk_size_gb            = var.ws_config_boot_disk_size_gb
+      service_account              = module.sa-ws.email
+      disable_public_ip_addresses  = var.ws_config_disable_public_ip
+      pool_size                    = var.ws_pool_size
+      enable_nested_virtualization = var.ws_nested_virtualization
     }
   }
   persistent_directories {

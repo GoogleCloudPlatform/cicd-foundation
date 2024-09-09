@@ -14,7 +14,7 @@
 
 # cf. https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts
 module "sa-cb" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v32.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v34.0.0"
   project_id   = var.project_id
   name         = var.sa_cb_name
   display_name = "Cloud Build Service Account"
