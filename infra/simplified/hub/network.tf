@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "vpc" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v34.0.0"
   project_id = var.project_id
   name       = "vpc"
   vpc_create = var.vpc_create
@@ -60,15 +60,15 @@ module "vpc" {
       active        = true
     },
   ]
-  psa_config = {
+  psa_configs = [{
     ranges = {
       "default" = var.vpc-hub_psa_cidr
     }
-  }
+  }]
 }
 
 module "nat" {
-  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-cloudnat?ref=v29.0.0"
+  source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-cloudnat?ref=v34.0.0"
   project_id     = var.project_id
   region         = var.region
   name           = var.nat_name
@@ -76,7 +76,7 @@ module "nat" {
 }
 
 module "fw" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v34.0.0"
   project_id = var.project_id
   network    = module.vpc.name
   factories_config = {

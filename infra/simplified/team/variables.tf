@@ -13,86 +13,115 @@
 # limitations under the License.
 
 variable "user_identity" {
-  type = string
+  description = "The identifier of the developer."
+  type        = string
 }
 
 variable "team" {
-  type = string
+  description = "The identifier of a team (developer) used as a prefix for resources."
+  type        = string
 }
 
 variable "ssm_instance_name" {
-  type        = string
   description = "Name of the Secure Source Manager instance."
+  type        = string
+}
+
+variable "ssm_region" {
+  description = "Region for the Secure Source Manager instance, cf. https://cloud.google.com/secure-source-manager/docs/locations"
+  type        = string
 }
 
 variable "webhook_trigger_secret" {
-  type        = string
   description = "The secret for the webhook trigger."
+  type        = string
 }
 
 variable "github_owner" {
-  type        = string
   description = "Owner of the GitHub repo: usually, your GitHub username."
+  type        = string
 }
 
 variable "github_repo" {
-  type        = string
   description = "Name of the (forked) GitHub repository."
+  type        = string
 }
 
-variable "git_branch" {
+variable "git_branch_trigger" {
+  description = "Branch used for the Cloud Build trigger. Used by Secure Source Manager (SSM) and Cloud Scheduler."
   type        = string
-  description = "Regular expression of which branches the Cloud Build trigger should run."
 }
 
-variable "skaffold_image_tag" {
+variable "git_branch_trigger_regexp" {
+  description = "Regular expression for the Cloud Build trigger. Not used by Secure Source Manager (SSM)."
   type        = string
-  description = "Tag of the Skaffold container image"
 }
 
 variable "skaffold_quiet" {
-  type        = bool
   description = "suppress Skaffold output"
+  type        = bool
   default     = false
 }
 
 variable "skaffold_output" {
-  type        = string
   description = "the artifacts json output filename from skaffold"
+  type        = string
   default     = "artifacts.json"
 }
 
-variable "docker_image_tag" {
+variable "skaffold_image_tag" {
+  description = "Tag of the Skaffold container image"
   type        = string
+}
+
+variable "docker_image_tag" {
   description = "Tag of the Docker container image"
+  type        = string
 }
 
 variable "gcloud_image_tag" {
-  type        = string
   description = "Tag of the GCloud container image"
+  type        = string
 }
 
 variable "policy_file" {
-  type        = string
   description = "path of the policy file within the repository"
+  type        = string
   default     = "./tools/kritis/vulnz-signing-policy.yaml"
 }
 
 variable "runtimes" {
-  type        = list(string)
   description = "List of runtime solutions."
+  type        = list(string)
 }
 
 variable "stages" {
-  type        = list(string)
   description = "List of deployment stages."
+  type        = list(string)
+}
+
+variable "build_machine_type_default" {
+  description = "the default machine type to use for Cloud Build build"
+  type        = string
+  default     = "E2_MEDIUM"
+}
+
+variable "build_timeout_default" {
+  description = "the default timeout in seconds for the Cloud Build build step"
+  type        = number
+  default     = 7200
 }
 
 variable "apps" {
-  description = "Map of applications as found within the apps/ folder, their deployment stages and parameters."
+  description = "Map of applications as found within the apps/ folder, their build configuration, runtime, deployment stages and parameters."
   type = map(object({
+    build = optional(object({
+      timeout      = number
+      machine_type = string
+      })
+    )
     runtime = optional(string, "cloudrun")
-    stages  = map(map(string))
+    stages  = optional(map(map(string)))
   }))
 }
 
@@ -154,6 +183,11 @@ variable "registry_id" {
   description = "String used to name Artifact Registry."
   type        = string
   default     = "registry"
+}
+
+variable "sa-ws-email" {
+  description = "Email of the Cloud Workstations Service Account"
+  type        = string
 }
 
 variable "sa-cb-id" {

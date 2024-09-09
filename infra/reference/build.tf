@@ -14,7 +14,7 @@
 
 # cf. https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts
 module "sa-cb" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v34.0.0"
   project_id   = module.project_hub_supplychain.id
   name         = var.sa_cb_name
   display_name = "Cloud Build Service Account"
@@ -72,16 +72,19 @@ resource "google_cloudbuild_worker_pool" "dev" {
 }
 
 module "docker_artifact_registry" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/artifact-registry?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/artifact-registry?ref=v34.0.0"
   project_id = module.project_hub_supplychain.project_id
   name       = var.registry_id
   location   = var.region
   format = {
-    docker = {}
+    docker = {
+      standard = {}
+    }
   }
   iam = {
     "roles/artifactregistry.reader" = [
       module.sa-cb.iam_email,
+      "serviceAccount:service-${module.project_hub_supplychain.number}@gcp-sa-workstationsvm.iam.gserviceaccount.com",
       module.sa-cluster-prod.iam_email,
       module.sa-cluster-test.iam_email,
       module.sa-cluster-dev.iam_email,

@@ -12,11 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Cloud Source Repository is deprecated
+# module "repo" {
+#   source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/source-repository?ref=v34.0.0"
+#   project_id = var.project_id
+#   name       = var.team
+#   iam = {
+#     "roles/source.writer" = [
+#       "user:${var.user_identity}"
+#     ]
+#   }
+# }
+
 resource "google_secure_source_manager_repository" "repo" {
   project       = var.project_id
-  location      = var.region
-  repository_id = var.team
+  location      = var.ssm_region
   instance      = var.ssm_instance_name
+  repository_id = var.team
 
   description = "Terraform-managed."
   initial_config {

@@ -465,22 +465,28 @@ variable "cluster-dev_network_config" {
   }
 }
 
+variable "sa_ws_name" {
+  description = "name of the Cloud Workstations Service Account"
+  type        = string
+  default     = "sa-workstations"
+}
+
 variable "ws_cluster_name" {
   description = "name of the Cloud Workstations cluster"
   type        = string
-  default     = "cicd-jumpstart"
+  default     = "cicd-foundation"
 }
 
 variable "ws_config_name" {
   description = "name of the Cloud Workstations config"
   type        = string
-  default     = "cicd-jumpstart"
+  default     = "cicd-foundation"
 }
 
 variable "ws_name" {
   description = "name of the Cloud Workstations instance"
   type        = string
-  default     = "cicd-jumpstart"
+  default     = "cicd-foundation"
 }
 
 variable "ws_config_machine_type" {
@@ -493,6 +499,24 @@ variable "ws_config_boot_disk_size_gb" {
   description = "disk size of Cloud Workstations instance"
   type        = number
   default     = 35
+}
+
+variable "ws_nested_virtualization" {
+  description = "nested virtualization to be enabled for Workstations?"
+  type        = bool
+  default     = false
+}
+
+variable "ws_image" {
+  description = "the container image for the Cloud Workstation without a tag"
+  type        = string
+  default     = "custom" # align with build.artifacts.image value from skaffold.yaml
+}
+
+variable "ws_image_tag" {
+  description = "the container image tag for the Cloud Workstation"
+  type        = string
+  default     = "latest"
 }
 
 variable "ws_pd_disk_size_gb" {
@@ -540,7 +564,13 @@ variable "ws_idle_time" {
 variable "ssm_instance_name" {
   description = "name of the Secure Source Manager instance"
   type        = string
-  default     = "cicd-jumpstart"
+  default     = "cicd-foundation"
+}
+
+variable "ssm_region" {
+  description = "region for the Secure Source Manager instance, cf. https://cloud.google.com/secure-source-manager/docs/locations"
+  type        = string
+  default     = "europe-west4"
 }
 
 variable "cb_pool_name" {
@@ -608,23 +638,40 @@ variable "developers" {
   default     = []
 }
 
+variable "build_machine_type_default" {
+  description = "the default machine type to use for Cloud Build build"
+  type        = string
+  default     = "E2_MEDIUM"
+}
+
+variable "build_timeout_default" {
+  description = "the default timeout in seconds for the Cloud Build build step"
+  type        = number
+  default     = 7200
+}
+
 variable "runtimes" {
-  type        = list(string)
   description = "List of runtime solutions."
-  default     = ["gke", "cloudrun"]
+  type        = list(string)
+  default     = ["cloudrun", "gke"]
 }
 
 variable "stages" {
-  type        = list(string)
   description = "List of deployment stages."
+  type        = list(string)
   default     = ["dev", "test", "prod"]
 }
 
 variable "apps" {
-  description = "Map of applications as found within the apps/ folder, their deployment stages and parameters."
+  description = "Map of applications as found within the apps/ folder, their build configuration, runtime, deployment stages and parameters."
   type = map(object({
+    build = optional(object({
+      timeout      = number
+      machine_type = string
+      })
+    )
     runtime = optional(string, "cloudrun")
-    stages  = map(map(string))
+    stages  = optional(map(map(string)))
   }))
   default = {
     "go-hello-world" : {
@@ -687,55 +734,61 @@ variable "apps" {
 }
 
 variable "github_owner" {
+  description = "Owner of the GitHub repo."
   type        = string
   default     = "GoogleCloudPlaform"
-  description = "Owner of the GitHub repo."
 }
 
 variable "github_repo" {
-  type        = string
-  default     = "cicd-jumpstart"
   description = "Name of the GitHub repository."
+  type        = string
+  default     = "cicd-foundation"
 }
 
-variable "git_branch" {
+variable "git_branch_trigger" {
+  description = "Branch used for the Cloud Build trigger. Used by Secure Source Manager (SSM)."
+  type        = string
+  default     = "main"
+}
+
+variable "git_branch_trigger_regexp" {
+  description = "Regular expression for the Cloud Build trigger. Not used by Secure Source Manager (SSM)."
   type        = string
   default     = "^main$"
-  description = "Regular expression of which branches the Cloud Build trigger should run."
 }
 
 variable "skaffold_output" {
-  type        = string
   description = "the artifacts json output filename from skaffold"
+  type        = string
   default     = "artifacts.json"
 }
 
 variable "skaffold_quiet" {
-  type        = bool
   description = "suppress Skaffold output"
+  type        = bool
   default     = false
 }
 
 variable "skaffold_image_tag" {
+  description = "Tag of the Skaffold container image"
   type        = string
   default     = "v2.13.1"
-  description = "Tag of the Skaffold container image"
 }
 
 variable "docker_image_tag" {
+  description = "Tag of the Docker container image"
   type        = string
   default     = "20.10.24"
-  description = "Tag of the Docker container image"
 }
 
 variable "gcloud_image_tag" {
-  type        = string
-  default     = "485.0.0"
   description = "Tag of the GCloud container image"
+  type        = string
+  default     = "490.0.0"
 }
 
 variable "policy_file" {
-  type        = string
   description = "path of the policy file within the repository"
+  type        = string
   default     = "./tools/kritis/vulnz-signing-policy.yaml"
 }

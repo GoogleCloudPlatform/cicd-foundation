@@ -19,7 +19,7 @@ metadata:
 spec:
   parentRefs:
   - kind: Gateway
-    name: cicd-jumpstart-python
+    name: cicd-foundation-python
   rules:
   - backendRefs:
     - name: python-hello-world

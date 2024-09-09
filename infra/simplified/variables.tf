@@ -18,6 +18,12 @@ variable "region" {
   default     = "europe-north1"
 }
 
+variable "ssm_region" {
+  description = "region for the Secure Source Manager instance, cf. https://cloud.google.com/secure-source-manager/docs/locations"
+  type        = string
+  default     = "europe-west4"
+}
+
 variable "zone" {
   description = "Compute zone used."
   type        = string
@@ -65,55 +71,78 @@ variable "cluster_name" {
   default     = "gke"
 }
 
-variable "git_branch" {
+variable "git_branch_trigger" {
+  description = "Branch used for the Cloud Build trigger. Used by Secure Source Manager (SSM)."
+  type        = string
+  default     = "main"
+}
+
+variable "git_branch_trigger_regexp" {
+  description = "Regular expression for the Cloud Build trigger. Not used by Secure Source Manager (SSM)."
   type        = string
   default     = "^main$"
-  description = "Regular expression of which branches the Cloud Build trigger should run."
 }
 
 variable "skaffold_image_tag" {
+  description = "Tag of the Skaffold container image"
   type        = string
   default     = "v2.13.1"
-  description = "Tag of the Skaffold container image"
 }
 
 variable "docker_image_tag" {
+  description = "Tag of the Docker container image"
   type        = string
   default     = "20.10.24"
-  description = "Tag of the Docker container image"
 }
 
 variable "gcloud_image_tag" {
-  type        = string
-  default     = "485.0.0"
   description = "Tag of the GCloud container image"
+  type        = string
+  default     = "490.0.0"
 }
 
 variable "developers" {
   description = "Map of developer(s) with their Google Identity used as the key and a map with their GitHub account and (forked) repo to use for the CI/CD OR an empty map in case they use Secure Source Manager"
   type = map(object({
     github_user = optional(string, "")
-    github_repo = optional(string, "cicd-jumpstart")
+    github_repo = optional(string, "cicd-foundation")
   }))
 }
 
 variable "runtimes" {
-  type        = list(string)
   description = "List of runtime solutions."
-  default     = ["gke", "cloudrun"]
+  type        = list(string)
+  default     = ["gke", "cloudrun", "workstation"]
 }
 
 variable "stages" {
-  type        = list(string)
   description = "List of deployment stages."
+  type        = list(string)
   default     = ["dev", "test", "prod"]
 }
 
+variable "build_timeout_default" {
+  description = "the default timeout in seconds for the Cloud Build build step"
+  type        = number
+  default     = 7200
+}
+
+variable "build_machine_type_default" {
+  description = "the default machine type to use for Cloud Build build"
+  type        = string
+  default     = "E2_MEDIUM"
+}
+
 variable "apps" {
-  description = "Map of applications as found within the apps/ folder, their deployment stages and parameters."
+  description = "Map of applications as found within the apps/ folder, their build configuration, runtime, deployment stages and parameters."
   type = map(object({
+    build = optional(object({
+      timeout      = number
+      machine_type = string
+      })
+    )
     runtime = optional(string, "cloudrun")
-    stages  = map(map(string))
+    stages  = optional(map(map(string)))
   }))
   default = {
     "go-hello-world" : {

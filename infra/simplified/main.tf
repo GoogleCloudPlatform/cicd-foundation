@@ -18,6 +18,8 @@ module "hub" {
   project_id = var.project_id
   region     = var.region
 
+  ssm_region = var.ssm_region
+
   kritis_signer_image = var.kritis_signer_image
 
   developers = formatlist("user:%s", keys(var.developers))
@@ -43,8 +45,10 @@ module "team" {
 
   ws_cluster_id = module.hub.ws_cluster_id
   ws_config_id  = module.hub.ws_config_id
+  sa-ws-email = module.hub.workstations_sa_email
 
   ssm_instance_name      = module.hub.ssm_instance_name
+  ssm_region             = var.ssm_region
   webhook_trigger_secret = module.hub.webhook_trigger_secret
 
   kritis_signer_image = var.kritis_signer_image
@@ -65,7 +69,8 @@ module "team" {
   github_owner = each.value.github_user
   github_repo  = each.value.github_repo
 
-  git_branch = var.git_branch
+  git_branch_trigger        = var.git_branch_trigger
+  git_branch_trigger_regexp = var.git_branch_trigger_regexp
 
   skaffold_image_tag = var.skaffold_image_tag
   docker_image_tag   = var.docker_image_tag

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "sa-cluster-prod" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v34.0.0"
   project_id   = module.project.id
   name         = "${var.sa_cluster_name}-prod"
   display_name = "GKE (prod) Service Account"
@@ -24,7 +24,7 @@ module "sa-cluster-prod" {
 }
 
 module "sa-cluster-test" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v34.0.0"
   project_id   = module.project.id
   name         = "${var.sa_cluster_name}-test"
   display_name = "GKE (test) Service Account"
@@ -35,7 +35,7 @@ module "sa-cluster-test" {
 }
 
 module "sa-cluster-dev" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v34.0.0"
   project_id   = module.project.id
   name         = "${var.sa_cluster_name}-dev"
   display_name = "GKE (dev) Service Account"
@@ -46,7 +46,7 @@ module "sa-cluster-dev" {
 }
 
 module "cluster-prod" {
-  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v29.0.0"
+  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v34.0.0"
   project_id          = module.project.project_id
   name                = "${var.cluster_name}-prod"
   location            = var.region
@@ -82,7 +82,7 @@ module "cluster-prod" {
 }
 
 module "cluster-test" {
-  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v29.0.0"
+  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v34.0.0"
   project_id          = module.project.project_id
   name                = "${var.cluster_name}-test"
   location            = var.region
@@ -121,7 +121,7 @@ module "cluster-test" {
 }
 
 module "cluster-dev" {
-  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v29.0.0"
+  source              = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/gke-cluster-autopilot?ref=v34.0.0"
   project_id          = module.project.project_id
   name                = "${var.cluster_name}-dev"
   location            = var.region

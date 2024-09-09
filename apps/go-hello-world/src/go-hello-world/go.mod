@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module github.com/googlecloudplatform/cicd-jumpstart/apps/go-hello-world
+module github.com/googlecloudplatform/cicd-foundation/apps/go-hello-world
 
 go 1.22.5
 

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "sa-demo-prod" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v34.0.0"
   project_id   = var.project_id
   name         = "sa-demo-prod"
   display_name = "Service Account for demo applications in PROD"
@@ -33,7 +33,7 @@ resource "google_service_account_iam_binding" "sa-demo-prod-iam" {
 }
 
 module "sa-demo-test" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v34.0.0"
   project_id   = var.project_id
   name         = "sa-demo-test"
   display_name = "Service Account for demo applications in TEST"
@@ -53,7 +53,7 @@ resource "google_service_account_iam_binding" "sa-demo-test-iam" {
 }
 
 module "sa-demo-dev" {
-  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v29.0.0"
+  source       = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/iam-service-account?ref=v34.0.0"
   project_id   = var.project_id
   name         = "sa-demo-dev"
   display_name = "Service Account for demo applications in DEV"

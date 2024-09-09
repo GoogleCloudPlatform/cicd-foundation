@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "vpc-hub" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v34.0.0"
   project_id = module.project_hub_host.project_id
   name       = "hub"
   vpc_create = var.vpc_create
@@ -24,21 +24,21 @@ module "vpc-hub" {
       region        = var.region
     },
   ]
-  psa_config = {
+  psa_configs = [{
     ranges = {
       "default" = var.vpc-hub_psa_cidr
     }
-  }
+  }]
 }
 
 module "fw-hub" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v34.0.0"
   project_id = module.project_hub_host.project_id
   network    = module.vpc-hub.name
 }
 
 # module "nat_hub" {
-#   source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-cloudnat?ref=v29.0.0"
+#   source         = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-cloudnat?ref=v34.0.0"
 #   project_id     = module.project_hub_host.project_id
 #   region         = var.region
 #   name           = var.nat_name
@@ -46,7 +46,7 @@ module "fw-hub" {
 # }
 
 module "vpc-prod" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v34.0.0"
   project_id = module.project_prod_host.project_id
   name       = "prod"
   vpc_create = var.vpc_create
@@ -69,15 +69,15 @@ module "vpc-prod" {
       active        = true
     },
   ]
-  psa_config = {
+  psa_configs = [{
     ranges = {
       "default" = var.vpc-prod_psa_cidr
     }
-  }
+  }]
 }
 
 module "fw-prod" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v34.0.0"
   project_id = module.project_prod_host.project_id
   network    = module.vpc-prod.name
   factories_config = {
@@ -87,14 +87,14 @@ module "fw-prod" {
 }
 
 module "peering-hub-prod" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-peering?ref=v29.0.0"
+  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-peering?ref=v34.0.0"
   prefix        = "hub-prod"
   local_network = module.vpc-hub.self_link
   peer_network  = module.vpc-prod.self_link
 }
 
 module "vpc-test" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v34.0.0"
   project_id = module.project_test_host.project_id
   name       = "test"
   vpc_create = var.vpc_create
@@ -117,15 +117,15 @@ module "vpc-test" {
       active        = true
     },
   ]
-  psa_config = {
+  psa_configs = [{
     ranges = {
       "default" = var.vpc-test_psa_cidr
     }
-  }
+  }]
 }
 
 module "fw-test" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v34.0.0"
   project_id = module.project_test_host.project_id
   network    = module.vpc-test.name
   factories_config = {
@@ -135,14 +135,14 @@ module "fw-test" {
 }
 
 module "peering-hub-test" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-peering?ref=v29.0.0"
+  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-peering?ref=v34.0.0"
   prefix        = "hub-test"
   local_network = module.vpc-hub.self_link
   peer_network  = module.vpc-test.self_link
 }
 
 module "vpc-dev" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v34.0.0"
   project_id = module.project_dev_host.project_id
   name       = "dev"
   vpc_create = var.vpc_create
@@ -165,15 +165,15 @@ module "vpc-dev" {
       active        = true
     },
   ]
-  psa_config = {
+  psa_configs = [{
     ranges = {
       "default" = var.vpc-dev_psa_cidr
     }
-  }
+  }]
 }
 
 module "fw-dev" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v34.0.0"
   project_id = module.project_dev_host.project_id
   network    = module.vpc-dev.name
   factories_config = {
@@ -183,14 +183,14 @@ module "fw-dev" {
 }
 
 module "peering-hub-dev" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-peering?ref=v29.0.0"
+  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-peering?ref=v34.0.0"
   prefix        = "hub-dev"
   local_network = module.vpc-hub.self_link
   peer_network  = module.vpc-dev.self_link
 }
 
 module "vpc-prod-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v34.0.0"
   project_id = module.project_prod_host.project_id
   name       = "build"
   vpc_create = var.vpc_create
@@ -201,22 +201,22 @@ module "vpc-prod-build" {
       region        = var.region
     },
   ]
-  psa_config = {
+  psa_configs = [{
     ranges = {
       "build" = var.vpc-prod-build_psa_cidr
     }
     export_routes = true
-  }
+  }]
 }
 
 module "fw-prod-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v34.0.0"
   project_id = module.project_prod_host.project_id
   network    = module.vpc-prod-build.name
 }
 
 module "vpn-build-prod" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v34.0.0"
   project_id = module.project_prod_host.project_id
   region     = var.region
   network    = module.vpc-prod-build.self_link
@@ -254,7 +254,7 @@ module "vpn-build-prod" {
 }
 
 module "vpn-prod-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v34.0.0"
   project_id = module.project_prod_host.project_id
   region     = var.region
   network    = module.vpc-prod.self_link
@@ -294,7 +294,7 @@ module "vpn-prod-build" {
 }
 
 module "vpc-test-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v34.0.0"
   project_id = module.project_test_host.project_id
   name       = "build"
   vpc_create = var.vpc_create
@@ -305,22 +305,22 @@ module "vpc-test-build" {
       region        = var.region
     },
   ]
-  psa_config = {
+  psa_configs = [{
     ranges = {
       "build" = var.vpc-test-build_psa_cidr
     }
     export_routes = true
-  }
+  }]
 }
 
 module "fw-test-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v34.0.0"
   project_id = module.project_test_host.project_id
   network    = module.vpc-test-build.name
 }
 
 module "vpn-build-test" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v34.0.0"
   project_id = module.project_test_host.project_id
   region     = var.region
   network    = module.vpc-test-build.self_link
@@ -358,7 +358,7 @@ module "vpn-build-test" {
 }
 
 module "vpn-test-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v34.0.0"
   project_id = module.project_test_host.project_id
   region     = var.region
   network    = module.vpc-test.self_link
@@ -398,7 +398,7 @@ module "vpn-test-build" {
 }
 
 module "vpc-dev-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v34.0.0"
   project_id = module.project_dev_host.project_id
   name       = "build"
   vpc_create = var.vpc_create
@@ -409,22 +409,22 @@ module "vpc-dev-build" {
       region        = var.region
     },
   ]
-  psa_config = {
+  psa_configs = [{
     ranges = {
       "build" = var.vpc-dev-build_psa_cidr
     }
     export_routes = true
-  }
+  }]
 }
 
 module "fw-dev-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v34.0.0"
   project_id = module.project_dev_host.project_id
   network    = module.vpc-dev-build.name
 }
 
 module "vpn-build-dev" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v34.0.0"
   project_id = module.project_dev_host.project_id
   region     = var.region
   network    = module.vpc-dev-build.self_link
@@ -462,7 +462,7 @@ module "vpn-build-dev" {
 }
 
 module "vpn-dev-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v29.0.0"
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v34.0.0"
   project_id = module.project_dev_host.project_id
   region     = var.region
   network    = module.vpc-dev.self_link

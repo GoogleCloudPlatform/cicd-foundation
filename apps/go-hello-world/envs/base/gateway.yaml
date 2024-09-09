@@ -15,12 +15,12 @@
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway
 metadata:
-  name: cicd-jumpstart-go
+  name: cicd-foundation-go
   labels:
     commit-short-sha: ""          # from-param: ${commit-short-sha}
     gcb-build-id: ""              # from-param: ${gcb-build-id}
   # annotations:
-  #  networking.gke.io/certmap: cicd-jumpstart-go
+  #  networking.gke.io/certmap: cicd-foundation-go
 spec:
   # using an regional internal Application Load-Balancer
   gatewayClassName: gke-l7-rilb
@@ -28,9 +28,9 @@ spec:
   #gatewayClassName: gke-l7-global-external-managed
   # addresses:
   # - type: NamedAddress
-  #  value: cicd-jumpstart-ipv4
+  #  value: cicd-foundation-ipv4
   # - type: NamedAddress
-  #  value: cicd-jumpstart-ipv6
+  #  value: cicd-foundation-ipv6
   listeners:
   - name: http
     protocol: HTTP
