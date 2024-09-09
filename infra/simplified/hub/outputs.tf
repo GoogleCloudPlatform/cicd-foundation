@@ -24,13 +24,13 @@ output "workstations_sa_email" {
   value = module.sa-ws.email
 }
 
-output "webhook_trigger_secret" {
-  value = google_secret_manager_secret_version.webhook_trigger.id
-}
+# output "webhook_trigger_secret" {
+#   value = google_secret_manager_secret_version.webhook_trigger.id
+# }
 
-output "ssm_instance_name" {
-  value = google_secure_source_manager_instance.source.name
-}
+# output "ssm_instance_name" {
+#   value = google_secure_source_manager_instance.source.name
+# }
 
 output "kritis_note" {
   value = google_container_analysis_note.vulnz-attestor.id

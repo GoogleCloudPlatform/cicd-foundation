@@ -22,20 +22,20 @@ variable "team" {
   type        = string
 }
 
-variable "ssm_instance_name" {
-  description = "Name of the Secure Source Manager instance."
-  type        = string
-}
+# variable "ssm_instance_name" {
+#   description = "Name of the Secure Source Manager instance."
+#   type        = string
+# }
 
-variable "ssm_region" {
-  description = "Region for the Secure Source Manager instance, cf. https://cloud.google.com/secure-source-manager/docs/locations"
-  type        = string
-}
+# variable "ssm_region" {
+#   description = "Region for the Secure Source Manager instance, cf. https://cloud.google.com/secure-source-manager/docs/locations"
+#   type        = string
+# }
 
-variable "webhook_trigger_secret" {
-  description = "The secret for the webhook trigger."
-  type        = string
-}
+# variable "webhook_trigger_secret" {
+#   description = "The secret for the webhook trigger."
+#   type        = string
+# }
 
 variable "github_owner" {
   description = "Owner of the GitHub repo: usually, your GitHub username."

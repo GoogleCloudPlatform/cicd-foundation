@@ -12,45 +12,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-resource "google_secure_source_manager_instance" "source" {
-  project     = module.project.id
-  location    = var.ssm_region
-  instance_id = var.ssm_instance_name
-}
+# resource "google_secure_source_manager_instance" "source" {
+#   project     = module.project.id
+#   location    = var.ssm_region
+#   instance_id = var.ssm_instance_name
+# }
 
-resource "random_id" "random" {
-  # one byte is represented by 2 hex
-  byte_length = 64
-}
+# resource "random_id" "random" {
+#   # one byte is represented by 2 hex
+#   byte_length = 64
+# }
 
-resource "google_secret_manager_secret" "webhook_trigger" {
-  project   = module.project.id
-  secret_id = "webhook-trigger"
-  replication {
-    user_managed {
-      replicas {
-        location = var.region
-      }
-    }
-  }
-}
+# resource "google_secret_manager_secret" "webhook_trigger" {
+#   project   = module.project.id
+#   secret_id = "webhook-trigger"
+#   replication {
+#     user_managed {
+#       replicas {
+#         location = var.region
+#       }
+#     }
+#   }
+# }
 
-resource "google_secret_manager_secret_version" "webhook_trigger" {
-  secret      = google_secret_manager_secret.webhook_trigger.id
-  secret_data = random_id.random.hex
-}
+# resource "google_secret_manager_secret_version" "webhook_trigger" {
+#   secret      = google_secret_manager_secret.webhook_trigger.id
+#   secret_data = random_id.random.hex
+# }
 
-data "google_iam_policy" "secret_accessor" {
-  binding {
-    role = "roles/secretmanager.secretAccessor"
-    members = [
-      "serviceAccount:service-${module.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com",
-    ]
-  }
-}
+# data "google_iam_policy" "secret_accessor" {
+#   binding {
+#     role = "roles/secretmanager.secretAccessor"
+#     members = [
+#       "serviceAccount:service-${module.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com",
+#     ]
+#   }
+# }
 
-resource "google_secret_manager_secret_iam_policy" "policy" {
-  project     = google_secret_manager_secret.webhook_trigger.project
-  secret_id   = google_secret_manager_secret.webhook_trigger.secret_id
-  policy_data = data.google_iam_policy.secret_accessor.policy_data
-}
+# resource "google_secret_manager_secret_iam_policy" "policy" {
+#   project     = google_secret_manager_secret.webhook_trigger.project
+#   secret_id   = google_secret_manager_secret.webhook_trigger.secret_id
+#   policy_data = data.google_iam_policy.secret_accessor.policy_data
+# }

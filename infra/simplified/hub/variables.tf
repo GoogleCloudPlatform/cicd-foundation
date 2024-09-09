@@ -40,7 +40,6 @@ variable "project_services" {
     "run.googleapis.com",
     "servicenetworking.googleapis.com",
     "secretmanager.googleapis.com",
-    "securesourcemanager.googleapis.com",
     "workstations.googleapis.com",
   ]
 }
@@ -93,17 +92,17 @@ variable "proxy_only_subnet_cidr_block" {
   default     = "10.127.0.0/16"
 }
 
-variable "ssm_instance_name" {
-  description = "name of the Secure Source Manager instance"
-  type        = string
-  default     = "cicd-foundation"
-}
+# variable "ssm_instance_name" {
+#   description = "name of the Secure Source Manager instance"
+#   type        = string
+#   default     = "cicd-foundation"
+# }
 
-variable "ssm_region" {
-  description = "region for the Secure Source Manager instance, cf. https://cloud.google.com/secure-source-manager/docs/locations"
-  type        = string
-  default     = "europe-west4"
-}
+# variable "ssm_region" {
+#   description = "region for the Secure Source Manager instance, cf. https://cloud.google.com/secure-source-manager/docs/locations"
+#   type        = string
+#   default     = "europe-west4"
+# }
 
 variable "sa_ws_name" {
   description = "name of the Cloud Workstations Service Account"

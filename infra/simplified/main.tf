@@ -18,7 +18,7 @@ module "hub" {
   project_id = var.project_id
   region     = var.region
 
-  ssm_region = var.ssm_region
+  # ssm_region = var.ssm_region
 
   kritis_signer_image = var.kritis_signer_image
 
@@ -38,7 +38,8 @@ module "team" {
   source = "./team"
 
   user_identity = each.key
-  team          = join("", regexall("[a-zA-Z]", split("@", each.key)[0]))
+  # team          = join("", regexall("[a-zA-Z]", split("@", each.key)[0]))
+  team = "student"
 
   project_id = var.project_id
   region     = var.region
@@ -47,9 +48,9 @@ module "team" {
   ws_config_id  = module.hub.ws_config_id
   sa-ws-email = module.hub.workstations_sa_email
 
-  ssm_instance_name      = module.hub.ssm_instance_name
-  ssm_region             = var.ssm_region
-  webhook_trigger_secret = module.hub.webhook_trigger_secret
+  # ssm_instance_name      = module.hub.ssm_instance_name
+  # ssm_region             = var.ssm_region
+  # webhook_trigger_secret = module.hub.webhook_trigger_secret
 
   kritis_signer_image = var.kritis_signer_image
   kritis_note         = module.hub.kritis_note

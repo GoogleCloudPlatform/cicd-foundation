@@ -34,27 +34,27 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
     }
   }
   # Cloud Source Repository is deprecated
-  # dynamic "trigger_template" {
+  dynamic "trigger_template" {
+    for_each = var.github_owner != "" && var.github_repo != "" ? [] : [1]
+    content {
+      branch_name = var.git_branch_trigger_regexp
+      repo_name   = module.repo.name
+    }
+  }
+  # dynamic "webhook_config" {
   #   for_each = var.github_owner != "" && var.github_repo != "" ? [] : [1]
   #   content {
-  #     branch_name = var.git_branch_trigger_regexp
-  #     repo_name   = module.repo.name
+  #     secret = var.webhook_trigger_secret
   #   }
   # }
-  dynamic "webhook_config" {
-    for_each = var.github_owner != "" && var.github_repo != "" ? [] : [1]
-    content {
-      secret = var.webhook_trigger_secret
-    }
-  }
-  dynamic "source_to_build" {
-    for_each = var.github_owner != "" && var.github_repo != "" ? [] : [1]
-    content {
-      uri       = google_secure_source_manager_repository.repo.name
-      ref       = "refs/heads/${var.git_branch_trigger}"
-      repo_type = "UNKNOWN"
-    }
-  }
+  # dynamic "source_to_build" {
+  #   for_each = var.github_owner != "" && var.github_repo != "" ? [] : [1]
+  #   content {
+  #     uri       = google_secure_source_manager_repository.repo.name
+  #     ref       = "refs/heads/${var.git_branch_trigger}"
+  #     repo_type = "UNKNOWN"
+  #   }
+  # }
   build {
     step {
       id   = "build"
@@ -121,39 +121,40 @@ resource "google_cloudbuild_trigger" "continuous-integration" {
       ]
       allow_failure = true
     }
-    step {
-      id         = "vulnsign"
-      wait_for   = ["fetchImageDigest"]
-      name       = "$_KRITIS_SIGNER_IMAGE"
-      entrypoint = "/bin/sh"
-      args = [
-        "-c",
-        join(" ", [
-          "IMAGES=$$(/bin/cat ./apps/$${_APP_NAME}/images.txt)",
-          ";",
-          "for IMAGE in $$IMAGES",
-          ";",
-          "do",
-          "DIGEST_FILENAME=$$(/bin/echo \"$$IMAGE\" | /bin/sed 's/.*@sha256://').digest",
-          ";",
-          "/kritis/signer",
-          "-v=10",
-          "-alsologtostderr",
-          "-image=$$(/bin/cat ./apps/$${_APP_NAME}/$$DIGEST_FILENAME)",
-          "-policy=$${_POLICY_FILE}",
-          "-kms_key_name=$${_KMS_KEY_NAME}",
-          "-kms_digest_alg=$${_KMS_DIGEST_ALG}",
-          "-note_name=$${_NOTE_NAME}",
-          ";",
-          "done",
-          ]
-        )
-      ]
-      allow_failure = true
-    }
+    # step {
+    #   id         = "vulnsign"
+    #   wait_for   = ["fetchImageDigest"]
+    #   name       = "$_KRITIS_SIGNER_IMAGE"
+    #   entrypoint = "/bin/sh"
+    #   args = [
+    #     "-c",
+    #     join(" ", [
+    #       "IMAGES=$$(/bin/cat ./apps/$${_APP_NAME}/images.txt)",
+    #       ";",
+    #       "for IMAGE in $$IMAGES",
+    #       ";",
+    #       "do",
+    #       "DIGEST_FILENAME=$$(/bin/echo \"$$IMAGE\" | /bin/sed 's/.*@sha256://').digest",
+    #       ";",
+    #       "/kritis/signer",
+    #       "-v=10",
+    #       "-alsologtostderr",
+    #       "-image=$$(/bin/cat ./apps/$${_APP_NAME}/$$DIGEST_FILENAME)",
+    #       "-policy=$${_POLICY_FILE}",
+    #       "-kms_key_name=$${_KMS_KEY_NAME}",
+    #       "-kms_digest_alg=$${_KMS_DIGEST_ALG}",
+    #       "-note_name=$${_NOTE_NAME}",
+    #       ";",
+    #       "done",
+    #       ]
+    #     )
+    #   ]
+    #   allow_failure = true
+    # }
     step {
       id         = "createRelease"
-      wait_for   = ["vulnsign"]
+      # wait_for   = ["vulnsign"]
+      wait_for   = ["fetchImageDigest"]
       dir        = "apps/$${_APP_NAME}"
       name       = "gcr.io/google.com/cloudsdktool/cloud-sdk:$${_GCLOUD_IMAGE_TAG}"
       entrypoint = "/bin/sh"

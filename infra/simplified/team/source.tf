@@ -13,35 +13,35 @@
 # limitations under the License.
 
 # Cloud Source Repository is deprecated
-# module "repo" {
-#   source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/source-repository?ref=v34.0.0"
-#   project_id = var.project_id
-#   name       = var.team
-#   iam = {
-#     "roles/source.writer" = [
-#       "user:${var.user_identity}"
-#     ]
-#   }
-# }
-
-resource "google_secure_source_manager_repository" "repo" {
-  project       = var.project_id
-  location      = var.ssm_region
-  instance      = var.ssm_instance_name
-  repository_id = var.team
-
-  description = "Terraform-managed."
-  initial_config {
-    default_branch = "main"
+module "repo" {
+  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/source-repository?ref=v34.0.0"
+  project_id = var.project_id
+  name       = var.team
+  iam = {
+    "roles/source.writer" = [
+      "user:${var.user_identity}"
+    ]
   }
 }
 
-resource "google_secure_source_manager_repository_iam_binding" "repo_writer" {
-  project       = google_secure_source_manager_repository.repo.project
-  location      = google_secure_source_manager_repository.repo.location
-  repository_id = google_secure_source_manager_repository.repo.repository_id
-  role          = "roles/securesourcemanager.repoWriter"
-  members = [
-    "user:${var.user_identity}",
-  ]
-}
+# resource "google_secure_source_manager_repository" "repo" {
+#   project       = var.project_id
+#   location      = var.ssm_region
+#   instance      = var.ssm_instance_name
+#   repository_id = var.team
+
+#   description = "Terraform-managed."
+#   initial_config {
+#     default_branch = "main"
+#   }
+# }
+
+# resource "google_secure_source_manager_repository_iam_binding" "repo_writer" {
+#   project       = google_secure_source_manager_repository.repo.project
+#   location      = google_secure_source_manager_repository.repo.location
+#   repository_id = google_secure_source_manager_repository.repo.repository_id
+#   role          = "roles/securesourcemanager.repoWriter"
+#   members = [
+#     "user:${var.user_identity}",
+#   ]
+# }
