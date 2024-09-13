@@ -35,8 +35,8 @@ resource "google_binary_authorization_policy" "policy" {
 }
 
 resource "google_container_analysis_note" "vulnz-attestor" {
-  name    = var.vulnz_attestor_name
   project = module.project_hub_supplychain.project_id
+  name    = var.vulnz_attestor_name
   attestation_authority {
     hint {
       human_readable_name = "Vulnerability Attestor"
@@ -52,8 +52,8 @@ resource "google_container_analysis_note_iam_member" "vulnz-attestor" {
 }
 
 resource "google_binary_authorization_attestor" "vulnz-attestor" {
-  name    = var.vulnz_attestor_name
   project = module.project_hub_supplychain.project_id
+  name    = var.vulnz_attestor_name
   attestation_authority_note {
     note_reference = google_container_analysis_note.vulnz-attestor.name
     public_keys {
