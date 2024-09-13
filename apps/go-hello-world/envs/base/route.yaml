@@ -22,7 +22,7 @@ metadata:
 spec:
   parentRefs:
   - kind: Gateway
-    name: go-hello-world
+    name: cicd-foundation-go
   rules:
   - backendRefs:
     - name: go-hello-world

@@ -59,7 +59,6 @@ variable "sa_cd_name" {
 variable "registry_id" {
   description = "String used to name Artifact Registry."
   type        = string
-  default     = "registry"
 }
 
 variable "developers" {
