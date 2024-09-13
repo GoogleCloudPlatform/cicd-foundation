@@ -639,9 +639,9 @@ variable "developers" {
 }
 
 variable "build_machine_type_default" {
-  description = "the default machine type to use for Cloud Build build"
+  description = "the default machine type to use for Cloud Build build, cf. https://cloud.google.com/build/docs/api/reference/rest/v1/projects.builds#machinetype"
   type        = string
-  default     = "E2_MEDIUM"
+  default     = "UNSPECIFIED"
 }
 
 variable "build_timeout_default" {
