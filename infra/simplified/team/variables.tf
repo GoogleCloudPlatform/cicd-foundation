@@ -101,15 +101,13 @@ variable "stages" {
 }
 
 variable "build_machine_type_default" {
-  description = "the default machine type to use for Cloud Build build"
+  description = "the default machine type to use for Cloud Build build, cf. https://cloud.google.com/build/docs/api/reference/rest/v1/projects.builds#machinetype"
   type        = string
-  default     = "E2_MEDIUM"
 }
 
 variable "build_timeout_default" {
   description = "the default timeout in seconds for the Cloud Build build step"
   type        = number
-  default     = 7200
 }
 
 variable "apps" {
@@ -182,7 +180,6 @@ variable "kms_digest_alg" {
 variable "registry_id" {
   description = "String used to name Artifact Registry."
   type        = string
-  default     = "registry"
 }
 
 variable "sa-ws-email" {

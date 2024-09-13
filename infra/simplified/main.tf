@@ -26,6 +26,8 @@ module "hub" {
 
   ws_pool_size = length(var.developers)
 
+  registry_id = var.registry_id
+
   cluster_name                = var.cluster_name
   cluster_min_version         = var.cluster_min_version
   cluster_release_channel     = var.cluster_release_channel
@@ -46,7 +48,7 @@ module "team" {
 
   ws_cluster_id = module.hub.ws_cluster_id
   ws_config_id  = module.hub.ws_config_id
-  sa-ws-email = module.hub.workstations_sa_email
+  sa-ws-email   = module.hub.workstations_sa_email
 
   # ssm_instance_name      = module.hub.ssm_instance_name
   # ssm_region             = var.ssm_region
@@ -56,8 +58,12 @@ module "team" {
   kritis_note         = module.hub.kritis_note
   kms_key_name        = module.hub.kms_key_name
 
-  sa-cb-id    = module.hub.cloud_build_sa_id
-  sa-cb-email = module.hub.cloud_build_sa_email
+  sa-cb-id                   = module.hub.cloud_build_sa_id
+  sa-cb-email                = module.hub.cloud_build_sa_email
+  build_machine_type_default = var.build_machine_type_default
+  build_timeout_default      = var.build_timeout_default
+
+  registry_id = var.registry_id
 
   sa-cluster-prod-email = module.hub.sa-cluster-prod_email
   sa-cluster-test-email = module.hub.sa-cluster-test_email
