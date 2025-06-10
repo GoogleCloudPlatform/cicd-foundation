@@ -1,0 +1,59 @@
+# Copyright 2023-2005 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+project_id = "REPLACE_WITH_YOUR_PROJECT_ID"
+
+region = "us-west1"
+
+# admins have the permissions to push to the repository
+admins = [
+  "alex@example.com",
+]
+
+# users can create/use Cloud Workstation(s)
+users = [
+  "alex@example.com",
+]
+
+# branch used by the scheduler
+git_branch_trigger = "main"
+
+# push to branch triggering a build
+git_branch_trigger_regexp = "^.*$"
+
+aosp_branches = [
+  # "main",
+  # "feature2",
+  # "user3",
+]
+
+aosp_targets = {
+  # "x86-userdebug" : "aosp_cf_x86_64_phone-trunk_staging-userdebug",
+  # "arm64-eng" : "aosp_cf_x86_64_phone-trunk_staging-eng",
+}
+
+apps = {
+  "asfp" : {
+    build = {
+      timeout      = 7200
+      machine_type = "E2_HIGHCPU_32"
+    }
+    runtime = "workstation"
+  },
+}
+
+ws_config_name_default = "asfp"
+# ws_config_disable_public_ip = false
+# ws_pd_disk_reclaim_policy = "DELETE"
+ws_pd_disk_snapshot_id = "projects/REPLACE_WITH_YOUR_PROJECT_ID/global/snapshots/REPLACE_WITH_YOUR_SNAPSHOT"
