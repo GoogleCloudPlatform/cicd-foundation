@@ -1,0 +1,173 @@
+/**
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@import "@fontsource/inter/300.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/space-grotesk/300.css";
+@import "@fontsource/space-grotesk/400.css";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/600.css";
+@import "@fontsource/space-grotesk/700.css";
+@import "material-symbols/outlined.css";
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-secondary: #03a9f4;
+  --color-on-surface: #e1e2eb;
+  --color-on-surface-variant: #c4c6cf;
+  --font-headline: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply antialiased bg-black overflow-hidden;
+  }
+}
+
+/* --- Shared Component Styles --- */
+
+.ui-label {
+  @apply font-headline text-[11px] uppercase tracking-[0.3em] text-secondary font-bold whitespace-nowrap;
+}
+
+.ui-btn-action {
+  @apply px-8 py-3 rounded-lg text-sm font-bold bg-secondary text-white active:scale-95 transition-all uppercase tracking-widest outline-none focus:ring-2 focus:ring-secondary/50 focus:ring-offset-2 focus:ring-offset-black;
+}
+
+.ui-btn-ghost {
+  @apply flex items-center gap-2 text-secondary hover:underline text-xs font-bold uppercase tracking-widest transition-all outline-none focus:ring-2 focus:ring-secondary/50;
+}
+
+.ui-card-static {
+  @apply bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-sm border border-neutral-800;
+}
+
+/* --- Animations --- */
+
+@keyframes pulse-ready {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(255, 214, 0, 0.3));
+  }
+  50% {
+    transform: scale(1.3);
+    filter: drop-shadow(0 0 30px rgba(255, 214, 0, 0.7));
+  }
+}
+
+.animate-ready {
+  animation: pulse-ready 4s ease-in-out infinite;
+  display: inline-block; /* Ensure transform works correctly on the span */
+}
+
+@keyframes cosmic-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+    filter: drop-shadow(0 0 10px rgba(3, 169, 244, 0.2));
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+    filter: drop-shadow(0 0 30px rgba(3, 169, 244, 0.6));
+  }
+}
+
+.animate-cosmic-pulse {
+  animation: cosmic-pulse 4s ease-in-out infinite;
+  display: inline-block;
+}
+
+@keyframes glow {
+  0%,
+  100% {
+    text-shadow:
+      0 0 5px rgba(255, 214, 0, 0.2),
+      0 0 10px rgba(255, 214, 0, 0.1);
+  }
+  50% {
+    text-shadow:
+      0 0 12px rgba(255, 214, 0, 0.45),
+      0 0 22px rgba(255, 214, 0, 0.25);
+  }
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes drift {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.animate-drift {
+  animation: none ease-in-out infinite alternate;
+}
+
+.starfield-container {
+  @apply fixed inset-0 z-0;
+}
+.glass-panel {
+  @apply bg-[#202124]/90 backdrop-blur-xl;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+summary {
+  @apply cursor-pointer list-none outline-none;
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 300,
+    "GRAD" 0,
+    "opsz" 24;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "liga";
+  overflow: hidden;
+  width: 1em;
+  height: 1em;
+  line-height: 1;
+  vertical-align: -0.125em;
+}

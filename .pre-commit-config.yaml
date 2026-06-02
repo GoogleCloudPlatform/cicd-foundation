@@ -1,0 +1,313 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: mixed-line-ending
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/google/keep-sorted
+    rev: v0.8.0
+    hooks:
+      - id: keep-sorted
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.9
+    hooks:
+      - id: ruff
+        args: [--fix, --extend-ignore, E402]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        files: \.(css|html|js|json|jsx|md|scss|ts|tsx|yaml|yml)$
+        exclude: |
+          (?x)^(
+            apps/workstations/preflight-web/package-lock\.json|
+            skills/persona-swe/scripts/go\.sum|
+            .*/dist/.*
+          )
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        args:
+          [
+            -e,
+            SC2153,
+            -e,
+            SC2086,
+            -e,
+            SC2155,
+            -e,
+            SC2001,
+            -e,
+            SC2016,
+            -e,
+            SC2034,
+            -e,
+            SC1083,
+            -e,
+            SC1090,
+            -e,
+            SC2129,
+            -e,
+            SC2140,
+            -e,
+            SC2317,
+            -e,
+            SC2030,
+            -e,
+            SC2031,
+            -e,
+            SC1091,
+          ]
+
+  - repo: local
+    hooks:
+      - id: gofmt
+        name: Go Formatting (gofmt)
+        entry: gofmt -w
+        language: system
+        types: [go]
+
+      # --- SECTION: General & Shared Tooling ---
+
+      - id: clean-whitespace
+        name: Clean Trailing Whitespace (Custom)
+        entry: bash -c 'cd skills/persona-swe/scripts && go run cmd/clean_whitespace/main.go -- "${@/#/../../../}"' --
+        language: system
+        pass_filenames: true
+        require_serial: true
+        types: [text]
+        exclude: |
+          (?x)^(
+            node_modules/|
+            dist/|
+            vendor/|
+            tests/integration/|
+            .*\.go$|
+            .*\.py$
+          )
+
+      - id: license-enforcer
+        name: License Enforcer (Go)
+        entry: bash -c 'cd skills/persona-legal/scripts && go run cmd/license_enforcer/main.go -- "${@/#/../../../}"' --
+        language: system
+        pass_filenames: true
+        require_serial: true
+
+      - id: verify-locales
+        name: Verify i18n Locales (Sorting & Consistency)
+        entry: bash -c 'cd skills/persona-swe/scripts && go run cmd/verify_locales/main.go -- "${@/#/../../../}"' --
+        language: system
+        pass_filenames: true
+        require_serial: true
+        files: ".*locale.*\\.json$"
+
+      - id: gitseep
+        name: GitSeep (auto-approve)
+        entry: bash -c 'cd skills/persona-swe/scripts && go run cmd/gitseep/main.go -y'
+        language: system
+        pass_filenames: false
+        require_serial: true
+        stages: [manual]
+
+      - id: gitseep-check
+        name: Validate GitSeep Stratigraphy
+        entry: bash -c 'cd skills/persona-swe/scripts && go run cmd/gitseep/main.go check'
+        language: system
+        pass_filenames: false
+        require_serial: true
+
+      # --- SECTION: Skills & Personas ---
+
+      - id: golangci-lint-persona
+        name: Persona Scripts Linting (Go)
+        entry: |
+          bash -c '
+            targets=()
+            for f in "$@"; do
+              if [[ "$f" =~ ^(skills/persona-[^/]+)/ ]]; then
+                persona_dir="${BASH_REMATCH[1]}"
+                if [[ -d "$persona_dir/scripts" && -f "$persona_dir/scripts/go.mod" ]]; then
+                  targets+=("$persona_dir/scripts")
+                fi
+              fi
+            done
+            if [ ${#targets[@]} -gt 0 ]; then
+              unique_targets=($(echo "${targets[@]}" | tr " " "\n" | sort -u))
+              for t in "${unique_targets[@]}"; do
+                (cd "$t" && go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5 run ./... --timeout 5m) || exit 1
+              done
+            fi
+          ' --
+        language: system
+        files: ^skills/persona-[^/]+/
+        pass_filenames: true
+        require_serial: true
+
+      - id: bats-skills
+        name: Skills Unit Tests (Bats)
+        entry: |
+          bash -c '
+            targets=()
+            if [ $# -gt 0 ]; then
+              for f in "$@"; do
+                if [[ "$f" == *.bats ]]; then
+                  targets+=("$f")
+                else
+                  skill_dir=$(echo "$f" | cut -d/ -f1,2)
+                  if [ -d "$skill_dir/tests" ]; then
+                    targets+=("$skill_dir/tests")
+                  fi
+                fi
+              done
+            fi
+            if [ ${#targets[@]} -gt 0 ]; then
+              unique_targets=($(echo "${targets[@]}" | tr " " "\n" | sort -u))
+              exec bats "${unique_targets[@]}"
+            fi
+            for d in skills/*/tests; do
+              [ -d "$d" ] || continue
+              if compgen -G "$d/*.bats" >/dev/null; then
+                bats "$d"
+              fi
+            done
+          ' --
+        language: system
+        pass_filenames: true
+        files: ^skills/
+
+      - id: pytest-skills
+        name: Skills Unit Tests (Pytest)
+        entry: |
+          bash -c '
+            targets=()
+            if [ $# -gt 0 ]; then
+              for f in "$@"; do
+                if [[ "$f" == *.py ]] && [[ "$f" == */tests/* ]]; then
+                  targets+=("$f")
+                else
+                  skill_dir=$(echo "$f" | cut -d/ -f1,2)
+                  if [ -d "$skill_dir/tests" ] && compgen -G "$skill_dir/tests/*.py" >/dev/null; then
+                    targets+=("$skill_dir/tests")
+                  fi
+                fi
+              done
+            fi
+            if [ ${#targets[@]} -gt 0 ]; then
+              unique_targets=($(echo "${targets[@]}" | tr " " "\n" | sort -u))
+              exec pytest "${unique_targets[@]}"
+            fi
+            for d in skills/*/tests; do
+              [ -d "$d" ] || continue
+              if compgen -G "$d/*.py" >/dev/null; then
+                pytest "$d"
+              fi
+            done
+          ' --
+        language: system
+        pass_filenames: true
+        files: ^skills/
+
+      - id: go-test-persona
+        name: Persona Scripts Unit Tests (Go)
+        entry: |
+          bash -c '
+            targets=()
+            for f in "$@"; do
+              if [[ "$f" =~ ^(skills/persona-[^/]+)/ ]]; then
+                persona_dir="${BASH_REMATCH[1]}"
+                if [[ -d "$persona_dir/scripts" && -f "$persona_dir/scripts/go.mod" ]]; then
+                  targets+=("$persona_dir/scripts")
+                fi
+              fi
+            done
+            if [ ${#targets[@]} -gt 0 ]; then
+              unique_targets=($(echo "${targets[@]}" | tr " " "\n" | sort -u))
+              for t in "${unique_targets[@]}"; do
+                (cd "$t" && go test ./...) || exit 1
+              done
+            fi
+          ' --
+        language: system
+        files: ^skills/persona-[^/]+/
+        pass_filenames: true
+        require_serial: true
+
+      # --- SECTION: Preflight Dashboard ---
+
+      - id: npm-install-preflight
+        name: Install Preflight Dependencies
+        entry: npm install --prefix apps/workstations/preflight-web
+        language: system
+        files: ^apps/workstations/preflight-web/package-lock\.json$
+        pass_filenames: false
+        require_serial: true
+
+      - id: vitest
+        name: Frontend Tests (Vitest)
+        entry: npm run test --prefix apps/workstations/preflight-web
+        language: system
+        files: ^apps/workstations/preflight-web/
+        pass_filenames: false
+
+      - id: bats-preflight
+        name: Preflight Unit Tests (Bats)
+        entry: bats -r apps/workstations/preflight/tests/unit/
+        language: system
+        files: ^apps/workstations/preflight/
+        pass_filenames: false
+
+      - id: bats-preflight-web
+        name: Preflight Web Unit Tests (Bats)
+        entry: bats -r apps/workstations/preflight-web/tests/unit/
+        language: system
+        files: ^apps/workstations/preflight-web/
+        pass_filenames: false
+
+      # --- SECTION: Image Layers ---
+
+      - id: bats-images
+        name: Images Unit Tests (Bats)
+        entry: bash -c 'bats -r apps/workstations/*/tests/unit/'
+        language: system
+        files: ^apps/workstations/
+        pass_filenames: false
+
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.31.0
+    hooks:
+      - id: eslint
+        files: ^apps/workstations/preflight-web/
+        args: [--config, apps/workstations/preflight-web/eslint.config.js]
+        additional_dependencies:
+          - eslint@9.31.0
+          - "typescript-eslint@8.58.2"
+          - "globals@15.15.0"

@@ -1,0 +1,35 @@
+# Copyright 2025-2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[Unit]
+Description=Guacamole Client Container
+Wants=docker.service network-online.target guacd.service config-rendering.service ${DESKTOP_SERVICE}
+After=docker.service network-online.target guacd.service config-rendering.service
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/docker rm -f guacamole
+ExecStartPre=/usr/bin/docker load -i /opt/images/guacamole.tar
+ExecStart=/usr/bin/docker run --rm --name guacamole \
+    --network host \
+    --cgroupns host \
+    -e GUACAMOLE_HOME=/etc/guacamole \
+    -e REMOTE_IP_VALVE_ENABLED=true \
+    -e GUACD_HOSTNAME=127.0.0.1 \
+    -e GUACD_PORT=4822 \
+    -v /etc/guacamole/extensions:/etc/guacamole/extensions:ro \
+    -v /etc/guacamole/user-mapping.xml:/etc/guacamole/user-mapping.xml:ro \
+    ${CONTAINER_REGISTRY}/guacamole/guacamole:${GUACAMOLE_VERSION}
+ExecStop=/usr/bin/docker stop guacamole
+Restart=on-failure

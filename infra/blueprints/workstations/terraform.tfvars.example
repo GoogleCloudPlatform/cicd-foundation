@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Google LLC
+# Copyright 2023-2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,8 +48,8 @@ project_id = "YOUR_PROJECT_ID"
 # Optional: The name of the Secure Source Manager repository. Defaults to "cicd-foundation".
 #secure_source_manager_repo_name = "YOUR_SSM_REPO_NAME"
 
-# Optional: The URL of a Git repository to clone into the new Secure Source Manager repository. If null, cloning is skipped. Defaults to f"https://github.com/GoogleCloudPlatform/cloud-workstations-custom-image-examples.git".
-#secure_source_manager_repo_git_url_to_clone = "https://github.com/GoogleCloudPlatform/horizon-sdv.git"
+# Optional: The URL of a Git repository to clone into the new Secure Source Manager repository. If null, cloning is skipped. Defaults to "https://github.com/GoogleCloudPlatform/cicd-foundation.git".
+# secure_source_manager_repo_git_url_to_clone = null
 
 # Optional: The Secure Source Manager (SSM) branch that triggers Cloud Build on push. Defaults to "main".
 #git_branch_trigger = "dev"
@@ -58,30 +58,28 @@ project_id = "YOUR_PROJECT_ID"
 cws_custom_images = {
   # Custom Cloud Workstation Image with Antigravity
   "antigravity" : {
-    build = {
-      skaffold_path   = "workloads/cloud-workstations/pipelines/workstation-images/antigravity"
-      machine_type    = "E2_HIGHCPU_32"
-      paused          = true            # Pause the Scheduler to trigger builds.
+    git_repo = {
+      url    = "https://github.com/GoogleCloudPlatform/cicd-foundation.git"
+      branch = "main"
     }
-  },
-  # Custom Cloud Workstation Images for Android Development
-  "android-studio" : {
     build = {
-      skaffold_path   = "workloads/cloud-workstations/pipelines/workstation-images/horizon-android-studio"
+      skaffold_path   = "apps/workstations/antigravity"
       timeout_seconds = 7200
       machine_type    = "E2_HIGHCPU_32"
     }
   },
+  # Custom Cloud Workstation Images with Android Studio for Platform
   "android-studio-for-platform" : {
+    git_repo = {
+      url    = "https://github.com/GoogleCloudPlatform/cicd-foundation.git"
+      branch = "main"
+    }
     build = {
-      skaffold_path   = "workloads/cloud-workstations/pipelines/workstation-images/horizon-asfp"
+      skaffold_path   = "apps/workstations/android-studio-for-platform"
       timeout_seconds = 7200
       machine_type    = "E2_HIGHCPU_32"
-    }
-  },
-  "code-oss" : {
-    build = {
-      skaffold_path = "workloads/cloud-workstations/pipelines/workstation-images/horizon-code-oss"
+      env = {
+      }
     }
   },
 }
@@ -147,7 +145,7 @@ cws_configs = {
     #  "user2@example.com",
     ]
     custom_image_names = [
-      "android-studio",
+      "antigravity",
       "android-studio-for-platform",
       "code-oss",
     ]
@@ -172,11 +170,11 @@ cws_configs = {
     #persistent_disk_source_snapshot = null  # Defaults to null
     persistent_disk_type = "pd-ssd"
     #pool_size = 1  # Defaults to 0
-    #shielded_instance_config = {            # Defaults to null
+    shielded_instance_config = {            # Defaults to null
     #  enable_secure_boot          = false   # Defaults to true within shielded_instance_config
     #  enable_vtpm                 = false   # Defaults to true within shielded_instance_config
     #  enable_integrity_monitoring = false   # Defaults to true within shielded_instance_config
-    #}
+    }
   },
 }
 

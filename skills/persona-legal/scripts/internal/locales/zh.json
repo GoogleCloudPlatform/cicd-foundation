@@ -1,0 +1,38 @@
+[
+  {
+    "id": "license_enforcer_applying",
+    "translation": "  - 正在将 {{.License}} 许可证应用于 {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_different_holder",
+    "translation": "在 {{.Path}} 中发现不同的版权所有者 ('{{.Holder}}')"
+  },
+  {
+    "id": "license_enforcer_error_stat",
+    "translation": "无法获取 {{.Path}} 的信息: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_error_walk",
+    "translation": "无法遍历目录 {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_fixing",
+    "translation": "  - 正在修复 {{.Path}} 中的许可证格式"
+  },
+  {
+    "id": "license_enforcer_success",
+    "translation": "所有追踪的文件均已具有有效的许可证头和格式。"
+  },
+  {
+    "id": "license_enforcer_summary",
+    "translation": "已为 {{.Count}} 个文件应用许可证头或修复。"
+  },
+  {
+    "id": "license_enforcer_updating",
+    "translation": "  - 正在更新 {{.Path}} 中的版权年份"
+  },
+  {
+    "id": "usage_license_enforcer",
+    "translation": "用法: license_enforcer [选项] [文件名...]\n\n选项:\n  --holder string    版权所有者 (默认为 \"Google LLC\")\n  --license string   SPDX 许可证标识符 (默认为 \"Apache-2.0\")\n  --exclude string   以空格分隔的排除路径列表\n  --filter string    用于过滤文件的正则表达式"
+  }
+]

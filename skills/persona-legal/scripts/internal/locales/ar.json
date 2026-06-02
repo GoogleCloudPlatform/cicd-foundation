@@ -1,0 +1,38 @@
+[
+  {
+    "id": "license_enforcer_applying",
+    "translation": "  - تطبيق ترخيص {{.License}} على {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_different_holder",
+    "translation": "تم العثور على صاحب حقوق طبع ونشر مختلف ('{{.Holder}}') في {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_error_stat",
+    "translation": "فشل في الحصول على معلومات {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_error_walk",
+    "translation": "فشل في تصفح الدليل {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_fixing",
+    "translation": "  - إصلاح تنسيق الترخيص في {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_success",
+    "translation": "جميع الملفات المتعقبة لديها بالفعل رؤوس ترخيص وتنسيق صالحين."
+  },
+  {
+    "id": "license_enforcer_summary",
+    "translation": "تم تطبيق رؤوس الترخيص أو الإصلاحات على {{.Count}} ملفات."
+  },
+  {
+    "id": "license_enforcer_updating",
+    "translation": "  - تحديث سنة حقوق الطبع والنشر في {{.Path}}"
+  },
+  {
+    "id": "usage_license_enforcer",
+    "translation": "الاستخدام: license_enforcer [options] [filenames...]\n\nالخيارات:\n  --holder string    صاحب حقوق الطبع والنشر (افتراضي \"Google LLC\")\n  --license string   معرف ترخيص SPDX (افتراضي \"Apache-2.0\")\n  --exclude string   قائمة المسارات المراد استثناؤها مفصولة بمسافات\n  --filter string    تعبير نمطي لتصفية الملفات"
+  }
+]

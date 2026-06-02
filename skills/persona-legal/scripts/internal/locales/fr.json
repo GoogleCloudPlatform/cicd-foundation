@@ -1,0 +1,38 @@
+[
+  {
+    "id": "license_enforcer_applying",
+    "translation": "  - Application de la licence {{.License}} à {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_different_holder",
+    "translation": "Titulaire de droits d'auteur différent ('{{.Holder}}') trouvé dans {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_error_stat",
+    "translation": "échec de l'obtention des informations sur {{.Path}} : {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_error_walk",
+    "translation": "échec du parcours du répertoire {{.Path}} : {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_fixing",
+    "translation": "  - Correction du format de la licence dans {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_success",
+    "translation": "Tous les fichiers suivis ont déjà des en-têtes de licence et un formatage valides."
+  },
+  {
+    "id": "license_enforcer_summary",
+    "translation": "En-têtes de licence ou corrections appliqués à {{.Count}} fichiers."
+  },
+  {
+    "id": "license_enforcer_updating",
+    "translation": "  - Mise à jour de l'année de copyright dans {{.Path}}"
+  },
+  {
+    "id": "usage_license_enforcer",
+    "translation": "Utilisation : license_enforcer [options] [noms_de_fichiers...]\n\nOptions :\n  --holder string    Titulaire du copyright (par défaut \"Google LLC\")\n  --license string   Identifiant de licence SPDX (par défaut \"Apache-2.0\")\n  --exclude string   Liste de chemins à exclure séparés par des espaces\n  --filter string    Regex pour filtrer les fichiers"
+  }
+]

@@ -1,0 +1,8 @@
+[org.gnome.shell]
+# Override the default enabled extensions list to include Just Perfection.
+# This replaces the old hide-screen-sharing extension and provides more robust
+# control over the privacy indicators.
+enabled-extensions=['ubuntu-dock@ubuntu.com', 'ubuntu-appindicators@ubuntu.com', 'tiling-assistant@ubuntu.com', 'ding@rastersoft.com', 'just-perfection-desktop@just-perfection']
+
+[org.gnome.shell.extensions.just-perfection]
+screen-sharing-indicator=false

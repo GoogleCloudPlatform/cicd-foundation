@@ -1,0 +1,38 @@
+[
+  {
+    "id": "license_enforcer_applying",
+    "translation": "  - Применение лицензии {{.License}} к {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_different_holder",
+    "translation": "В {{.Path}} найден другой правообладатель ('{{.Holder}}')"
+  },
+  {
+    "id": "license_enforcer_error_stat",
+    "translation": "не удалось получить информацию о {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_error_walk",
+    "translation": "не удалось обойти директорию {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_fixing",
+    "translation": "  - Исправление форматирования лицензии в {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_success",
+    "translation": "Все отслеживаемые файлы уже имеют правильные заголовки лицензий и форматирование."
+  },
+  {
+    "id": "license_enforcer_summary",
+    "translation": "Заголовки лицензий или исправления применены к {{.Count}} файлам."
+  },
+  {
+    "id": "license_enforcer_updating",
+    "translation": "  - Обновление года авторских прав в {{.Path}}"
+  },
+  {
+    "id": "usage_license_enforcer",
+    "translation": "Использование: license_enforcer [опции] [имена_файлов...]\n\nОпции:\n  --holder string    Правообладатель (по умолчанию \"Google LLC\")\n  --license string   Идентификатор лицензии SPDX (по умолчанию \"Apache-2.0\")\n  --exclude string   Список путей для исключения, разделенных пробелами\n  --filter string    Регулярное выражение для фильтрации файлов"
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "license_enforcer_applying",
+    "translation": "  - Applying {{.License}} license to {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_different_holder",
+    "translation": "Different copyright holder ('{{.Holder}}') found in {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_error_stat",
+    "translation": "failed to stat {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_error_walk",
+    "translation": "failed to walk directory {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_fixing",
+    "translation": "  - Fixing license formatting in {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_success",
+    "translation": "All tracked files already have valid license headers and formatting."
+  },
+  {
+    "id": "license_enforcer_summary",
+    "translation": "Applied license headers or fixes to {{.Count}} files."
+  },
+  {
+    "id": "license_enforcer_updating",
+    "translation": "  - Updating copyright year in {{.Path}}"
+  },
+  {
+    "id": "usage_license_enforcer",
+    "translation": "Usage: license_enforcer [options] [filenames...]\n\nOptions:\n  --holder string    Copyright holder (default \"Google LLC\")\n  --license string   SPDX license identifier (default \"Apache-2.0\")\n  --exclude string   Space-separated list of paths to exclude\n  --filter string    Regex to filter files"
+  }
+]

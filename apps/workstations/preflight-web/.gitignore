@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+
+# Testing
+coverage/
+
+# Generated artifacts
+public/privacy_notice.html

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -euo pipefail
+
+# shellcheck source=/dev/null
+source /google/scripts/desktop_utils.sh
+
+# In headless cloud environments, GNOME Shell may start before a virtual monitor
+# is fully initialized. Launching the IDE before a monitor is available leads
+# to "java.awt.AWTError: no screen devices".
+# The wait_for_monitor function from the GNOME layer handles deterministic polling.
+wait_for_monitor
+
+# Ensure critical environment variables are set for the native Wayland backend.
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/1000}"
+export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
+export GDK_BACKEND=wayland
+
+# Launch ASfP with native Wayland backend and forced memory settings.
+exec /opt/android-studio-for-platform-canary/bin/studio -Dwayland.enabled=true "$@"

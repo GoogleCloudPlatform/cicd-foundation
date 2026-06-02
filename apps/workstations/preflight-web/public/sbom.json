@@ -1,0 +1,153 @@
+{
+  "bomFormat": "Curated-SPDX-Manifest",
+  "specVersion": "1.0",
+  "metadata": {
+    "project": "Custom Image Preflight for Cloud Workstation",
+    "url": "https://github.com/sce-taid/cloud-workstations-custom-image-examples/tree/main/examples/preflight/",
+    "repository": "https://github.com/sce-taid/cloud-workstations-custom-image-examples.git",
+    "copyright": "Copyright © 2026 Google LLC",
+    "organization": "Google LLC"
+  },
+  "licenses": {
+    "Apache-2.0": {
+      "name": "Apache License 2.0",
+      "url": "https://spdx.org/licenses/Apache-2.0.txt",
+      "local_text": "/licenses/Apache-2.0.txt"
+    },
+    "GPL-2.0-only": {
+      "name": "GNU General Public License v2.0 only",
+      "url": "https://spdx.org/licenses/GPL-2.0.txt",
+      "local_text": "/licenses/GPL-2.0-only.txt"
+    },
+    "GPL-3.0-only": {
+      "name": "GNU General Public License v3.0 only",
+      "url": "https://spdx.org/licenses/GPL-3.0.txt",
+      "local_text": "/licenses/GPL-3.0-only.txt"
+    },
+    "BSD-2-Clause": {
+      "name": "BSD 2-Clause \"Simplified\" License",
+      "url": "https://spdx.org/licenses/BSD-2-Clause.txt",
+      "local_text": "/licenses/BSD-2-Clause.txt"
+    },
+    "MIT": {
+      "name": "MIT License",
+      "url": "https://spdx.org/licenses/MIT.txt",
+      "local_text": "/licenses/MIT.txt"
+    },
+    "Unsplash": {
+      "name": "Unsplash License",
+      "url": "https://unsplash.com/license",
+      "local_text": "/licenses/Unsplash.txt"
+    }
+  },
+  "components": [
+    {
+      "name": "Custom Image Preflight for Cloud Workstation",
+      "version": "1.0.0",
+      "group": "Preflight Solution",
+      "license_id": "Apache-2.0",
+      "supplier": "Google LLC",
+      "url": "https://github.com/sce-taid/cloud-workstations-custom-image-examples/tree/main/examples/preflight-web/",
+      "repository": "https://github.com/sce-taid/cloud-workstations-custom-image-examples.git"
+    },
+    {
+      "name": "Vite",
+      "version": "8.0.3",
+      "group": "Preflight Solution",
+      "license_id": "MIT",
+      "supplier": "Vitejs",
+      "url": "https://vitejs.dev/",
+      "repository": "https://github.com/vitejs/vite"
+    },
+    {
+      "name": "Tailwind CSS",
+      "version": "4.2.2",
+      "group": "Preflight Solution",
+      "license_id": "MIT",
+      "supplier": "Tailwind Labs Inc.",
+      "url": "https://tailwindcss.com/",
+      "repository": "https://github.com/tailwindlabs/tailwindcss"
+    },
+    {
+      "name": "White and Brown Starry Night (Asset)",
+      "version": "N/A",
+      "group": "Preflight Solution",
+      "license_id": "Unsplash",
+      "supplier": "Bryan Goff",
+      "url": "https://unsplash.com/photos/white-and-brown-starry-night-aoNuIXxWItQ",
+      "repository": "https://unsplash.com/@bryangoffphoto"
+    },
+    {
+      "name": "Guacamole Server",
+      "version": "1.6.0",
+      "group": "Workstation Core",
+      "license_id": "Apache-2.0",
+      "supplier": "Apache Software Foundation",
+      "url": "https://guacamole.apache.org/",
+      "repository": "https://github.com/apache/guacamole-server"
+    },
+    {
+      "name": "NGINX",
+      "version": "1.24.0",
+      "group": "Workstation Core",
+      "license_id": "BSD-2-Clause",
+      "supplier": "F5, Inc.",
+      "url": "https://nginx.org/",
+      "repository": "https://github.com/nginx/nginx"
+    },
+    {
+      "name": "GNOME Shell",
+      "version": "46.0",
+      "group": "Workstation Core",
+      "license_id": "GPL-2.0-only",
+      "supplier": "The GNOME Project",
+      "url": "https://www.gnome.org/",
+      "repository": "https://gitlab.gnome.org/GNOME/gnome-shell"
+    },
+    {
+      "name": "Ubuntu",
+      "version": "24.04.4 (Noble)",
+      "group": "Workstation Core",
+      "license_id": "GPL-2.0-only",
+      "supplier": "Canonical Ltd.",
+      "url": "https://ubuntu.com/",
+      "repository": "https://github.com/canonical/ubuntu"
+    },
+    {
+      "name": "Docker",
+      "version": "29.4.0",
+      "group": "Workstation Core",
+      "license_id": "Apache-2.0",
+      "supplier": "Docker Inc.",
+      "url": "https://www.docker.com/",
+      "repository": "https://github.com/moby/moby"
+    },
+    {
+      "name": "Gemini CLI",
+      "version": "0.35.3",
+      "group": "Workstation Core",
+      "license_id": "Apache-2.0",
+      "supplier": "Google LLC",
+      "url": "https://www.npmjs.com/package/@google/gemini-cli",
+      "repository": "https://github.com/google-gemini/gemini-cli"
+    },
+    {
+      "name": "Agent Development Kit (Python)",
+      "version": "1.28.1",
+      "group": "Workstation Core",
+      "license_id": "Apache-2.0",
+      "supplier": "Google LLC",
+      "url": "https://pypi.org/project/google-adk/",
+      "repository": "https://github.com/google/adk-python"
+    },
+    {
+      "name": "Just Perfection GNOME Extension",
+      "version": "36",
+      "group": "Workstation Core",
+      "license_id": "GPL-3.0-only",
+      "supplier": "Just Perfection",
+      "url": "https://gitlab.gnome.org/jptranslation/just-perfection",
+      "repository": "https://gitlab.gnome.org/jptranslation/just-perfection.git"
+    }
+  ]
+}

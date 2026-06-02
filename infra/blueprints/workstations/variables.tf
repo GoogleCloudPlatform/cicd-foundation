@@ -153,7 +153,7 @@ variable "secure_source_manager_instance_name" {
 variable "secure_source_manager_repo_git_url_to_clone" {
   type        = string
   description = "The URL of a Git repository to clone into the new Secure Source Manager repository. If null, cloning is skipped."
-  default     = "https://github.com/GoogleCloudPlatform/cloud-workstations-custom-image-examples.git"
+  default     = "https://github.com/GoogleCloudPlatform/cicd-foundation.git"
 }
 
 variable "secure_source_manager_repo_name" {
@@ -278,32 +278,30 @@ variable "cws_custom_images" {
   }
   default = {
     // go/keep-sorted start block=yes
-    "android-studio" : {
-      build = {
-        skaffold_path   = "examples/images/android/android-studio"
-        timeout_seconds = 7200
-        machine_type    = "E2_HIGHCPU_32"
-      }
-    },
     "android-studio-for-platform" : {
+      git_repo = {
+        url    = "https://github.com/GoogleCloudPlatform/cicd-foundation.git"
+        branch = "main"
+      }
       build = {
-        skaffold_path   = "examples/images/android-open-source-project/android-studio-for-platform"
+        skaffold_path   = "apps/workstations/android-studio-for-platform"
         timeout_seconds = 7200
         machine_type    = "E2_HIGHCPU_32"
+        env = {
+        }
       }
     },
-    "code-oss" : {
-      build = {
-        skaffold_path   = "examples/images/android-open-source-project/code-oss"
-        timeout_seconds = 7200
-        machine_type    = "E2_HIGHCPU_32"
+    "antigravity" : {
+      git_repo = {
+        url    = "https://github.com/GoogleCloudPlatform/cicd-foundation.git"
+        branch = "main"
       }
-    },
-    "repo-builder" : {
       build = {
-        skaffold_path   = "examples/images/android-open-source-project/repo-builder"
+        skaffold_path   = "apps/workstations/antigravity"
         timeout_seconds = 7200
         machine_type    = "E2_HIGHCPU_32"
+        env = {
+        }
       }
     },
     // go/keep-sorted end

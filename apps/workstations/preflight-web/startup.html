@@ -1,0 +1,703 @@
+<!--
+Copyright 2026 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<!doctype html>
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; connect-src 'self'; report-uri /csp-violation-report-endpoint/"
+    />
+    <link rel="icon" href="data:," />
+    <title>Starting...</title>
+    <link rel="stylesheet" href="/startup.css" />
+  </head>
+  <body
+    class="font-body text-on-surface bg-black selection:bg-secondary-container"
+  >
+    <!-- Immersive Background -->
+    <div
+      aria-hidden="true"
+      class="starfield-container animate-drift"
+      style="
+        background-image: url(&quot;/background-small.jpg&quot;);
+        background-size: cover;
+      "
+    >
+      <img
+        alt=""
+        class="w-full h-full object-cover backdrop-blur-3xl opacity-0 transition-all scale-105"
+        id="background-img"
+        src="/background.jpg"
+      />
+    </div>
+
+    <!-- Technical Debug Overlay -->
+    <div class="fixed top-0 start-0 z-50 px-8 py-6 hidden" id="debug-container">
+      <span class="ui-label block mb-2 select-text" data-i18n="label_debug_info"
+        >DEBUG INFORMATION</span
+      >
+      <div
+        class="ui-card-static min-w-[120px] text-[10px] font-mono text-white select-text"
+        id="debug-info-content"
+        aria-live="polite"
+      ></div>
+    </div>
+
+    <div
+      class="relative z-10 opacity-0 transition-opacity duration-1000 ease-in"
+      id="ui-wrapper"
+    >
+      <header
+        class="fixed top-0 w-full z-40 flex justify-end items-center px-8 py-6 gap-4 bg-transparent"
+      >
+        <button
+          aria-label="Help"
+          data-i18n-aria="aria_help"
+          class="w-12 h-12 aspect-square flex items-center justify-center bg-white/10 backdrop-blur-md hover:bg-neutral-800 rounded-full transition-all border border-neutral-700 focus-ring"
+          id="btn-open-help"
+        >
+          <span class="material-symbols-outlined text-2xl">help_outline</span>
+        </button>
+        <button
+          aria-label="Language"
+          data-i18n-aria="aria_language"
+          class="w-12 h-12 aspect-square flex items-center justify-center bg-white/10 backdrop-blur-md hover:bg-neutral-800 rounded-full transition-all border border-neutral-700 focus-ring"
+          id="btn-open-language"
+        >
+          <span class="material-symbols-outlined text-2xl">language</span>
+        </button>
+        <button
+          aria-label="Settings"
+          data-i18n-aria="aria_settings"
+          class="w-12 h-12 aspect-square flex items-center justify-center bg-white/10 backdrop-blur-md hover:bg-neutral-800 rounded-full transition-all border border-neutral-700 focus-ring"
+          id="btn-open-settings"
+        >
+          <span class="material-symbols-outlined text-2xl">settings</span>
+        </button>
+      </header>
+
+      <main
+        class="relative z-10 h-screen flex flex-col items-center justify-center text-center px-6"
+      >
+        <div class="flex flex-col items-center gap-10 w-full">
+          <div
+            aria-hidden="true"
+            class="relative w-40 h-40 aspect-square flex items-center justify-center"
+          >
+            <svg
+              class="absolute inset-0 w-full h-full aspect-square -rotate-90"
+              viewBox="0 0 160 160"
+            >
+              <circle
+                class="text-white/5"
+                cx="80"
+                cy="80"
+                fill="transparent"
+                r="48.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+              ></circle>
+              <circle
+                class="text-white/20 transition-all ease-linear"
+                cx="80"
+                cy="80"
+                fill="transparent"
+                id="progress-ring-path"
+                r="48.5"
+                stroke="currentColor"
+                stroke-dasharray="304.734"
+                stroke-dashoffset="304.734"
+                stroke-linecap="round"
+                stroke-width="1.5"
+              ></circle>
+            </svg>
+            <button
+              aria-label="Status"
+              class="z-20 w-24 h-24 aspect-square flex items-center justify-center bg-white/10 backdrop-blur-md rounded-full border border-neutral-700 hover:bg-neutral-800 transition-all focus-ring"
+              id="desktop-icon-trigger"
+            >
+              <span
+                class="material-symbols-outlined text-secondary text-5xl"
+                id="status-icon"
+                style="font-variation-settings: &quot;FILL&quot; 1"
+                >rocket_launch</span
+              >
+            </button>
+          </div>
+
+          <button class="contents" id="btn-manual-connect">
+            <h1
+              class="font-headline text-[10vw] font-bold tracking-[0.25em] text-neutral-300 animate-cosmic-pulse leading-none outline-none cursor-pointer"
+              data-i18n="status_starting"
+              id="main-status"
+            >
+              STARTING
+            </h1>
+          </button>
+
+          <div class="flex flex-col items-center gap-6">
+            <button
+              class="flex items-center gap-4 px-8 py-3 bg-white/10 backdrop-blur-md hover:bg-neutral-800 rounded-full border border-neutral-700 focus-ring"
+              id="btn-open-settings-timer"
+              style="min-width: 180px"
+            >
+              <span
+                class="material-symbols-outlined text-secondary text-2xl w-[1em] h-[1em]"
+                >schedule</span
+              >
+              <div
+                class="font-headline text-3xl font-light tracking-widest text-white tabular-nums"
+                id="live-timer"
+                aria-live="polite"
+              >
+                00:00
+              </div>
+            </button>
+            <button class="contents" id="btn-manual-connect-msg">
+              <p
+                class="text-white font-body text-sm tracking-[0.2em] uppercase font-medium cursor-pointer hover:underline decoration-secondary underline-offset-8"
+                data-i18n="status_message"
+                id="status-message"
+                aria-live="assertive"
+              ></p>
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="absolute bottom-0 start-0 w-full px-8 pb-8 flex justify-between items-end pointer-events-none"
+        >
+          <div class="flex flex-col gap-2 items-start pointer-events-auto">
+            <span class="ui-label select-text" data-i18n="label_hostname"
+              >Cloud Workstation Instance</span
+            >
+            <div class="ui-card-static flex items-center gap-3">
+              <div
+                class="w-2 h-2 rounded-full bg-secondary animate-pulse"
+              ></div>
+              <span
+                class="text-sm font-bold text-white truncate select-text"
+                id="display-hostname"
+                >...</span
+              >
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 items-end pointer-events-auto">
+            <button
+              class="ui-label focus-ring px-2 rounded hover:text-white transition-all"
+              id="btn-open-settings-uplink"
+              data-i18n="label_debug_protocol"
+            >
+              Protocol
+            </button>
+            <span
+              class="ui-card-static text-sm font-bold text-white select-text"
+              id="display-uplink"
+              >...</span
+            >
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div
+      class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80"
+      id="settings-modal"
+      role="dialog"
+    >
+      <div
+        class="glass-panel w-full max-w-md rounded-xl border border-neutral-600 flex flex-col max-h-[90vh]"
+      >
+        <div class="flex justify-between items-center p-8 pb-6">
+          <h2
+            class="font-headline text-2xl font-semibold text-white"
+            data-i18n="title_settings"
+          >
+            Configuration
+          </h2>
+          <div class="flex gap-2">
+            <button
+              class="p-2 hover:bg-neutral-800 rounded-full transition-colors relative group pointer-events-auto"
+              id="btn-copy-settings-url"
+            >
+              <span class="material-symbols-outlined text-white">link</span>
+              <span
+                class="absolute -top-10 left-1/2 -translate-x-1/2 bg-neutral-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
+                id="copy-tooltip"
+                data-i18n="tooltip_copy_url"
+                >Copy URL</span
+              >
+            </button>
+            <button
+              class="p-2 hover:bg-neutral-800 rounded-full transition-colors relative group pointer-events-auto"
+              id="btn-report-bug"
+            >
+              <span class="material-symbols-outlined text-white"
+                >bug_report</span
+              >
+            </button>
+            <button
+              class="p-2 hover:bg-neutral-800 rounded-full"
+              id="btn-close-settings"
+            >
+              <span class="material-symbols-outlined text-white text-2xl"
+                >close</span
+              >
+            </button>
+          </div>
+        </div>
+        <div class="flex-grow overflow-y-auto px-8 pb-2 no-scrollbar space-y-4">
+          <!-- Basic Settings -->
+          <details class="group" id="basic-settings-details" open>
+            <summary
+              class="flex items-center justify-between py-4 border-t border-neutral-700 cursor-pointer"
+            >
+              <h3 class="ui-label" data-i18n="title_basic">Basic Settings</h3>
+              <span
+                class="material-symbols-outlined text-secondary transition-transform group-open:rotate-180"
+                >expand_more</span
+              >
+            </summary>
+            <div class="space-y-6 pt-4 pb-2">
+              <div>
+                <label class="ui-label block mb-3" data-i18n="label_connection"
+                  >Connection Type</label
+                >
+                <div
+                  class="p-2 rounded-md border border-neutral-700 bg-neutral-900 no-scrollbar overflow-y-auto max-h-[120px]"
+                  id="connection-type-list"
+                ></div>
+              </div>
+              <button
+                id="btn-settings-open-language"
+                class="ui-btn-action w-full flex items-center justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 border border-neutral-800 transition-all group/lang"
+              >
+                <div class="flex flex-col items-start">
+                  <span
+                    class="text-sm font-semibold text-white"
+                    data-i18n="btn_change_language"
+                    >Change Language</span
+                  >
+                  <span
+                    class="text-[10px] text-on-surface-variant uppercase tracking-wider"
+                    id="display-active-lang"
+                    data-i18n="label_debug_lang"
+                    >Language</span
+                  >
+                </div>
+                <span
+                  class="material-symbols-outlined text-secondary group-hover/lang:scale-110 transition-transform"
+                  >language</span
+                >
+              </button>
+            </div>
+          </details>
+
+          <!-- Advanced Settings -->
+          <details class="group" id="advanced-settings-details">
+            <summary
+              class="flex items-center justify-between py-4 border-t border-neutral-700 cursor-pointer"
+            >
+              <h3 class="ui-label" data-i18n="title_advanced">
+                Advanced Settings
+              </h3>
+              <span
+                class="material-symbols-outlined text-secondary transition-transform group-open:rotate-180"
+                >expand_more</span
+              >
+            </summary>
+            <div class="space-y-6 pt-4 pb-2">
+              <div
+                class="flex flex-col p-4 bg-white/5 rounded-lg border border-neutral-800 transition-all duration-300"
+              >
+                <div class="flex items-center justify-between">
+                  <label class="ui-label" data-i18n="label_auto_retry"
+                    >Auto Redirect</label
+                  >
+                  <input
+                    type="checkbox"
+                    id="retry-enable"
+                    class="w-5 h-5 rounded text-secondary bg-neutral-900 border-neutral-700 focus:ring-secondary"
+                  />
+                </div>
+                <div
+                  id="retry-interval-group"
+                  class="mt-4 pt-4 border-t border-white/5 transition-opacity duration-300"
+                >
+                  <div class="flex justify-between mb-1">
+                    <label class="ui-label" data-i18n="label_retry"
+                      >Retry Interval (ms)</label
+                    >
+                    <span
+                      id="retry-value"
+                      class="text-xs text-white font-mono"
+                    ></span>
+                  </div>
+                  <input
+                    class="w-full accent-secondary h-1 mt-2"
+                    id="retry-interval"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                  />
+                </div>
+              </div>
+              <div
+                class="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-neutral-800"
+              >
+                <label class="ui-label" data-i18n="label_debug_mode"
+                  >Debug Mode</label
+                >
+                <input
+                  type="checkbox"
+                  id="debug-enable"
+                  class="w-5 h-5 rounded text-secondary bg-neutral-900 border-neutral-700 focus:ring-secondary"
+                />
+              </div>
+              <div>
+                <div class="flex justify-between mb-1">
+                  <label class="ui-label" data-i18n="label_timeout"
+                    >Timeout Limit (s)</label
+                  >
+                  <span
+                    id="timeout-value"
+                    class="text-xs text-white font-mono"
+                  ></span>
+                </div>
+                <input
+                  class="w-full accent-secondary h-1"
+                  id="timeout-limit"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                />
+              </div>
+              <div>
+                <div class="flex justify-between mb-1">
+                  <label class="ui-label" data-i18n="label_simulate_sec"
+                    >Simulation Delay (s)</label
+                  >
+                  <span
+                    id="simulate-value"
+                    class="text-xs text-white font-mono"
+                  ></span>
+                </div>
+                <input
+                  class="w-full accent-secondary h-1"
+                  id="simulate-sec"
+                  type="range"
+                  min="0"
+                  max="120"
+                  step="5"
+                />
+              </div>
+            </div>
+          </details>
+        </div>
+        <div class="flex justify-end gap-4 p-8 pt-6 border-t border-white/5">
+          <button
+            class="px-6 py-2 rounded-lg text-xs font-bold text-white hover:bg-neutral-800 uppercase tracking-widest"
+            data-i18n="btn_reset"
+            id="btn-reset-config"
+          >
+            Reset
+          </button>
+          <button
+            class="ui-btn-action"
+            data-i18n="btn_update"
+            id="btn-update-config"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Language Modal -->
+    <div
+      class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80"
+      id="language-modal"
+    >
+      <div
+        class="glass-panel w-full max-sm rounded-xl p-8 border border-neutral-600 flex flex-col h-[70vh] max-w-sm"
+      >
+        <div class="flex justify-between items-center mb-6">
+          <h2
+            class="font-headline text-xl font-bold text-white"
+            data-i18n="title_language"
+          >
+            Language
+          </h2>
+          <button
+            class="p-2 hover:bg-neutral-800 rounded-full"
+            id="btn-close-language"
+          >
+            <span class="material-symbols-outlined text-white">close</span>
+          </button>
+        </div>
+        <div class="relative mb-6">
+          <span
+            class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-secondary text-xl"
+            >search</span
+          >
+          <input
+            class="w-full bg-neutral-900 border-b border-neutral-700 py-3 ps-12 pe-4 text-white outline-none focus:border-secondary"
+            id="language-search"
+            placeholder="Search languages..."
+            data-i18n-placeholder="placeholder_search"
+            type="text"
+          />
+        </div>
+        <div
+          aria-label="List of available languages"
+          class="overflow-y-auto flex-grow no-scrollbar space-y-2 mb-6"
+          id="language-list"
+          role="listbox"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div
+      class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80"
+      id="help-modal"
+    >
+      <div
+        class="glass-panel w-full max-w-lg rounded-xl p-8 border border-neutral-600"
+      >
+        <div class="flex justify-between mb-8 border-b border-neutral-800 pb-4">
+          <h2
+            class="font-headline text-2xl font-bold text-white"
+            data-i18n="title_help"
+          >
+            Custom Image Preflight
+          </h2>
+          <button
+            class="p-2 hover:bg-neutral-800 rounded-full"
+            id="btn-close-help"
+          >
+            <span class="material-symbols-outlined text-white">close</span>
+          </button>
+        </div>
+        <div class="space-y-8">
+          <div>
+            <h3 class="ui-label mb-2" data-i18n="label_about">About</h3>
+            <p
+              class="text-on-surface-variant text-sm leading-relaxed"
+              data-i18n="software_description"
+            ></p>
+          </div>
+          <div class="grid grid-cols-1 gap-3">
+            <a
+              href="https://github.com/GoogleCloudPlatform/cicd-foundation"
+              target="_blank"
+              class="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-neutral-800 hover:border-secondary transition-all group"
+            >
+              <span
+                class="text-sm font-bold group-hover:text-secondary transition-colors"
+                data-i18n="link_repository"
+                >Git Repository</span
+              >
+              <span
+                class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary"
+                >link</span
+              >
+            </a>
+            <button
+              class="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-neutral-800 hover:border-secondary transition-all group"
+              id="btn-open-licenses-from-help"
+            >
+              <span
+                class="text-sm font-bold group-hover:text-secondary transition-colors"
+                data-i18n="title_licenses"
+                >Licenses & Attribution</span
+              >
+              <span
+                class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary"
+                >article</span
+              >
+            </button>
+            <button
+              class="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-neutral-800 hover:border-secondary transition-all group"
+              id="btn-open-shortcuts-from-help"
+            >
+              <span
+                class="text-sm font-bold group-hover:text-secondary transition-colors"
+                data-i18n="title_shortcuts"
+                >Keyboard Shortcuts</span
+              >
+              <span
+                class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary"
+                >keyboard</span
+              >
+            </button>
+            <button
+              class="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-neutral-800 hover:border-secondary transition-all group"
+              id="btn-open-privacy-from-help"
+            >
+              <span
+                class="text-sm font-bold group-hover:text-secondary transition-colors"
+                data-i18n="link_privacy"
+                >Privacy Notice</span
+              >
+              <span
+                class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary"
+                >shield_with_heart</span
+              >
+            </button>
+          </div>
+          <div
+            class="pt-6 border-t border-neutral-800 text-[10px] text-on-surface-variant tracking-widest"
+          >
+            <p class="mb-1" data-i18n="msg_brought_to_you">
+              Brought to you by the Google Cloud Professional Services
+              Organization Apps team (PSO AppΣ)
+            </p>
+            <p>Copyright © 2026 Google LLC</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Privacy Modal -->
+    <div
+      class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80"
+      id="privacy-modal"
+    >
+      <div
+        class="glass-panel w-full max-w-2xl rounded-xl p-8 border border-neutral-600 flex flex-col h-[85vh]"
+      >
+        <div class="flex justify-between items-center mb-6">
+          <h2
+            class="font-headline text-2xl font-bold text-white"
+            data-i18n="link_privacy"
+          >
+            Privacy Notice
+          </h2>
+          <button
+            class="p-2 hover:bg-neutral-800 rounded-full"
+            id="btn-close-privacy"
+          >
+            <span class="material-symbols-outlined text-white">close</span>
+          </button>
+        </div>
+        <div
+          class="overflow-y-auto flex-grow no-scrollbar font-body"
+          id="privacy-text-content"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Shortcuts Modal -->
+    <div
+      class="hidden fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/80"
+      id="shortcuts-modal"
+      role="dialog"
+    >
+      <div
+        class="glass-panel w-full max-w-2xl rounded-xl p-8 border border-neutral-600 flex flex-col h-[60vh]"
+      >
+        <div class="flex justify-between items-center mb-6">
+          <h2
+            class="font-headline text-2xl font-bold text-white"
+            data-i18n="title_shortcuts"
+          >
+            Keyboard Shortcuts
+          </h2>
+          <button
+            class="p-2 hover:bg-neutral-800 rounded-full"
+            id="btn-close-shortcuts"
+          >
+            <span class="material-symbols-outlined text-white">close</span>
+          </button>
+        </div>
+        <div class="relative mb-6">
+          <span
+            class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-secondary text-xl"
+            >search</span
+          >
+          <input
+            class="w-full bg-neutral-900 border-b border-neutral-700 py-3 ps-12 pe-4 text-white outline-none focus:border-secondary"
+            id="shortcut-search"
+            placeholder="Search shortcuts..."
+            type="text"
+          />
+        </div>
+        <div
+          class="space-y-4 overflow-y-auto no-scrollbar"
+          id="shortcuts-list-container"
+        ></div>
+      </div>
+    </div>
+
+    <!-- License Modal -->
+    <div
+      class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80"
+      id="license-modal"
+    >
+      <div
+        class="glass-panel w-full max-w-2xl rounded-xl p-8 border border-neutral-600 flex flex-col h-[85vh]"
+      >
+        <div class="flex justify-between items-center mb-6">
+          <h2
+            class="font-headline text-2xl font-bold text-white"
+            data-i18n="title_licenses"
+          >
+            Licenses
+          </h2>
+          <button
+            class="p-2 hover:bg-neutral-800 rounded-full"
+            id="btn-close-licenses-top"
+          >
+            <span class="material-symbols-outlined text-white">close</span>
+          </button>
+        </div>
+        <div
+          class="overflow-y-auto flex-grow no-scrollbar"
+          id="license-content"
+        >
+          <div id="license-list-container"></div>
+        </div>
+        <div
+          class="hidden flex flex-col flex-grow overflow-y-auto no-scrollbar"
+          id="component-details"
+        ></div>
+        <div
+          class="hidden flex flex-col flex-grow overflow-y-auto no-scrollbar"
+          id="license-viewer"
+        >
+          <button class="ui-btn-ghost mb-4" id="back-to-details-btn">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+            <span data-i18n="btn_back_details">BACK TO DETAILS</span>
+          </button>
+          <div
+            class="bg-black/50 p-6 rounded-lg font-mono text-[10px] whitespace-pre-wrap text-on-surface"
+            id="license-text-content"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/startup.js" type="module"></script>
+    <script src="/config.js"></script>
+  </body>
+</html>

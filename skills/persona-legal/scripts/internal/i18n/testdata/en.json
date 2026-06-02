@@ -1,0 +1,10 @@
+[
+  {
+    "id": "test_simple",
+    "translation": "Simple Translation"
+  },
+  {
+    "id": "test_template",
+    "translation": "Hello {{.Name}}!"
+  }
+]

@@ -1,0 +1,138 @@
+# Copyright 2025-2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Content Negotiation: Map browser language to supported codes
+map $http_accept_language $detected_lang {
+    default "en";
+    ~*^ar "ar";
+    ~*^zh "zh";
+    ~*^fr "fr";
+    ~*^ru "ru";
+    ~*^es "es";
+}
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    absolute_redirect off;
+    root /var/www/html;
+
+    resolver 8.8.8.8 8.8.4.4 valid=300s;
+    resolver_timeout 5s;
+
+    # Security Headers
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # Guacamole Connection Identifiers (base64 encoded: "<id>\0c\0default")
+    set $guac_rdp /guacamole/#/client/UkRQAGMAZGVmYXVsdA;
+    set $guac_ssh /guacamole/#/client/U1NIAGMAZGVmYXVsdA;
+    set $guac_vnc /guacamole/#/client/Vk5DAGMAZGVmYXVsdA;
+
+    # Variables
+    set $default_client_protocol ${DEFAULT_CLIENT_PROTOCOL};
+
+    # Map protocol to redirect URL
+    set $default_redirect "";
+    if ($default_client_protocol = "RDP") { set $default_redirect $guac_rdp; }
+    if ($default_client_protocol = "SSH") { set $default_redirect $guac_ssh; }
+    if ($default_client_protocol = "VNC") { set $default_redirect $guac_vnc; }
+
+    set $startup_page /startup.html;
+    set $guacamole_backend http://127.0.0.1:8080;
+    set $cache_control_no_cache "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
+
+    # Redirect root to preflight dashboard or default protocol
+    location = / {
+        return 302 ${ROOT_REDIRECT};
+    }
+
+    # Health check for backend availability
+    location = /healthz {
+        proxy_pass $guacamole_backend/guacamole/api/tokens;
+        proxy_intercept_errors on;
+        error_page 404 405 = @health_ok;
+        add_header Cache-Control $cache_control_no_cache always;
+        add_header App-Status "READY" always;
+    }
+
+    location @health_ok {
+        return 200 "OK";
+        add_header Content-Type text/plain always;
+        add_header Cache-Control $cache_control_no_cache always;
+        add_header App-Status "READY" always;
+    }
+
+    # Config injection with server-side language detection
+    location = /config.js {
+        sub_filter '@@SERVER_LANG@@' '$detected_lang';
+        sub_filter_once on;
+        add_header Content-Type application/javascript always;
+        add_header Cache-Control $cache_control_no_cache always;
+    }
+
+    # Manual start hook
+    location = /start {
+        return 302 ${ROOT_REDIRECT}?autoRedirect=false;
+    }
+
+    # Dedicated Licenses Route
+    location = /licenses {
+        return 302 ${ROOT_REDIRECT}#licenses;
+    }
+
+    # Startup page and assets
+    location ~ ^/startup\.(html|js|css)$ {
+        add_header App-Status "STARTING" always;
+        add_header Cache-Control $cache_control_no_cache always;
+    }
+
+    # Exact Guacamole base path - redirect to startup if Tomcat is starting
+    location = /guacamole/ {
+        proxy_intercept_errors ${PROXY_INTERCEPT_ON_OFF};
+        ${ERROR_PAGE_DIRECTIVE}
+        proxy_pass $guacamole_backend$request_uri;
+        proxy_buffering off;
+        proxy_http_version 1.1;
+        proxy_set_header Host $http_host;
+    }
+
+    # General Guacamole backend proxy (APIs and WebSockets)
+    location /guacamole/ {
+        proxy_pass $guacamole_backend$request_uri;
+        proxy_buffering off;
+        proxy_http_version 1.1;
+
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $http_connection;
+        proxy_set_header Host $http_host;
+
+        # Transparent Auto-Login Injection
+        set $auth_header "";
+        set $ctype $http_content_type;
+        if ($request_uri ~* "^/guacamole/api/tokens") {
+            set $auth_header "Basic ${AUTH_HEADER}";
+            set $ctype "application/x-www-form-urlencoded";
+        }
+        proxy_set_header Authorization $auth_header;
+        proxy_set_header Content-Type $ctype;
+
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Port $server_port;
+    }
+}

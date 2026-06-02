@@ -1,0 +1,35 @@
+{
+  "name": "custom-image-preflight",
+  "version": "1.0.0",
+  "description": "Custom Image Preflight for Cloud Workstation",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/build/generate_fragments.js && vite build && node inject-sri.cjs",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@tailwindcss/vite": "^4.2.2",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.9.0",
+    "eslint-plugin-import": "^2.32.0",
+    "globals": "^15.9.0",
+    "jsdom": "^26.0.0",
+    "marked": "^18.0.0",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.0.0",
+    "vite": "^6.0.5",
+    "vite-plugin-sri": "^0.0.2",
+    "vitest": "^3.0.5"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/space-grotesk": "^5.2.10",
+    "material-symbols": "^0.44.0"
+  }
+}

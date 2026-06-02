@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Copyright 2025-2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -euo pipefail
+
+# Source common utilities for WORKSTATION_GPU_ENABLED
+# shellcheck source=/dev/null
+source /google/scripts/common.sh
+
+CHROME_FLAGS=(
+  "--no-sandbox"
+  "--test-type"
+  "--no-first-run"
+  "--no-default-browser-check"
+  "--disable-dev-shm-usage"
+  "--password-store=basic"
+)
+
+# Apply stability flags for headless Wayland
+CHROME_FLAGS+=(
+  "--ozone-platform=wayland"
+)
+
+if [[ "${WORKSTATION_GPU_ENABLED}" == "false" ]]; then
+  CHROME_FLAGS+=(
+    "--disable-gpu"
+    "--disable-gpu-compositing"
+    "--in-process-gpu"
+    "--disable-gpu-sandbox"
+  )
+fi
+
+exec /usr/bin/google-chrome-stable.real "${CHROME_FLAGS[@]}" "$@"

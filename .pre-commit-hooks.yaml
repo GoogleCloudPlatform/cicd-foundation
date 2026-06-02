@@ -1,0 +1,45 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- id: gitseep
+  name: GitSeep (amend and auto-approve)
+  description: Performs a full history reconstruction, amending uncommitted changes and auto-approving all layers.
+  entry: go run skills/persona-swe/scripts/cmd/gitseep/main.go -y
+  language: golang
+  pass_filenames: false
+  stages: [manual]
+
+- id: gitseep-check
+  name: Validate GitSeep Stratigraphy
+  description: Verifies that the Git history is fully sedimented according to .gitseep.yaml rules without making changes.
+  entry: go run skills/persona-swe/scripts/cmd/gitseep/main.go check
+  language: golang
+  pass_filenames: false
+
+- id: clean-whitespace
+  name: Clean Trailing Whitespace
+  description: Removes trailing whitespace from text files.
+  entry: go run skills/persona-swe/scripts/cmd/clean_whitespace/main.go
+  language: golang
+  pass_filenames: true
+  types: [text]
+  exclude: "node_modules/|dist/|vendor/|tests/integration/"
+
+- id: verify-locales
+  name: Verify i18n Locales
+  description: Verifies that i18n locale JSON files are sorted and consistent.
+  entry: go run skills/persona-swe/scripts/cmd/verify_locales/main.go
+  language: golang
+  pass_filenames: true
+  files: ".*locale.*\\.json$"

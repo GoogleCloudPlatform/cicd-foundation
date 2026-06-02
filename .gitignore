@@ -1,0 +1,8 @@
+*~
+.env
+.gemini/
+.gitseep.yaml
+.terraform/
+__pycache__
+coverage.out
+reports/

@@ -1,0 +1,10 @@
+.git/
+.gitignore
+.gcloudignore
+**/node_modules/
+**/dist/
+**/.gemini/
+**/*~
+**/*.log
+.vscode/
+.idea/

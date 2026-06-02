@@ -1,0 +1,42 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[Unit]
+Description=Permit All Traffic When Nginx is Ready
+# Ensure this runs after Nginx and config rendering are ready
+After=nginx.service config-rendering.service
+Requires=nginx.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+# Probe Nginx on 127.0.0.1 until it responds (Max 60s)
+ExecStartPre=/bin/bash -c ' \
+  if [ -f /var/www/html/startup.html ]; then \
+    ENDPOINT="http://127.0.0.1/"; \
+    EXPECTED="302"; \
+  else \
+    ENDPOINT="http://127.0.0.1/healthz"; \
+    EXPECTED="200"; \
+  fi; \
+  for i in {1..30}; do \
+    if curl -s -o /dev/null -w "%%{http_code}" "$ENDPOINT" | grep -qE "$EXPECTED"; then \
+      exit 0; \
+    fi; \
+    sleep 2; \
+  done; \
+  exit 1'
+
+ExecStart=/google/scripts/traffic_control.sh permit

@@ -1,0 +1,44 @@
+/**
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* GNOME BLUEPRINT PATCH: Force hide screen sharing and recording indicators */
+/* We target the core classes directly to ensure they are hidden even if extension logic is bypassed */
+.screen-sharing-indicator,
+.screen-sharing-indicator *,
+.screen-recording-indicator,
+.screen-recording-indicator *,
+.recording-indicator,
+.recording-indicator *,
+#screen-sharing-indicator,
+#screen-recording-indicator,
+#screen-recording-indicator-container,
+#screen-sharing-indicator-container {
+  width: 0px !important;
+  height: 0px !important;
+  min-width: 0px !important;
+  min-height: 0px !important;
+  margin: 0px !important;
+  padding: 0px !important;
+  border: 0px !important;
+  opacity: 0 !important;
+}
+
+/* Fallback for Just Perfection specific classes */
+.just-perfection-api-no-screen-sharing-indicator .screen-sharing-indicator {
+  width: 0px !important;
+  height: 0px !important;
+  opacity: 0 !important;
+}

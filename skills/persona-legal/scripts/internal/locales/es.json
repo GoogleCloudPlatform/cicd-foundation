@@ -1,0 +1,38 @@
+[
+  {
+    "id": "license_enforcer_applying",
+    "translation": "  - Aplicando la licencia {{.License}} a {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_different_holder",
+    "translation": "Se encontró un titular de derechos de autor diferente ('{{.Holder}}') en {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_error_stat",
+    "translation": "error al obtener información de {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_error_walk",
+    "translation": "error al recorrer el directorio {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_fixing",
+    "translation": "  - Corrigiendo el formato de la licencia en {{.Path}}"
+  },
+  {
+    "id": "license_enforcer_success",
+    "translation": "Todos los archivos rastreados ya tienen encabezados de licencia y formato válidos."
+  },
+  {
+    "id": "license_enforcer_summary",
+    "translation": "Se aplicaron encabezados de licencia o correcciones a {{.Count}} archivos."
+  },
+  {
+    "id": "license_enforcer_updating",
+    "translation": "  - Actualizando el año de derechos de autor en {{.Path}}"
+  },
+  {
+    "id": "usage_license_enforcer",
+    "translation": "Uso: license_enforcer [opciones] [nombres_de_archivo...]\n\nOpciones:\n  --holder string    Titular de los derechos de autor (por defecto \"Google LLC\")\n  --license string   Identificador de licencia SPDX (por defecto \"Apache-2.0\")\n  --exclude string   Lista de rutas a excluir separadas por espacios\n  --filter string    Regex para filtrar archivos"
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "timestamp": "${TS}",
+  "severity": "${SEV}",
+  "event": "${EVT}",
+  "message": "${MSG}",
+  "service": "${SVC}",
+  "metadata": ${META}
+}
