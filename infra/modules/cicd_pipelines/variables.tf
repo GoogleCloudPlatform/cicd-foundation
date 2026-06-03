@@ -121,7 +121,7 @@ variable "apps" {
       # The region to use for the Cloud Scheduler job.
       scheduler_region = optional(string)
       # The schedule for the Cloud Scheduler job in cron format (e.g., "0 1 * * *")
-      ci_schedule = string
+      ci_schedule = optional(string)
       paused      = optional(bool, false)
     }))
   }))

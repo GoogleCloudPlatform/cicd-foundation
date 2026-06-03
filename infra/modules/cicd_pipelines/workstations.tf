@@ -70,11 +70,11 @@ resource "google_cloud_scheduler_job" "cws_image_rebuild" {
   for_each = local.workstation_apps
 
   project     = data.google_project.project.project_id
-  region      = coalesce(each.value.workstation_config.scheduler_region, var.scheduler_default_region)
+  region      = coalesce(try(each.value.workstation_config.scheduler_region, null), var.scheduler_default_region)
   name        = "${local.prefix}${each.key}-cws-image-rebuild"
   description = "Terraform-managed."
-  schedule    = coalesce(each.value.workstation_config.ci_schedule, var.default_ci_schedule)
-  paused      = each.value.workstation_config.paused
+  schedule    = coalesce(try(each.value.workstation_config.ci_schedule, null), var.default_ci_schedule)
+  paused      = try(each.value.workstation_config.paused, false)
   # cf. https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers/run
   http_target {
     http_method = "POST"

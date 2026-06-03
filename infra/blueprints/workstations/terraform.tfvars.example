@@ -84,6 +84,9 @@ cws_custom_images = {
       env = {
       }
     }
+    workstation_config = {
+      # paused = true
+    }
   },
 }
 

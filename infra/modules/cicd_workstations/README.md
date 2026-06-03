@@ -85,7 +85,7 @@ module "cicd_workstations" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_boot_disk_size_gb_default"></a> [boot\_disk\_size\_gb\_default](#input\_boot\_disk\_size\_gb\_default) | The default boot disk size in GB for Cloud Workstation instances. | `number` | `100` | no |
 | <a name="input_cws_clusters"></a> [cws\_clusters](#input\_cws\_clusters) | A map of Cloud Workstation clusters to create. The key of the map is used as the unique ID for the cluster. | <pre>map(object({<br/>    network     = string<br/>    region      = string<br/>    subnetwork  = string<br/>    vpc_project = optional(string)<br/>    domain_config = optional(object({<br/>      domain = string<br/>    }))<br/>    private_cluster_config = optional(object({<br/>      enable_private_endpoint = optional(bool, false)<br/>    }))<br/>  }))</pre> | `{}` | no |
 | <a name="input_cws_configs"></a> [cws\_configs](#input\_cws\_configs) | A map of Cloud Workstation configurations. | <pre>map(object({<br/>    accelerators = optional(list(object({<br/>      type  = string<br/>      count = number<br/>    })), [])<br/>    boost_configs = optional(list(object({<br/>      id = string<br/>      accelerators = optional(list(object({<br/>        type  = string<br/>        count = number<br/>      })), [])<br/>      boot_disk_size_gb            = optional(number)<br/>      enable_nested_virtualization = optional(bool)<br/>      machine_type                 = optional(string)<br/>      pool_size                    = optional(number)<br/>    })), [])<br/>    boot_disk_size_gb            = optional(number)<br/>    creators                     = optional(list(string))<br/>    cws_cluster                  = string<br/>    disable_public_ip_addresses  = optional(bool)<br/>    display_name                 = optional(string)<br/>    enable_nested_virtualization = optional(bool)<br/>    idle_timeout_seconds         = optional(number)<br/>    image                        = optional(string)<br/>    instances = optional(list(object({<br/>      name         = string<br/>      display_name = optional(string)<br/>      users        = list(string)<br/>    })))<br/>    machine_type                    = optional(string)<br/>    persistent_disk_fs_type         = optional(string)<br/>    persistent_disk_reclaim_policy  = optional(string)<br/>    persistent_disk_size_gb         = optional(number)<br/>    persistent_disk_source_snapshot = optional(string)<br/>    persistent_disk_type            = optional(string)<br/>    pool_size                       = optional(number)<br/>    shielded_instance_config = optional(object({<br/>      enable_secure_boot          = optional(bool, true)<br/>      enable_vtpm                 = optional(bool, true)<br/>      enable_integrity_monitoring = optional(bool, true)<br/>    }), null)<br/>  }))</pre> | `{}` | no |
@@ -106,7 +106,7 @@ module "cicd_workstations" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_cws_clusters"></a> [cws\_clusters](#output\_cws\_clusters) | A map of Cloud Workstation clusters, with their IDs and other attributes. |
 | <a name="output_cws_configs"></a> [cws\_configs](#output\_cws\_configs) | A map of Cloud Workstation configurations, with their IDs and other attributes. |
 | <a name="output_cws_instances"></a> [cws\_instances](#output\_cws\_instances) | A map of Cloud Workstation instances, with their IDs and other attributes. |

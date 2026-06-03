@@ -596,7 +596,7 @@ variable "cws_custom_images" {
     )
     workstation_config = optional(object({
       scheduler_region = optional(string)
-      ci_schedule      = string
+      ci_schedule      = optional(string)
       paused           = optional(bool, false)
     })),
     git_repo = optional(object({

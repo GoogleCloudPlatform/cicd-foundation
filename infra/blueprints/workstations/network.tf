@@ -53,11 +53,11 @@ module "nat" {
 
   source = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-cloudnat?ref=v49.0.0"
 
-  project_id    = var.project_id
-  region        = var.vpc_region
+  project_id     = var.project_id
+  region         = var.vpc_region
   name           = "${var.vpc_name}-nat"
   router_network = var.create_vpc ? module.vpc[0].name : var.vpc_name
   router_create  = true
 
-  router_name   = "${var.vpc_name}-router"
+  router_name = "${var.vpc_name}-router"
 }
