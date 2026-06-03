@@ -28,6 +28,9 @@ project_id = "YOUR_PROJECT_ID"
 # Optional: The name of the Virtual Private Cloud (VPC) sub-network for the workstation in a region. Defaults to "primary".
 #subnet_name = "primary"
 
+# Optional: Controls the deployment of Cloud NAT for the VPC. Defaults to null (automatic).
+#create_cloud_nat = false
+
 # Optional: The region for the Secure Source Manager instance, cf. https://cloud.google.com/secure-source-manager/docs/locations. Defaults to "us-central1".
 #secure_source_manager_region = "europe-west4"
 

@@ -68,6 +68,17 @@ variable "vpc_region" {
 # Networking
 
 # go/keep-sorted start block=yes newline_separated=yes
+variable "create_cloud_nat" {
+  type        = bool
+  description = <<-EOT
+    Controls the deployment of Cloud NAT for the VPC.
+    - If set to 'true', Cloud NAT is always created.
+    - If set to 'false', Cloud NAT is never created.
+    - If set to 'null' (default), Cloud NAT is automatically created only if at least one workstation configuration is set to be private (disable_public_ip_addresses = true).
+  EOT
+  default     = null
+}
+
 variable "create_vpc" {
   type        = bool
   description = "Flag indicating whether the VPC should be created or not."

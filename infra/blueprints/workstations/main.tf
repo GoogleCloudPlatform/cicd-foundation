@@ -52,6 +52,10 @@ locals {
       }
     )
   } : var.cws_configs
+  # Final decision on Cloud NAT deployment
+  deploy_nat = var.create_cloud_nat != null ? var.create_cloud_nat : (var.disable_public_ip_addresses_default || anytrue([
+    for k, v in var.cws_configs : coalesce(v.disable_public_ip_addresses, var.disable_public_ip_addresses_default)
+  ]))
 }
 
 data "google_project" "project" {
