@@ -19,7 +19,7 @@
     "eslint-plugin-import": "^2.32.0",
     "globals": "^15.9.0",
     "jsdom": "^26.0.0",
-    "marked": "^18.0.0",
+    "marked": "^18.0.2",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.0.0",
