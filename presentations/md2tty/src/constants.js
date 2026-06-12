@@ -42,7 +42,7 @@ export const getHelpMarkdown = () => `
 # ${t('about_md2tty_js')}
 
 ${t('about_md2tty')}
-[https://github.com/GoogleCloudPlatform/cicd-foundation/presentations/md2tty](https://github.com/GoogleCloudPlatform/cicd-foundation/presentations/md2tty)
+[https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/presentations/md2tty](https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/presentations/md2tty)
 
 &nbsp;
 

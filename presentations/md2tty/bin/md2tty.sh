@@ -205,7 +205,7 @@ show_shortcuts() {
 
     # 2. Body: About
     echo "$(t about_md2tty)
-[https://github.com/GoogleCloudPlatform/cicd-foundation/presentations/md2tty](https://github.com/GoogleCloudPlatform/cicd-foundation/presentations/md2tty)" | render_body "false"
+[https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/presentations/md2tty](https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/presentations/md2tty)" | render_body "false"
 
     # 3. Header: Shortcuts (with one empty line before it)
     printf "\n"
