@@ -1,0 +1,78 @@
+[
+  {
+    "id": "about_md2tty",
+    "translation": "Высокоточный инструмент для презентаций в стиле терминала для Markdown."
+  },
+  {
+    "id": "about_md2tty_js",
+    "translation": "О md2tty.js"
+  },
+  {
+    "id": "about_md2tty_sh",
+    "translation": "О md2tty.sh"
+  },
+  {
+    "id": "action",
+    "translation": "Действие"
+  },
+  {
+    "id": "error_no_slides",
+    "translation": "Слайды не найдены."
+  },
+  {
+    "id": "first_slide",
+    "translation": "Первый слайд"
+  },
+  {
+    "id": "help",
+    "translation": "Справка"
+  },
+  {
+    "id": "jump_to_slide",
+    "translation": "Перейти к слайду"
+  },
+  {
+    "id": "key",
+    "translation": "Клавиша"
+  },
+  {
+    "id": "last_slide",
+    "translation": "Последний слайд"
+  },
+  {
+    "id": "next_slide",
+    "translation": "Следующий слайд"
+  },
+  {
+    "id": "previous_slide",
+    "translation": "Предыдущий слайд"
+  },
+  {
+    "id": "quit",
+    "translation": "Выйти"
+  },
+  {
+    "id": "shortcuts",
+    "translation": "Горячие клавиши"
+  },
+  {
+    "id": "slide_progress",
+    "translation": "Слайд {{.Current}} из {{.Total}}"
+  },
+  {
+    "id": "theme",
+    "translation": "Тема"
+  },
+  {
+    "id": "toggle_flash",
+    "translation": "Переключить вспышку"
+  },
+  {
+    "id": "toggle_language",
+    "translation": "Изменить язык"
+  },
+  {
+    "id": "toggle_theme",
+    "translation": "Переключить тему"
+  }
+]

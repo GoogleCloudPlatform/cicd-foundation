@@ -1,0 +1,78 @@
+[
+  {
+    "id": "about_md2tty",
+    "translation": "一个高保真的 Markdown 终端风格演示工具。"
+  },
+  {
+    "id": "about_md2tty_js",
+    "translation": "关于 md2tty.js"
+  },
+  {
+    "id": "about_md2tty_sh",
+    "translation": "关于 md2tty.sh"
+  },
+  {
+    "id": "action",
+    "translation": "操作"
+  },
+  {
+    "id": "error_no_slides",
+    "translation": "未找到幻灯片。"
+  },
+  {
+    "id": "first_slide",
+    "translation": "第一张幻灯片"
+  },
+  {
+    "id": "help",
+    "translation": "帮助"
+  },
+  {
+    "id": "jump_to_slide",
+    "translation": "跳转到幻灯片"
+  },
+  {
+    "id": "key",
+    "translation": "按键"
+  },
+  {
+    "id": "last_slide",
+    "translation": "最后一张幻灯片"
+  },
+  {
+    "id": "next_slide",
+    "translation": "下一张幻灯片"
+  },
+  {
+    "id": "previous_slide",
+    "translation": "上一张幻灯片"
+  },
+  {
+    "id": "quit",
+    "translation": "退出"
+  },
+  {
+    "id": "shortcuts",
+    "translation": "快捷键"
+  },
+  {
+    "id": "slide_progress",
+    "translation": "第 {{.Current}} 张，共 {{.Total}} 张"
+  },
+  {
+    "id": "theme",
+    "translation": "主题"
+  },
+  {
+    "id": "toggle_flash",
+    "translation": "切换闪烁"
+  },
+  {
+    "id": "toggle_language",
+    "translation": "切换语言"
+  },
+  {
+    "id": "toggle_theme",
+    "translation": "切换主题"
+  }
+]

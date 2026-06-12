@@ -1,0 +1,78 @@
+[
+  {
+    "id": "about_md2tty",
+    "translation": "A high-fidelity terminal-styled presentation tool for Markdown."
+  },
+  {
+    "id": "about_md2tty_js",
+    "translation": "About md2tty.js"
+  },
+  {
+    "id": "about_md2tty_sh",
+    "translation": "About md2tty.sh"
+  },
+  {
+    "id": "action",
+    "translation": "Action"
+  },
+  {
+    "id": "error_no_slides",
+    "translation": "No slides found."
+  },
+  {
+    "id": "first_slide",
+    "translation": "First Slide"
+  },
+  {
+    "id": "help",
+    "translation": "Help"
+  },
+  {
+    "id": "jump_to_slide",
+    "translation": "Jump to Slide"
+  },
+  {
+    "id": "key",
+    "translation": "Key"
+  },
+  {
+    "id": "last_slide",
+    "translation": "Last Slide"
+  },
+  {
+    "id": "next_slide",
+    "translation": "Next Slide"
+  },
+  {
+    "id": "previous_slide",
+    "translation": "Previous Slide"
+  },
+  {
+    "id": "quit",
+    "translation": "Quit"
+  },
+  {
+    "id": "shortcuts",
+    "translation": "Shortcuts"
+  },
+  {
+    "id": "slide_progress",
+    "translation": "Slide {{.Current}} of {{.Total}}"
+  },
+  {
+    "id": "theme",
+    "translation": "Theme"
+  },
+  {
+    "id": "toggle_flash",
+    "translation": "Toggle Flash"
+  },
+  {
+    "id": "toggle_language",
+    "translation": "Toggle Language"
+  },
+  {
+    "id": "toggle_theme",
+    "translation": "Toggle Theme"
+  }
+]

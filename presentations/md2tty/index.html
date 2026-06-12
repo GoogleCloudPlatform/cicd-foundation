@@ -1,0 +1,55 @@
+<!--
+Copyright 2026 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive Markdown Presentation">
+  <title>Presentation Slides</title>
+  
+  <!-- External Styles -->
+  <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+  <main id="slide-container" aria-live="polite">
+    <article id="render-target" class="slide-content">
+      <p>Loading slides...</p>
+    </article>
+    <footer id="footer"></footer>
+  </main>
+
+  <!-- Shortcuts Help Overlay -->
+  <aside id="shortcuts-overlay" aria-hidden="true" role="dialog" aria-labelledby="shortcuts-title">
+    <div class="shortcuts-content"></div>
+  </aside>
+
+  <!-- Hidden element for auto-scaling measurements -->
+  <div id="measure-container" aria-hidden="true" style="position: absolute; visibility: hidden; pointer-events: none; width: 1000px; font-family: var(--font-family);"></div>
+
+  <!-- Application Logic -->
+  <script type="module">
+    import { Md2tty } from '/src/md2tty.js';
+    const presentation = new Md2tty({
+      target: '#render-target',
+      manifestUrl: 'slides.json',
+      slidesDir: 'slides/'
+    });
+    presentation.init();
+  </script>
+</body>
+</html>

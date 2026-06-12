@@ -1,0 +1,78 @@
+[
+  {
+    "id": "about_md2tty",
+    "translation": "Un outil de présentation de style terminal haute fidélité pour Markdown."
+  },
+  {
+    "id": "about_md2tty_js",
+    "translation": "À propos de md2tty.js"
+  },
+  {
+    "id": "about_md2tty_sh",
+    "translation": "À propos de md2tty.sh"
+  },
+  {
+    "id": "action",
+    "translation": "Action"
+  },
+  {
+    "id": "error_no_slides",
+    "translation": "Aucune diapositive trouvée."
+  },
+  {
+    "id": "first_slide",
+    "translation": "Première diapositive"
+  },
+  {
+    "id": "help",
+    "translation": "Aide"
+  },
+  {
+    "id": "jump_to_slide",
+    "translation": "Aller à la diapositive"
+  },
+  {
+    "id": "key",
+    "translation": "Touche"
+  },
+  {
+    "id": "last_slide",
+    "translation": "Dernière diapositive"
+  },
+  {
+    "id": "next_slide",
+    "translation": "Diapositive suivante"
+  },
+  {
+    "id": "previous_slide",
+    "translation": "Diapositive précédente"
+  },
+  {
+    "id": "quit",
+    "translation": "Quitter"
+  },
+  {
+    "id": "shortcuts",
+    "translation": "Raccourcis"
+  },
+  {
+    "id": "slide_progress",
+    "translation": "Diapositive {{.Current}} sur {{.Total}}"
+  },
+  {
+    "id": "theme",
+    "translation": "Thème"
+  },
+  {
+    "id": "toggle_flash",
+    "translation": "Basculer le flash"
+  },
+  {
+    "id": "toggle_language",
+    "translation": "Changer de langue"
+  },
+  {
+    "id": "toggle_theme",
+    "translation": "Basculer le thème"
+  }
+]

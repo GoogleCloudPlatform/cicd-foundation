@@ -1,0 +1,37 @@
+{
+  "name": "md2tty.js",
+  "version": "1.0.0",
+  "description": "High-fidelity terminal-styled interactive presentation",
+  "main": "src/md2tty.js",
+  "scripts": {
+    "lint": "eslint src",
+    "check-types": "tsc",
+    "test": "vitest run",
+    "dev": "npm run generate-manifest && vite",
+    "build": "npm run generate-manifest && vite build",
+    "preview": "vite preview",
+    "generate-manifest": "node scripts/generate-manifest.js"
+  },
+  "keywords": [
+    "markdown",
+    "presentation",
+    "gum",
+    "terminal-ui"
+  ],
+  "author": "Google LLC",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "dompurify": "^3.4.9",
+    "marked": "^12.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@types/dompurify": "^3.0.5",
+    "@types/marked": "^5.0.0",
+    "@vitest/coverage-v8": "^4.1.8",
+    "jsdom": "^29.1.1",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0",
+    "vitest": "^4.1.8"
+  }
+}

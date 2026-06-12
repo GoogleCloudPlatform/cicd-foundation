@@ -1,0 +1,78 @@
+[
+  {
+    "id": "about_md2tty",
+    "translation": "Una herramienta de presentación de alta fidelidad estilo terminal para Markdown."
+  },
+  {
+    "id": "about_md2tty_js",
+    "translation": "Acerca de md2tty.js"
+  },
+  {
+    "id": "about_md2tty_sh",
+    "translation": "Acerca de md2tty.sh"
+  },
+  {
+    "id": "action",
+    "translation": "Acción"
+  },
+  {
+    "id": "error_no_slides",
+    "translation": "No se encontraron diapositivas."
+  },
+  {
+    "id": "first_slide",
+    "translation": "Primera diapositiva"
+  },
+  {
+    "id": "help",
+    "translation": "Ayuda"
+  },
+  {
+    "id": "jump_to_slide",
+    "translation": "Saltar a diapositiva"
+  },
+  {
+    "id": "key",
+    "translation": "Tecla"
+  },
+  {
+    "id": "last_slide",
+    "translation": "Última diapositiva"
+  },
+  {
+    "id": "next_slide",
+    "translation": "Siguiente diapositiva"
+  },
+  {
+    "id": "previous_slide",
+    "translation": "Diapositiva anterior"
+  },
+  {
+    "id": "quit",
+    "translation": "Salir"
+  },
+  {
+    "id": "shortcuts",
+    "translation": "Atajos"
+  },
+  {
+    "id": "slide_progress",
+    "translation": "Diapositiva {{.Current}} de {{.Total}}"
+  },
+  {
+    "id": "theme",
+    "translation": "Tema"
+  },
+  {
+    "id": "toggle_flash",
+    "translation": "Alternar destello"
+  },
+  {
+    "id": "toggle_language",
+    "translation": "Cambiar idioma"
+  },
+  {
+    "id": "toggle_theme",
+    "translation": "Alternar tema"
+  }
+]

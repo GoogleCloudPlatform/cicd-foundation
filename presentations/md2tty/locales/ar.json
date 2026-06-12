@@ -1,0 +1,78 @@
+[
+  {
+    "id": "about_md2tty",
+    "translation": "أداة عرض عالية الدقة بأسلوب الجهاز الطرفي لـ Markdown."
+  },
+  {
+    "id": "about_md2tty_js",
+    "translation": "حول md2tty.js"
+  },
+  {
+    "id": "about_md2tty_sh",
+    "translation": "حول md2tty.sh"
+  },
+  {
+    "id": "action",
+    "translation": "إجراء"
+  },
+  {
+    "id": "error_no_slides",
+    "translation": "لم يتم العثور على شرائح."
+  },
+  {
+    "id": "first_slide",
+    "translation": "الشريحة الأولى"
+  },
+  {
+    "id": "help",
+    "translation": "مساعدة"
+  },
+  {
+    "id": "jump_to_slide",
+    "translation": "انتقال إلى شريحة"
+  },
+  {
+    "id": "key",
+    "translation": "مفتاح"
+  },
+  {
+    "id": "last_slide",
+    "translation": "الشريحة الأخيرة"
+  },
+  {
+    "id": "next_slide",
+    "translation": "الشريحة التالية"
+  },
+  {
+    "id": "previous_slide",
+    "translation": "الشريحة السابقة"
+  },
+  {
+    "id": "quit",
+    "translation": "خروج"
+  },
+  {
+    "id": "shortcuts",
+    "translation": "اختصارات"
+  },
+  {
+    "id": "slide_progress",
+    "translation": "شريحة {{.Current}} من {{.Total}}"
+  },
+  {
+    "id": "theme",
+    "translation": "سمة"
+  },
+  {
+    "id": "toggle_flash",
+    "translation": "تبديل الوميض"
+  },
+  {
+    "id": "toggle_language",
+    "translation": "تغيير اللغة"
+  },
+  {
+    "id": "toggle_theme",
+    "translation": "تبديل السمة"
+  }
+]

@@ -1,0 +1,48 @@
+# --- System & OS ---
+.DS_Store
+Thumbs.db
+*~
+
+# --- Dependencies & Build ---
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# --- Generated Slide Assets ---
+public/slides/
+public/slides.json
+public/locales/
+locales/*.sh
+
+# --- Vite / Tools ---
+.vite/
+.eslintcache
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Environment Secrets ---
+.env
+.env.*
+!.env.example
+
+# --- IDEs & Editors ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Temporary / Caches ---
+shortcuts.tmp
+.cache/
+coverage/
+.temp/
