@@ -12,11 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// eslint-disable-next-line import/no-unresolved
 import { defineConfig } from "vite";
-// eslint-disable-next-line import/no-unresolved
 import tailwindcss from "@tailwindcss/vite";
-// eslint-disable-next-line import/no-unresolved
 
 export default defineConfig({
   plugins: [tailwindcss()],

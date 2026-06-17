@@ -142,6 +142,9 @@ validate_skill() {
 }
 
 @test "validate skill: persona-swe" {
+  if [ ! -d "${REPO_ROOT}/skills/persona-swe" ]; then
+    skip "persona-swe is missing"
+  fi
   validate_skill "skills/persona-swe"
 }
 

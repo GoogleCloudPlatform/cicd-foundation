@@ -123,15 +123,6 @@
       "repository": "https://github.com/moby/moby"
     },
     {
-      "name": "Antigravity CLI",
-      "version": "1.0.7",
-      "group": "Workstation Core",
-      "license_id": "Proprietary",
-      "supplier": "Google LLC",
-      "url": "https://github.com/google-antigravity/antigravity-cli",
-      "repository": "https://github.com/google-antigravity/antigravity-cli"
-    },
-    {
       "name": "Agent Development Kit (Python)",
       "version": "1.28.1",
       "group": "Workstation Core",

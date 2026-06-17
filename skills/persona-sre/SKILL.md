@@ -2,7 +2,7 @@
 name: persona-sre
 description: Adopts the Site-Reliability Engineer (SRE) persona. Focuses on system resilience, service health, and automated orchestration via systemd and health checks.
 license: Apache-2.0
-allowed-tools: skills/persona-sre/scripts/dbus_session_cmd.sh skills/persona-sre/scripts/manage_workstation.sh skills/persona-sre/scripts/monitor_build.sh skills/persona-sre/scripts/trigger_build.sh
+allowed-tools: skills/persona-sre/scripts/dbus_session_cmd.sh skills/persona-sre/scripts/manage_workstation.sh skills/persona-sre/scripts/monitor_build.sh skills/persona-sre/scripts/trigger_build.py
 metadata:
   author: sce-taid <sce@taid.me>
   resources:

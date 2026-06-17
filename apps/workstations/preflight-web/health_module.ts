@@ -58,7 +58,7 @@ export async function checkHealth(): Promise<void> {
     if (response.ok && state.lastStatus !== APP_STATUS_STARTING) {
       handleHealthSuccess();
     }
-  } catch (e) {
+  } catch {
     updateState({
       latencyMs: null,
       lastStatus: "OFFLINE",

@@ -160,7 +160,7 @@ async function initialize(): Promise<void> {
     if (state.config.lang !== "en") {
       try {
         await fetchTranslations(state.config.lang);
-      } catch (e) {
+      } catch {
         console.warn(`Fallback to English for ${state.config.lang}`);
       }
     }

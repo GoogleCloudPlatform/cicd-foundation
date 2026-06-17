@@ -288,7 +288,7 @@ export async function viewFullLicenseText(
         window.t?.("msg_error_load_license", "error loading license") ||
         "error";
     }
-  } catch (e) {
+  } catch {
     textContainer.textContent =
       window.t?.("msg_error_network_license", "network error") ||
       "network error";

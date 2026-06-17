@@ -102,7 +102,7 @@ async function openPrivacyModal(): Promise<void> {
           "error loading privacy notice";
         contentEl.innerHTML = `<p class="text-red-400 p-8 text-center uppercase tracking-widest">${errText}</p>`;
       }
-    } catch (e) {
+    } catch {
       const netErrText =
         window.t?.("error_network", "network error") || "network error";
       contentEl.innerHTML = `<p class="text-red-400 p-8 text-center uppercase tracking-widest">${netErrText}</p>`;
