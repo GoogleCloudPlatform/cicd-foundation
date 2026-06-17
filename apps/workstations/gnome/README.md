@@ -46,7 +46,7 @@ A cinematic loading interface that intercepts early traffic and provides technic
 
 ## 🛠️ Global Tooling
 
-- **Gemini CLI**: Context-aware AI assistance directly in your terminal.
+- **Antigravity CLI**: Context-aware AI assistance directly in your terminal.
 - **Skaffold**: Automated container build and deployment.
 - **Bats & Vitest**: Comprehensive Bash and TypeScript testing suites.
 

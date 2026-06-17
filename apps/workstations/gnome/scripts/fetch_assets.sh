@@ -67,11 +67,28 @@ fetch_extensions() {
   done
 }
 
+fetch_antigravity_assets() {
+  echo "Fetching Antigravity assets (CLI v${ANTIGRAVITY_CLI_VERSION}, SDK v${ANTIGRAVITY_SDK_VERSION})..."
+  
+  # CLI
+  mkdir -p /downloads/usr/local/bin
+  local cli_url="https://github.com/google-antigravity/antigravity-cli/releases/download/${ANTIGRAVITY_CLI_VERSION}/agy_cli_linux_x64.tar.gz"
+  echo "Downloading Antigravity CLI from ${cli_url}..."
+  curl ${CURL_OPTS} "${cli_url}" | tar -xz -C /downloads/usr/local/bin agy
+
+  # SDK (Source as fallback)
+  mkdir -p /downloads/opt/antigravity-sdk
+  local sdk_url="https://github.com/google-antigravity/antigravity-sdk-python/archive/refs/tags/v${ANTIGRAVITY_SDK_VERSION}.tar.gz"
+  echo "Downloading Antigravity SDK source from ${sdk_url}..."
+  curl ${CURL_OPTS} "${sdk_url}" | tar -xz -C /downloads/opt/antigravity-sdk --strip-components=1
+}
+
 main() {
   mkdir -p /downloads/opt/images /downloads/etc/guacamole/extensions
   fetch_crane
   fetch_images
   fetch_extensions
+  fetch_antigravity_assets
   echo "Assets fetched successfully."
 }
 

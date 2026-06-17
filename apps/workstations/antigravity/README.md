@@ -30,7 +30,7 @@ The **Antigravity Custom Image for Cloud Workstations** is a specialized image l
 
 - **Foundation-First**: Seamlessly integrates with the [cicd-foundation](https://github.com/GoogleCloudPlatform/cicd-foundation) workstations blueprint.
 - **Headless Excellence**: Leverages the base blueprint's headless Wayland and RDP/Guacamole stack for low-latency browser-based access.
-- **Dev-Ready**: Includes a customizable Agent Development Kit (ADK) and the Gemini CLI agent by default.
+- **Dev-Ready**: Includes a customizable Agent Development Kit (ADK) and the Antigravity CLI agent by default.
 
 ## 🏗️ Architecture
 
@@ -46,7 +46,7 @@ This image supports and propagates all base arguments, including:
 | Argument                               | Default | Description                                      |
 | :------------------------------------- | :------ | :----------------------------------------------- |
 | `INSTALL_AGENT_DEVELOPMENT_KIT_PYTHON` | `true`  | Installs the Python-based Agent Development Kit. |
-| `INSTALL_GEMINI_CLI`                   | `true`  | Installs the Gemini CLI agent.                   |
+| `INSTALL_ANTIGRAVITY_CLI`                   | `true`  | Installs the Antigravity CLI agent.                   |
 
 ## 📖 Documentation
 

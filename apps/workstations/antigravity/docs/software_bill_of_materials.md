@@ -23,7 +23,7 @@ This document tracks the primary open-source and proprietary components bundled 
 | Component                       | License            | Description                                                  |
 | :------------------------------ | :----------------- | :----------------------------------------------------------- |
 | **antigravity**                 | Proprietary/Custom | The core desktop shell and dashboard provided by this image. |
-| **Gemini CLI**                  | Apache 2.0         | AI-powered terminal assistant and automation tool.           |
+| **Antigravity CLI**                  | Proprietary        | AI-powered terminal assistant and automation tool.           |
 | **Agent Development Kit (ADK)** | Apache 2.0         | Python libraries for AI agent orchestration.                 |
 
 ## Third-Party Dependencies (Layered)

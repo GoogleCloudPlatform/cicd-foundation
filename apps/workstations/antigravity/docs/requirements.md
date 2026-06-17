@@ -20,7 +20,7 @@ limitations under the License.
 
 - **FR-A1: Dashboard Autostart**: The Antigravity dashboard must launch automatically upon successful RDP connection. This requires deterministic detection of virtual monitor availability to prevent graphics crashes in headless environments.
 - **FR-A2: UX Integration**: The application must be pinned to the GNOME dock as a high-priority favorite.
-- **FR-A3: Dev-Ready Tooling**: Must include the Agent Development Kit (ADK) and Gemini CLI by default.
+- **FR-A3: Dev-Ready Tooling**: Must include the Agent Development Kit (ADK) and Antigravity CLI by default.
 
 ## 2. Non-Functional Requirements
 

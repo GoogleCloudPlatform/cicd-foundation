@@ -123,13 +123,13 @@
       "repository": "https://github.com/moby/moby"
     },
     {
-      "name": "Gemini CLI",
-      "version": "0.35.3",
+      "name": "Antigravity CLI",
+      "version": "1.0.7",
       "group": "Workstation Core",
-      "license_id": "Apache-2.0",
+      "license_id": "Proprietary",
       "supplier": "Google LLC",
-      "url": "https://www.npmjs.com/package/@google/gemini-cli",
-      "repository": "https://github.com/google-gemini/gemini-cli"
+      "url": "https://github.com/google-antigravity/antigravity-cli",
+      "repository": "https://github.com/google-antigravity/antigravity-cli"
     },
     {
       "name": "Agent Development Kit (Python)",

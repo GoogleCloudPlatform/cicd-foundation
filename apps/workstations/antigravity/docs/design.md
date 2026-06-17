@@ -44,4 +44,4 @@ The hook also leverages the `desktop_apply_integration` utility to seamlessly in
 By default, the Antigravity layer propagates build arguments to ensure advanced development tools are present:
 
 - **Agent Development Kit (ADK)**: Python tools for building and testing AI agents (`INSTALL_AGENT_DEVELOPMENT_KIT_PYTHON`).
-- **Gemini CLI**: Terminal access to Gemini models for automation and persona-driven development.
+- **Antigravity CLI**: Terminal access to Antigravity models for automation and persona-driven development.

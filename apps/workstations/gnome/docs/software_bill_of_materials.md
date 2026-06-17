@@ -24,7 +24,7 @@ This project maintains a curated Software Bill of Materials (SBOM) to track depe
 pie title Blueprint Component Groups
     "Core System (Ubuntu/Systemd)" : 40
     "Remote Access (Guacamole/FreeRDP)" : 35
-    "Developer Tools (Gemini/Docker/ADK)" : 25
+    "Developer Tools (Antigravity/Docker/ADK)" : 25
 ```
 
 ## The SBOM Manifest

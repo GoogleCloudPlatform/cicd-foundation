@@ -64,7 +64,7 @@ The **Preflight Layer** must bridge this gap by providing an immediate, high-qua
 
 ### 4.2. Internationalization (i18n)
 
-- **N2.1**: Full support for the **6 UN Languages** (English, Spanish, French, Arabic, Chinese, Russian).
+- **N2.1**: Full support for the **6 UN Languages** (Arabic, Chinese, English, French, Russian, Spanish).
 - **N2.2**: Strict **Resolution Hierarchy**:
   1. URL Parameter (`?lang=XX`)
   2. Server Metadata (`window.CWS_CONFIG.serverLang`)
