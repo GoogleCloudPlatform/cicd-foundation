@@ -1,0 +1,4 @@
+{
+  "gcp_project": "{{ .gcp_project }}",
+  "model": "gemini-3.1-pro"
+}

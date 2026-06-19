@@ -17,8 +17,22 @@
 ARG PREFLIGHT_WEB_REPO=""
 ARG PREFLIGHT_WEB_DIR=""
 
+ARG GOLANG_VERSION=1.22
 ARG ALPINE_VERSION=3.19
 ARG NODE_VERSION=20-slim
+ARG CHEZMOI_VERSION=2.70.5
+ARG CHEZMOI_SHA256=6a76a0ac3718f0d45b34b4b57067f9556f8f6042e3da710a3c496838362aca14
+ARG CURL_OPTS="-fsSL --retry 3 --connect-timeout 10 --max-time 300"
+
+###############################################################
+# Stage: setup-builder
+###############################################################
+FROM golang:${GOLANG_VERSION}-alpine${ALPINE_VERSION} AS setup-builder
+WORKDIR /app
+COPY preflight/tools/setup-workstation/go.mod preflight/tools/setup-workstation/go.sum ./
+RUN go mod download
+COPY preflight/tools/setup-workstation/main.go ./
+RUN CGO_ENABLED=0 GOOS=linux go build -o /setup-workstation main.go
 
 ###############################################################
 # Stage: web-builder
@@ -37,5 +51,18 @@ RUN ./build_web.sh "${PREFLIGHT_WEB_REPO}" "${PREFLIGHT_WEB_DIR}"
 # Stage: Preflight Provider
 ###############################################################
 FROM alpine:${ALPINE_VERSION}
+ARG CHEZMOI_VERSION
+ARG CHEZMOI_SHA256
+ARG CURL_OPTS
+
+RUN apk add --no-cache curl tar && \
+    curl ${CURL_OPTS} "https://github.com/twpayne/chezmoi/releases/download/v${CHEZMOI_VERSION}/chezmoi_${CHEZMOI_VERSION}_linux_amd64.tar.gz" -o chezmoi.tar.gz && \
+    echo "${CHEZMOI_SHA256}  chezmoi.tar.gz" | sha256sum -c - && \
+    mkdir -p /export/google/bin && \
+    tar -xzf chezmoi.tar.gz -C /export/google/bin chezmoi && \
+    rm chezmoi.tar.gz && \
+    apk del curl tar
+
 COPY preflight/assets/ /export/
 COPY --from=web-builder /build/web/dist/ /export/var/www/html/
+COPY --from=setup-builder /setup-workstation /export/google/bin/setup-workstation

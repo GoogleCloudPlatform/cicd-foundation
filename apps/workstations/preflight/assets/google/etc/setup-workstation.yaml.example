@@ -1,0 +1,21 @@
+inputs:
+  - id: gcp_project
+    prompt: "GCP Project ID"
+    description: "Your primary Google Cloud project ID."
+    default_env: "AGY_GCP_PROJECT"
+    required: true
+
+  - id: mcp_server_url
+    prompt: "MCP Server URL"
+    description: "The URL of your Model Context Protocol server."
+    default_env: "AGY_MCP_SERVER_URL"
+    required: false
+
+  - id: mcp_auth_token
+    prompt: "MCP Authentication Token"
+    default_env: "AGY_MCP_AUTH_TOKEN"
+    required: true
+
+permissions:
+  - path: ".gemini/antigravity-cli/mcp_config.json"
+    mode: "0600"

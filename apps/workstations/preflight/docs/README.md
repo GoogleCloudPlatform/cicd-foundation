@@ -31,6 +31,12 @@ This directory contains the authoritative technical documentation for the **Cust
 - **Privacy**: The `privacy_notice.md` must be maintained for the automated build-time fragment generation.
 - **Naming**: Use `snake_case.md` for any new supplemental files.
 
+## Sub-Component Documentation
+
+Documentation for specific standalone CLI tools can be found within their respective source directories:
+
+- **[Setup Workstation CLI](../tools/setup-workstation/README.md)**: The interactive workspace bootstrapping User Guide.
+
 ---
 
 Brought to you by the Google Cloud Professional Services Organization Apps team (PSO AppΣ)

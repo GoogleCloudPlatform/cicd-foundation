@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "remote-indexer": {
+      "serverUrl": {{ .mcp_server_url | quote }},
+      "env": {
+        "AUTH_TOKEN": {{ .mcp_auth_token | quote }}
+      }
+    }
+  }
+}
