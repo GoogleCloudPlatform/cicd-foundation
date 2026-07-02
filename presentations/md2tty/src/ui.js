@@ -47,29 +47,40 @@ export function updateFooter(footer, current, total) {
  * Toggles the shortcuts help overlay.
  * @param {HTMLElement} overlay The overlay element to toggle.
  * @param {boolean=} show Explicitly show or hide the overlay.
- * @param {number=} current Current slide index (for footer).
- * @param {number=} total Total slide count (for footer).
- * @return {boolean} The new visibility state of the overlay.
+ * @param {number} current Current slide index.
+ * @param {number} total Total number of slides.
  */
-export function toggleHelp(overlay, show, current = 0, total = 0) {
+export function renderHelp(overlay, current, total) {
+  if (!overlay) return;
+  const content = overlay.querySelector('.shortcuts-content');
+  const container = overlay.querySelector('.help-container') || overlay;
+
+  if (content) {
+    content.innerHTML = /** @type {string} */ (marked.parse(getHelpMarkdown()));
+    content.className = 'shortcuts-content';
+
+    // Ensure footer is present and pushed to bottom of the help-container
+    let helpFooter = container.querySelector('.help-footer');
+    if (!helpFooter) {
+      helpFooter = document.createElement('footer');
+      helpFooter.className = 'help-footer';
+      container.appendChild(helpFooter);
+    }
+    updateFooter(/** @type {HTMLElement} */ (helpFooter), current, total);
+  }
+}
+
+/**
+ * Toggles the visibility of the shortcuts help overlay.
+ * @param {HTMLElement} overlay The overlay element.
+ * @param {boolean} [show] Force show/hide state.
+ * @return {boolean} True if the overlay is now active (visible).
+ */
+export function toggleHelp(overlay, show) {
   if (!overlay) return false;
 
   const isActive = (show !== undefined) ? show : !overlay.classList.contains('active');
   if (isActive) {
-    const content = overlay.querySelector('.shortcuts-content');
-    if (content) {
-      content.innerHTML = /** @type {string} */ (marked.parse(getHelpMarkdown()));
-      content.className = 'shortcuts-content slide-content'; // Reuse slide-content for flex-grow
-      
-      // Ensure footer is present and pushed to bottom
-      let helpFooter = overlay.querySelector('.help-footer');
-      if (!helpFooter) {
-        helpFooter = document.createElement('footer');
-        helpFooter.className = 'help-footer';
-        overlay.appendChild(helpFooter);
-      }
-      updateFooter(/** @type {HTMLElement} */ (helpFooter), current, total);
-    }
     overlay.classList.add('active');
   } else {
     overlay.classList.remove('active');

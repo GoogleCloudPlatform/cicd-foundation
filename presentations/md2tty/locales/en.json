@@ -44,12 +44,20 @@
     "translation": "Next Slide"
   },
   {
+    "id": "presentation_ended",
+    "translation": "Presentation Ended"
+  },
+  {
     "id": "previous_slide",
     "translation": "Previous Slide"
   },
   {
     "id": "quit",
     "translation": "Quit"
+  },
+  {
+    "id": "safe_to_close",
+    "translation": "You can safely close this tab."
   },
   {
     "id": "shortcuts",

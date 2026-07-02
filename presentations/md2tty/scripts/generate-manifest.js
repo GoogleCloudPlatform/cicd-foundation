@@ -72,7 +72,7 @@ function main() {
       const srcPath = path.join(LOCALES_DIR, file);
       // Copy JSON to public
       fs.copyFileSync(srcPath, path.join(PUBLIC_LOCALES_DIR, file));
-      
+
       // Generate .sh equivalent
       const lang = file.replace('.json', '');
       const data = JSON.parse(fs.readFileSync(srcPath, 'utf8'));

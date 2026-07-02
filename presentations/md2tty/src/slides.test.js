@@ -16,7 +16,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { setTabTitle, renderSlide } from './slides.js';
+import { setTabTitle, renderAllSlides, activateSlide } from './slides.js';
 import { Selectors } from './constants.js';
 
 // Mock dompurify
@@ -69,39 +69,51 @@ describe('slides.js', () => {
     });
   });
 
-  describe('renderSlide', () => {
-    it('renders the content to the target element', () => {
-      const names = ['00_test.md'];
-      const contents = ['Hello World'];
-      const target = /** @type {HTMLElement} */ (document.getElementById(Selectors.TARGET));
-      const footer = /** @type {HTMLElement} */ (document.getElementById(Selectors.FOOTER));
-      
-      const index = renderSlide(0, target, footer, names, contents);
-      
-      expect(target.innerHTML).toBe('<p>Hello World</p>');
-      expect(target.className).toContain('slide-00_test');
-      expect(index).toBe(0);
+  describe('renderAllSlides', () => {
+    it('renders all slides and their footers into the container', () => {
+      const names = ['00_test.md', '01_test.md'];
+      const contents = ['Hello', 'World'];
+      const container = document.createElement('div');
+
+      renderAllSlides(container, names, contents);
+
+      const slides = container.querySelectorAll('.slide-content');
+      expect(slides.length).toBe(2);
+      expect(slides[0].querySelector('.slide-body').innerHTML).toBe('<p>Hello</p>');
+      expect(slides[0].className).toContain('slide-00_test');
+      expect(slides[0].querySelector('footer')).toBeTruthy();
+
+      expect(slides[1].querySelector('.slide-body').innerHTML).toBe('<p>World</p>');
+      expect(slides[1].className).toContain('slide-01_test');
+    });
+  });
+
+  describe('activateSlide', () => {
+    let container;
+    beforeEach(() => {
+      container = document.createElement('div');
+      const names = ['00.md', '01.md'];
+      const contents = ['C1', 'C2'];
+      renderAllSlides(container, names, contents);
+    });
+
+    it('sets active class on the target slide and removes from others', () => {
+      const index = activateSlide(1, container);
+
+      const slides = container.querySelectorAll('.slide-content');
+      expect(slides[0].classList.contains('active')).toBe(false);
+      expect(slides[1].classList.contains('active')).toBe(true);
+      expect(index).toBe(1);
     });
 
     it('constrains index within bounds', () => {
-      const names = ['00.md', '01.md'];
-      const contents = ['C1', 'C2'];
-      const target = /** @type {HTMLElement} */ (document.getElementById(Selectors.TARGET));
-      const footer = /** @type {HTMLElement} */ (document.getElementById(Selectors.FOOTER));
-
-      expect(renderSlide(-1, target, footer, names, contents)).toBe(0);
-      expect(renderSlide(5, target, footer, names, contents)).toBe(1);
+      expect(activateSlide(-1, container)).toBe(0);
+      expect(activateSlide(5, container)).toBe(1);
     });
 
     it('updates the URL hash', () => {
-      const names = ['00.md'];
-      const contents = ['C1'];
-      const target = /** @type {HTMLElement} */ (document.getElementById(Selectors.TARGET));
-      const footer = /** @type {HTMLElement} */ (document.getElementById(Selectors.FOOTER));
       const replaceStateSpy = vi.spyOn(history, 'replaceState');
-      
-      renderSlide(0, target, footer, names, contents);
-      
+      activateSlide(0, container);
       expect(replaceStateSpy).toHaveBeenCalledWith(null, '', '#1');
     });
   });

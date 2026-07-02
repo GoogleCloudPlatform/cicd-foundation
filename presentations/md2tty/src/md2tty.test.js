@@ -29,12 +29,16 @@ vi.mock('./ui.js', async (importOriginal) => {
     ...actual,
     toggleHelp: vi.fn((overlay, show) => show !== undefined ? show : true),
     toggleTheme: vi.fn(),
+    renderHelp: vi.fn(),
+    updateFooter: vi.fn(),
   };
 });
 
 vi.mock('./slides.js', () => ({
   initSlides: vi.fn().mockResolvedValue({ names: ['slide1.md', 'slide2.md'], contents: ['content 1', 'content 2'] }),
-  renderSlide: vi.fn((index) => index),
+  renderAllSlides: vi.fn(),
+  activateSlide: vi.fn((index) => index),
+  updateAllFooters: vi.fn(),
   setTabTitle: vi.fn(),
 }));
 
@@ -76,6 +80,8 @@ describe('Md2tty', () => {
 
       expect(i18n.initI18n).toHaveBeenCalled();
       expect(slides.initSlides).toHaveBeenCalled();
+      expect(slides.renderAllSlides).toHaveBeenCalledWith(app.target, ['slide1.md', 'slide2.md'], ['content 1', 'content 2']);
+      expect(ui.renderHelp).toHaveBeenCalledWith(app.overlay, 0, 2);
       expect(app.slideNames).toEqual(['slide1.md', 'slide2.md']);
       expect(autoScaleSpy).toHaveBeenCalled();
       expect(mountSpy).toHaveBeenCalled();
@@ -93,9 +99,9 @@ describe('Md2tty', () => {
     it('handles empty slides', async () => {
       const mockInitSlides = vi.spyOn(slides, 'initSlides').mockResolvedValue({ names: [], contents: [] });
       const mountSpy = vi.spyOn(app, 'mount');
-      
+
       await app.init();
-      
+
       expect(app.target.innerHTML).toContain('error_no_slides');
       expect(mountSpy).not.toHaveBeenCalled();
       mockInitSlides.mockRestore();
@@ -104,9 +110,9 @@ describe('Md2tty', () => {
     it('catches initialization errors', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const mockInitSlides = vi.spyOn(slides, 'initSlides').mockRejectedValue(new Error('init error'));
-      
+
       await app.init();
-      
+
       expect(consoleErrorSpy).toHaveBeenCalled();
       mockInitSlides.mockRestore();
     });
@@ -121,42 +127,46 @@ describe('Md2tty', () => {
       expect(addSpy).toHaveBeenCalledWith('keydown', app.handleKeydown);
       expect(addSpy).toHaveBeenCalledWith('click', app.handleClick);
       expect(addSpy).toHaveBeenCalledWith('resize', app.handleResize);
+      expect(addSpy).toHaveBeenCalledWith('beforeprint', app.handleBeforePrint);
+      expect(addSpy).toHaveBeenCalledWith('afterprint', app.handleAfterPrint);
 
       app.unmount();
       expect(removeSpy).toHaveBeenCalledWith('keydown', app.handleKeydown);
       expect(removeSpy).toHaveBeenCalledWith('click', app.handleClick);
       expect(removeSpy).toHaveBeenCalledWith('resize', app.handleResize);
+      expect(removeSpy).toHaveBeenCalledWith('beforeprint', app.handleBeforePrint);
+      expect(removeSpy).toHaveBeenCalledWith('afterprint', app.handleAfterPrint);
     });
 
     it('debounces resize events', () => {
       vi.useFakeTimers();
       const autoScaleSpy = vi.spyOn(app, 'autoScale').mockImplementation(() => {});
-      
+
       app.handleResize();
       app.handleResize();
       app.handleResize();
-      
+
       vi.runAllTimers();
-      
+
       expect(autoScaleSpy).toHaveBeenCalledTimes(1);
       vi.useRealTimers();
     });
   });
 
   describe('navigation', () => {
-    it('goTo calls renderSlide with current index', () => {
+    it('goTo calls activateSlide with current index', () => {
       app.goTo(2);
-      expect(slides.renderSlide).toHaveBeenCalledWith(2, app.target, app.footer, app.slideNames, app.slideContents, app.transitionFlash);
+      expect(slides.activateSlide).toHaveBeenCalledWith(2, app.target, app.transitionFlash);
       expect(app.currentSlide).toBe(2);
     });
 
     it('next and prev update currentSlide', () => {
       const goToSpy = vi.spyOn(app, 'goTo').mockImplementation((idx) => { app.currentSlide = idx; });
       app.currentSlide = 1;
-      
+
       app.next();
       expect(goToSpy).toHaveBeenCalledWith(2);
-      
+
       app.prev();
       expect(goToSpy).toHaveBeenCalledWith(1);
     });
@@ -186,16 +196,14 @@ describe('Md2tty', () => {
       app['handleClick']({ target: createBtn('theme') });
       expect(toggleThemeSpy).toHaveBeenCalled();
 
-      expect(app.transitionFlash).toBe(true);
-      app['handleClick']({ target: createBtn('flash') });
-      expect(app.transitionFlash).toBe(false);
-
       app['handleClick']({ target: createBtn('help') });
       expect(toggleHelpSpy).toHaveBeenCalledWith(true);
 
       app.helpVisible = false; // Reset state for next click
       app['handleClick']({ target: createBtn('quit') });
       expect(windowCloseSpy).toHaveBeenCalled();
+      expect(app.target.innerHTML).toContain('presentation_ended');
+      expect(app.target.innerHTML).toContain('safe_to_close');
     });
   });
 
@@ -203,6 +211,19 @@ describe('Md2tty', () => {
     describe('when help is visible', () => {
     beforeEach(() => {
       app.helpVisible = true;
+    });
+
+    it('ignores modifier keys and keeps help open', () => {
+      const toggleHelpSpy = vi.spyOn(app, 'toggleHelp');
+      const silentKeys = ['Shift', 'Control', 'Alt', 'Meta', 'AltGraph', 'CapsLock'];
+
+      silentKeys.forEach(key => {
+        const event = new KeyboardEvent('keydown', { key });
+        app['handleKeydown'](event);
+      });
+
+      expect(toggleHelpSpy).not.toHaveBeenCalled();
+      expect(app.helpVisible).toBe(true);
     });
 
     it('toggles theme and keeps help open on "t"', () => {
@@ -255,6 +276,8 @@ describe('Md2tty', () => {
       app['handleKeydown'](event);
 
       expect(closeSpy).toHaveBeenCalled();
+      expect(app.target.innerHTML).toContain('presentation_ended');
+      expect(app.target.innerHTML).toContain('safe_to_close');
     });
   });
 
@@ -270,6 +293,20 @@ describe('Md2tty', () => {
       app['handleKeydown'](event);
 
       expect(closeSpy).toHaveBeenCalled();
+      expect(app.target.innerHTML).toContain('presentation_ended');
+      expect(app.target.innerHTML).toContain('safe_to_close');
+    });
+
+    it('cycles language and updates all footers on "l"', () => {
+      const event = new KeyboardEvent('keydown', { key: 'l' });
+      const goToSpy = vi.spyOn(app, 'goTo').mockImplementation(() => {});
+
+      app['handleKeydown'](event);
+
+      expect(i18n.cycleLanguage).toHaveBeenCalled();
+      expect(slides.updateAllFooters).toHaveBeenCalledWith(app.target, app.slideContents.length);
+      expect(ui.renderHelp).toHaveBeenCalledWith(app.overlay, app.currentSlide, app.slideContents.length);
+      expect(goToSpy).toHaveBeenCalledWith(app.currentSlide);
     });
   });
 });

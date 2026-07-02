@@ -44,12 +44,20 @@
     "translation": "Siguiente diapositiva"
   },
   {
+    "id": "presentation_ended",
+    "translation": "Presentación finalizada"
+  },
+  {
     "id": "previous_slide",
     "translation": "Diapositiva anterior"
   },
   {
     "id": "quit",
     "translation": "Salir"
+  },
+  {
+    "id": "safe_to_close",
+    "translation": "Puede cerrar esta pestaña de forma segura."
   },
   {
     "id": "shortcuts",

@@ -31,6 +31,7 @@ readonly HIGHLIGHT_FG="16"  # Black
 gum_theme="dark"
 body_color="252" # Light Gray default
 jump_to_slide=""
+presentation_max_height=0
 
 # Calculates luma (brightness) from RGB components using ITU-R BT.709.
 # Arguments: r, g, b (0-255)
@@ -53,13 +54,13 @@ detect_theme() {
   local response
   read -r -d $'\a' response < /dev/tty
   stty "${old_stty}" 2>/dev/null
-  
+
   if [[ "${response}" =~ rgb:([0-9a-fA-F]{1,4})/([0-9a-fA-F]{1,4})/([0-9a-fA-F]{1,4}) ]]; then
     local r g b lum
     r=$(( 16#${BASH_REMATCH[1]:0:2} ))
     g=$(( 16#${BASH_REMATCH[2]:0:2} ))
     b=$(( 16#${BASH_REMATCH[3]:0:2} ))
-    
+
     lum=$(calculate_luma "${r}" "${g}" "${b}")
     if (( lum > 127 )); then
       gum_theme="light"
@@ -70,10 +71,10 @@ detect_theme() {
 
 # Strips extra padding from inline code highlights.
 clean_code_padding() {
-  # 1. Target segments with background colors (inline code highlights).
-  # 2. For tables (containing │ or ┼), move internal spaces to the end of the cell
-  #    to preserve the total character count and thus column alignment.
-  # 3. For regular lines, simply strip the internal spaces for a "tight" look.
+  # Target segments with background colors (inline code highlights).
+  # For tables (containing │ or ┼), move internal spaces to the end of the cell
+  # to preserve the total character count and thus column alignment.
+  # For regular lines, simply strip the internal spaces for a "tight" look.
   sed -E "
     /[│┼]/ {
       s/(\x1b\[[0-9;]*48;5;(${HIGHLIGHT_BG}|236|254)[0-9;]*m)[[:space:]]+([^[:space:]\x1b]+)[[:space:]]+(\x1b\[0m)/\1\3\4\x02\x02/g;
@@ -89,11 +90,11 @@ clean_code_padding() {
 apply_formatting() {
   local use_links="${1:-false}"
 
-  # 1. Clean up code blocks: remove existing leading spaces to take full margin control.
-  awk '/^```/{code=!code; print; next} {if(code) sub(/^[[:space:]]+/, ""); print}' | \
-  # 2. Protect indentation: use INDENTMARKER to prevent 'gum format' from stripping it.
-  awk '{if(/^[[:space:]]+/) { sub(/^[[:space:]]+/, "INDENTMARKER"); } print}' | \
-  # 3. Link handling: either protect them with markers or convert them to bold text.
+  # Clean up code blocks: disabled (preserve leading spaces inside code blocks).
+  cat | \
+  # Protect indentation: use INDENTMARKER to prevent 'gum format' from stripping it (only outside code blocks).
+  awk '/^```/{code=!code; print; next} {if(!code && /^[[:space:]]+/) { sub(/^[[:space:]]+/, "INDENTMARKER"); } print}' | \
+  # Link handling: either protect them with markers or convert them to bold text.
   (
     if [[ "${use_links}" == "true" ]]; then
       sed -E 's/\[([^]]+)\]\(((https?|mailto):[^)]+)\)/«LNK_S»\2«LNK_M»\1«LNK_E»/g; s/<((https?|mailto):[^>]+)>/«LNK_S»\1«LNK_M»\1«LNK_E»/g; s/<([^>@]+@[^>@]+)>/«LNK_S»mailto:\1«LNK_M»\1«LNK_E»/g'
@@ -101,31 +102,31 @@ apply_formatting() {
       sed -E 's/\[([^]]+)\]\([^)]+\)/**\1**/g'
     fi
   ) | \
-  # 4. Marker protection: prevent space-collapsing inside code blocks.
+  # Marker protection: prevent space-collapsing inside code blocks.
   awk '/^```/{code=!code; print; next} {if(code) printf "\001"; print}' | \
-  # 5. Core rendering: use gum to format markdown.
+  # Core rendering: use gum to format markdown.
   FORCE_COLOR=1 gum format --theme "${gum_theme}" | \
-  # 6. Normalization: strip empty leading lines and fix gum formatting artifacts.
+  # Normalization: strip empty leading lines and fix gum formatting artifacts.
   awk 'BEGIN { leading=1 } { s=$0; gsub(/\x1b\[[0-9;]*m/, "", s); if (leading && s ~ /^[[:space:]]*$/) next; leading=0; print }' | \
   sed -E 's/^((\x1b\[[0-9;]*m)*)  /\1/' | \
-  # 7. Color Injection: apply light/dark theme colors and high-contrast highlights.
+  # Color Injection: apply light/dark theme colors and high-contrast highlights.
   sed -E "s/38;5;(234|252)/38;5;${body_color}/g; s/48;5;(236|254)/48;5;${HIGHLIGHT_BG}/g; s/38;5;(203|39)/38;5;${HIGHLIGHT_FG}/g" | \
-  # 8. Cleanup: remove link artifacts if links are disabled.
+  # Cleanup: remove link artifacts if links are disabled.
   (
     if [[ "${use_links}" == "true" ]]; then cat; else
       sed -E 's/\x1b\[[0-9;]*m \x1b\[0m\x1b\[[0-9;]*m(mailto|https?):[^[:space:]\x1b]+\x1b\[0m//g'
     fi
   ) | \
-  # 9. Padding Cleanup: remove extra spaces inside code highlights.
+  # Padding Cleanup: remove extra spaces inside code highlights.
   clean_code_padding | \
-  # 10. Word Separation and Space Collapsing: move spaces outside of ANSI style sequences.
+  # Word Separation and Space Collapsing: move spaces outside of ANSI style sequences.
   sed -E '/\x01/!s/([[:space:]]+)((\x1b\[[0-9;]*m)*\x1b\[[0;]*m)/\2\1/g' | \
   sed -E '/\x01/!s/((\x1b\[[0-9;]*[1-9][0-9;]*m)+)([[:space:]]+)/\3\1/g' | \
   sed -E '/\x01|[│┼]/!s/[[:space:]]{2,}/ /g' | \
   sed 's/[[:space:]]*$//' | \
-  # 11. Margin Application: replace markers with 2-space baseline margin.
+  # Margin Application: replace markers with 2-space baseline margin.
   sed "s/\x01//g; s/INDENTMARKER/  /g" | \
-  # 12. Hyperlink Reconstruction: finalize OSC 8 sequences if enabled.
+  # Hyperlink Reconstruction: finalize OSC 8 sequences if enabled.
   (
     if [[ "${use_links}" == "true" ]]; then
       sed -E 's/(«+)[^«»]*LNK_[^«»]*S[^«»]*(»+)/\1LNK_S\2/g; s/(«+)[^«»]*LNK_[^«»]*M[^«»]*(»+)/\1LNK_M\2/g; s/(«+)[^«»]*LNK_[^«»]*E[^«»]*(»+)/\1LNK_E\2/g' | \
@@ -144,11 +145,53 @@ apply_formatting() {
 SUPPORTED_LANGS=("en" "es" "fr" "ru" "zh" "ar")
 current_lang_idx=0
 
+# Helper to check and generate locales if missing or out of date
+check_and_generate_locales() {
+  local base_dir
+  base_dir="$(dirname "${BASH_SOURCE[0]}")/.."
+  local locales_dir="${base_dir}/locales"
+  local missing_locales=false
+
+  for lang in "${SUPPORTED_LANGS[@]}"; do
+    local json_file="${locales_dir}/${lang}.json"
+    local sh_file="${locales_dir}/${lang}.sh"
+    if [[ ! -f "${sh_file}" ]]; then
+      missing_locales=true
+      break
+    fi
+    if [[ -f "${json_file}" && "${json_file}" -nt "${sh_file}" ]]; then
+      missing_locales=true
+      break
+    fi
+  done
+
+  if [[ "${missing_locales}" == "true" ]]; then
+    echo "Locales missing or out of date. Attempting to generate them..." >&2
+    if ! command -v node >/dev/null 2>&1; then
+      echo "Error: 'node' is required to generate locales but is not installed." >&2
+      echo "Please install Node.js or run 'npm run generate-manifest' manually." >&2
+      exit 1
+    fi
+
+    if [[ -f "${base_dir}/scripts/generate-manifest.js" ]]; then
+      echo "Running generate-manifest.js..." >&2
+      if ! node "${base_dir}/scripts/generate-manifest.js" >/dev/null; then
+        echo "Error: Failed to generate locales using generate-manifest.js" >&2
+        exit 1
+      fi
+    else
+      echo "Error: 'scripts/generate-manifest.js' not found." >&2
+      exit 1
+    fi
+  fi
+}
+
 # Loads all appropriate i18n arrays into memory
 load_locales() {
+  check_and_generate_locales
   local lang_code="${1:-${LANG:-en}}"
   lang_code="${lang_code:0:2}"
-  
+
   # Find initial index
   for i in "${!SUPPORTED_LANGS[@]}"; do
     if [[ "${SUPPORTED_LANGS[$i]}" == "${lang_code}" ]]; then
@@ -179,7 +222,7 @@ t() {
   local lang="${SUPPORTED_LANGS[$current_lang_idx]}"
   local var_name="i18n_${lang}[${key}]"
   local translation="${!var_name:-}"
-  
+
   if [[ -z "${translation}" ]]; then
     # Fallback to English
     var_name="i18n_en[${key}]"
@@ -200,18 +243,19 @@ show_shortcuts() {
   while true; do
     clear
 
-    # 1. Header: About
+    # Header: About
     render_header "$(t about_md2tty_sh)"
 
-    # 2. Body: About
+    # Body: About
     echo "$(t about_md2tty)
-[https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/presentations/md2tty](https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/presentations/md2tty)" | render_body "false"
+[https://github.com/GoogleCloudPlatform/cicd-foundation
+/tree/main/presentations/md2tty](https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/presentations/md2tty)" | render_body "false"
 
-    # 3. Header: Shortcuts (with one empty line before it)
+    # Header: Shortcuts (with one empty line before it)
     printf "\n"
     render_header "$(t shortcuts)"
 
-    # 4. Table: Shortcuts
+    # Table: Shortcuts
     cat <<EOF | render_body "false"
 | **$(t key)** | **$(t action)** | **$(t key)** | **$(t action)** |
 |:---|:---|:---|:---|
@@ -223,8 +267,8 @@ show_shortcuts() {
 | \`h\`, \`?\` | $(t help) | \`q\` | $(t quit) |
 EOF
 
-    # 5. Footer
-    render_footer "${current}" "${total}"
+    # Footer
+    render_footer "${current}" "${total}" "false"
 
     local key
     read -rsn1 key
@@ -257,7 +301,30 @@ toggle_theme() {
 render_footer() {
   local current="$1"
   local total="$2"
-  printf "\n"
+  local dump_mode="${3:-false}"
+
+  if [[ "${dump_mode}" == "true" ]]; then
+    printf "\n"
+  else
+    local term_height target_line
+    term_height=$(tput lines 2>/dev/null || echo 24)
+    if [[ -z "${term_height}" || "${term_height}" -lt 2 ]]; then
+      term_height=24
+    fi
+
+    local max_h="${presentation_max_height:-18}"
+    if (( max_h == 0 )); then
+      max_h=18
+    fi
+
+    # Position the footer just below the content (max height + 2 for spacing/buffer).
+    target_line=$((max_h + 2))
+    if (( target_line >= term_height )); then
+      target_line=$((term_height - 1))
+    fi
+    printf "\e[%d;1H" "${target_line}"
+  fi
+
   # We substitute the Go template syntax locally since gum format does not natively parse JSON i18n
   local slide_progress
   slide_progress="$(t slide_progress)"
@@ -320,9 +387,10 @@ render_slide() {
     local first_line header body
     # Extract the first non-empty line after stripping HTML comments
     first_line=$(sed -e '/^<!--/,/-->/d' "${file}" | sed '/^[[:space:]]*$/d' | head -n 1)
-    
+
     if [[ "${first_line}" == "# "* ]]; then
-      header=$(echo "${first_line}" | sed 's/^#\+ //')
+      header="${first_line##\#}"
+      header="${header# }"
       # The body is everything except the first occurrence of the header line
       body=$(awk '!found && /^# / {found=1; next} {print}' "${file}")
     else
@@ -340,7 +408,7 @@ render_slide() {
   fi
 
   # Render Footer.
-  render_footer "${current}" "${total}"
+  render_footer "${current}" "${total}" "${dump_mode}"
 }
 
 # Handles user input for navigation and actions.
@@ -452,6 +520,36 @@ usage() {
   exit 1
 }
 
+# Calculates the rendered height of a slide (number of lines).
+get_slide_height() {
+  local file="$1"
+  local use_links="${2:-false}"
+
+  if [[ "${file}" == *.sh ]]; then
+    # For shell script slides, we assume a reasonable default.
+    echo 15
+    return
+  fi
+
+  local first_line header body
+  first_line=$(sed -e '/^<!--/,/-->/d' "${file}" | sed '/^[[:space:]]*$/d' | head -n 1)
+
+  local header_lines=0
+  if [[ "${first_line}" == "# "* ]]; then
+    header="${first_line##\#}"
+    header="${header# }"
+    body=$(awk '!found && /^# / {found=1; next} {print}' "${file}")
+    header_lines=2 # header banner + 1 empty line (from \n\n)
+  else
+    header=""
+    body=$(cat "${file}")
+  fi
+
+  local body_lines
+  body_lines=$(echo "${body}" | render_body "${use_links}" | wc -l)
+  echo $((header_lines + body_lines))
+}
+
 # Entry point. Parses arguments and starts the presentation.
 main() {
   local source_dir="slides"
@@ -495,7 +593,7 @@ main() {
 
   local -a files
   readarray -t files < <(get_slide_files "${source_dir}")
-  
+
   if [[ ${#files[@]} -eq 0 ]]; then
     echo "Error: $(t error_no_slides)" >&2
     usage
@@ -504,6 +602,17 @@ main() {
   if [[ "${dump_mode}" == "true" ]]; then
     render_all_slides "${use_links}" "${files[@]}"
   else
+    # Calculate the maximum slide content height dynamically.
+    # Start with 18 to account for the help page layout (~17-18 lines).
+    presentation_max_height=18
+    for f in "${files[@]}"; do
+      local h
+      h=$(get_slide_height "${f}" "${use_links}")
+      if (( h > presentation_max_height )); then
+        presentation_max_height=$h
+      fi
+    done
+
     run_presentation "${use_links}" "${files[@]}"
   fi
   echo -e "\n"

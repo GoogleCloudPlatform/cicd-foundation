@@ -44,12 +44,20 @@
     "translation": "下一张幻灯片"
   },
   {
+    "id": "presentation_ended",
+    "translation": "演示已结束"
+  },
+  {
     "id": "previous_slide",
     "translation": "上一张幻灯片"
   },
   {
     "id": "quit",
     "translation": "退出"
+  },
+  {
+    "id": "safe_to_close",
+    "translation": "您可以安全地关闭此标签页。"
   },
   {
     "id": "shortcuts",

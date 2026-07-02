@@ -17,11 +17,11 @@
 
 /** @fileoverview Main entry point for the presentation engine. */
 
-import {RESIZE_DEBOUNCE_MS, Selectors, Themes} from './constants.js';
+import {RESIZE_DEBOUNCE_MS, Selectors, Themes, getHelpMarkdown} from './constants.js';
 import {initI18n, cycleLanguage, t} from './i18n.js';
 import {autoScale} from './scaling.js';
-import {initSlides, renderSlide, setTabTitle} from './slides.js';
-import {toggleHelp, toggleTheme} from './ui.js';
+import {initSlides, renderAllSlides, activateSlide, updateAllFooters, setTabTitle} from './slides.js';
+import {toggleHelp, toggleTheme, renderHelp, updateFooter} from './ui.js';
 
 /**
  * High-fidelity terminal-styled presentation engine.
@@ -35,10 +35,10 @@ export class Md2tty {
    */
   constructor(options = {}) {
     /** @type {HTMLElement|null} */
-    this.target = typeof options.target === 'string' 
+    this.target = typeof options.target === 'string'
       ? /** @type {HTMLElement|null} */ (document.querySelector(options.target))
       : /** @type {HTMLElement} */ (options.target || null);
-    
+
     this.manifestUrl = options.manifestUrl || 'slides.json';
     this.slidesDir = options.slidesDir || 'slides/';
 
@@ -51,8 +51,6 @@ export class Md2tty {
     this.transitionFlash = true;
 
     // Instance-bound references for elements.
-    /** @type {HTMLElement|null} */
-    this.footer = null;
     /** @type {HTMLElement|null} */
     this.overlay = null;
     /** @type {HTMLElement|null} */
@@ -93,6 +91,10 @@ export class Md2tty {
 
       this.setupDOM();
       setTabTitle(this.slideContents);
+      renderAllSlides(this.target, this.slideNames, this.slideContents);
+      if (this.overlay) {
+        renderHelp(this.overlay, this.currentSlide, this.slideContents.length);
+      }
       this.autoScale();
       this.mount();
 
@@ -109,7 +111,6 @@ export class Md2tty {
    * @private
    */
   setupDOM() {
-    this.footer = document.getElementById(Selectors.FOOTER);
     this.overlay = document.getElementById(Selectors.OVERLAY);
     this.measureContainer = document.getElementById(Selectors.MEASURE_CONTAINER);
   }
@@ -121,6 +122,21 @@ export class Md2tty {
     window.addEventListener('keydown', this.handleKeydown);
     window.addEventListener('click', this.handleClick);
     window.addEventListener('resize', this.handleResize);
+
+    this.handleBeforePrint = () => {
+      const PRINT_WIDTH = 1056;
+      const PRINT_HEIGHT = 793;
+      autoScale(
+        [...this.slideContents, getHelpMarkdown()],
+        /** @type {HTMLElement} */ (this.target),
+        /** @type {HTMLElement} */ (this.measureContainer),
+        PRINT_WIDTH,
+        PRINT_HEIGHT
+      );
+    };
+    this.handleAfterPrint = () => this.autoScale();
+    window.addEventListener('beforeprint', this.handleBeforePrint);
+    window.addEventListener('afterprint', this.handleAfterPrint);
   }
 
   /**
@@ -130,13 +146,17 @@ export class Md2tty {
     window.removeEventListener('keydown', this.handleKeydown);
     window.removeEventListener('click', this.handleClick);
     window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('beforeprint', this.handleBeforePrint);
+    window.removeEventListener('afterprint', this.handleAfterPrint);
   }
 
   /**
    * Triggers the auto-scaling logic for the current viewport.
    */
   autoScale() {
-    autoScale(this.slideContents, /** @type {HTMLElement} */ (this.target), /** @type {HTMLElement} */ (this.measureContainer));
+    if (!this.target) return;
+    const contentsToMeasure = [...this.slideContents, getHelpMarkdown()];
+    autoScale(contentsToMeasure, /** @type {HTMLElement} */ (this.target), /** @type {HTMLElement} */ (this.measureContainer));
   }
 
   /**
@@ -144,14 +164,17 @@ export class Md2tty {
    * @param {number} index
    */
   goTo(index) {
-    this.currentSlide = renderSlide(
-      index, 
-      /** @type {HTMLElement} */ (this.target), 
-      /** @type {HTMLElement} */ (this.footer), 
-      this.slideNames, 
-      this.slideContents,
+    this.currentSlide = activateSlide(
+      index,
+      /** @type {HTMLElement} */ (this.target),
       this.transitionFlash
     );
+
+    // Update help footer progress even if hidden (so it's ready when opened or printed)
+    const helpFooter = this.overlay?.querySelector('.help-footer');
+    if (helpFooter) {
+      updateFooter(/** @type {HTMLElement} */ (helpFooter), this.currentSlide, this.slideContents.length);
+    }
   }
 
   /**
@@ -173,12 +196,16 @@ export class Md2tty {
    * @param {boolean} [show] Force a specific state.
    */
   toggleHelp(show) {
-    this.helpVisible = toggleHelp(
-      /** @type {HTMLElement} */ (this.overlay), 
-      show, 
-      this.currentSlide, 
-      this.slideContents.length
-    );
+    const active = toggleHelp(/** @type {HTMLElement} */ (this.overlay), show);
+    this.helpVisible = active;
+    if (active) {
+      // Ensure help footer matches current slide state when opened
+      const helpFooter = this.overlay?.querySelector('.help-footer');
+      if (helpFooter) {
+        updateFooter(/** @type {HTMLElement} */ (helpFooter), this.currentSlide, this.slideContents.length);
+      }
+      this.autoScale();
+    }
   }
 
   /**
@@ -188,6 +215,11 @@ export class Md2tty {
    */
   handleKeydown(e) {
     if (this.slideContents.length === 0) return;
+
+    const silentKeys = ['Shift', 'Control', 'Alt', 'Meta', 'AltGraph', 'CapsLock'];
+    if (silentKeys.includes(e.key)) {
+      return;
+    }
 
     if (e.key >= '1' && e.key <= '9') {
       const num = parseInt(e.key, 10) - 1;
@@ -204,6 +236,10 @@ export class Md2tty {
         return;
       case 'l': case 'L':
         cycleLanguage();
+        updateAllFooters(this.target, this.slideContents.length);
+        if (this.overlay) {
+          renderHelp(this.overlay, this.currentSlide, this.slideContents.length);
+        }
         if (this.helpVisible) {
           this.toggleHelp(true);
         } else {
@@ -216,7 +252,7 @@ export class Md2tty {
       case 'q': case 'Q':
         window.close();
         if (this.target) {
-          this.target.innerHTML = '<h1>Presentation Ended</h1>\n<p>You can safely close this tab.</p>';
+          this.target.innerHTML = `<h1>${t('presentation_ended')}</h1>\n<p>${t('safe_to_close')}</p>`;
           this.target.className = 'slide-content';
         }
         return;
@@ -261,14 +297,12 @@ export class Md2tty {
       const action = footerBtn.getAttribute('data-action');
       if (action === 'theme') {
         toggleTheme();
-      } else if (action === 'flash') {
-        this.transitionFlash = !this.transitionFlash;
       } else if (action === 'help') {
         this.toggleHelp(true);
       } else if (action === 'quit') {
         window.close();
         if (this.target) {
-          this.target.innerHTML = '<h1>Presentation Ended</h1>\n<p>You can safely close this tab.</p>';
+          this.target.innerHTML = `<h1>${t('presentation_ended')}</h1>\n<p>${t('safe_to_close')}</p>`;
           this.target.className = 'slide-content';
         }
       }

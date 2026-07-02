@@ -28,7 +28,7 @@ describe('i18n', () => {
         json: () => Promise.resolve([{ id: 'test_key', translation: `translated_in_${lang}` }])
       });
     }));
-    
+
     // Clear URL parameters
     window.history.pushState({}, '', '/');
   });
@@ -59,11 +59,11 @@ describe('i18n', () => {
       window.history.pushState({}, '', '/?lang=en');
       await initI18n();
       expect(t('test_key')).toBe('translated_in_en');
-      
+
       cycleLanguage();
       // Should move to the next language in ['en', 'es', 'fr', 'ru', 'zh', 'ar']
       expect(t('test_key')).toBe('translated_in_es');
-      
+
       cycleLanguage();
       expect(t('test_key')).toBe('translated_in_fr');
     });
@@ -79,7 +79,7 @@ describe('i18n', () => {
         });
       }));
       await initI18n();
-      
+
       expect(t('test_var', { Current: 1, Total: 5 })).toBe('Slide 1 of 5');
     });
 

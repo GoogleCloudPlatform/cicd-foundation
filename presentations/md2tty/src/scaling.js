@@ -25,9 +25,17 @@ import {INITIAL_FONT_SIZE, SCALE_MARGIN, Selectors} from './constants.js';
  * @param {!Array<string>} slideContents List of Markdown contents to measure.
  * @param {HTMLElement} target The target element to render into.
  * @param {HTMLElement} measureContainer The container to use for measurements.
+ * @param {number} [viewportW=window.innerWidth] Viewport width to scale against.
+ * @param {number} [viewportH=window.innerHeight] Viewport height to scale against.
  * @return {void}
  */
-export function autoScale(slideContents, target, measureContainer) {
+export function autoScale(
+  slideContents, 
+  target, 
+  measureContainer, 
+  viewportW = window.innerWidth, 
+  viewportH = window.innerHeight
+) {
   if (!slideContents || slideContents.length === 0 || !measureContainer) return;
 
   // Reset to a known base to measure.
@@ -38,18 +46,16 @@ export function autoScale(slideContents, target, measureContainer) {
 
   measureContainer.style.fontSize = `${INITIAL_FONT_SIZE}px`;
   measureContainer.style.width = 'auto';
+  measureContainer.style.maxWidth = '80ch'; // Enforce terminal-like max width
   measureContainer.style.display = 'inline-block';
 
   slideContents.forEach((md) => {
     measureContainer.innerHTML = /** @type {string} */ (marked.parse(md));
-    // Measure including padding (60px total from 30px left/right).
-    maxW = Math.max(maxW, measureContainer.offsetWidth + 60);
+    // Use scrollWidth/Height to capture content size even if it overflows maxWidth (e.g. wide code blocks)
+    maxW = Math.max(maxW, measureContainer.scrollWidth + 60);
     // 100px buffer for header/footer/padding.
-    maxH = Math.max(maxH, measureContainer.offsetHeight + 100);
+    maxH = Math.max(maxH, measureContainer.scrollHeight + 100);
   });
-
-  const viewportW = window.innerWidth;
-  const viewportH = window.innerHeight;
 
   const scaleW = viewportW / maxW;
   const scaleH = viewportH / maxH;

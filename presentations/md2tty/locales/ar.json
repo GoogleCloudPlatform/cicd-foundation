@@ -44,12 +44,20 @@
     "translation": "الشريحة التالية"
   },
   {
+    "id": "presentation_ended",
+    "translation": "انتهى العرض التقديمي"
+  },
+  {
     "id": "previous_slide",
     "translation": "الشريحة السابقة"
   },
   {
     "id": "quit",
     "translation": "خروج"
+  },
+  {
+    "id": "safe_to_close",
+    "translation": "يمكنك إغلاق علامة التبويب هذه بأمان."
   },
   {
     "id": "shortcuts",

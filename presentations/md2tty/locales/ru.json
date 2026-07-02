@@ -44,12 +44,20 @@
     "translation": "Следующий слайд"
   },
   {
+    "id": "presentation_ended",
+    "translation": "Презентация завершена"
+  },
+  {
     "id": "previous_slide",
     "translation": "Предыдущий слайд"
   },
   {
     "id": "quit",
     "translation": "Выйти"
+  },
+  {
+    "id": "safe_to_close",
+    "translation": "Вы можете безопасно закрыть эту вкладку."
   },
   {
     "id": "shortcuts",

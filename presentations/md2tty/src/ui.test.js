@@ -16,7 +16,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { updateFooter, toggleHelp, toggleTheme, flashTheme } from './ui.js';
+import { updateFooter, toggleHelp, renderHelp, toggleTheme, flashTheme } from './ui.js';
 import { Selectors, Themes, THEME_FLASH_DURATION_MS } from './constants.js';
 
 describe('ui.js', () => {
@@ -44,23 +44,43 @@ describe('ui.js', () => {
     });
   });
 
+  describe('renderHelp', () => {
+    it('populates help content and updates footer progress', () => {
+      const overlay = /** @type {HTMLElement} */ (document.getElementById(Selectors.OVERLAY));
+      overlay.innerHTML = `
+        <div class="help-container">
+          <div class="shortcuts-content"></div>
+        </div>
+      `;
+
+      renderHelp(overlay, 1, 5);
+
+      const content = overlay.querySelector('.shortcuts-content');
+      expect(content.innerHTML).toContain('shortcuts');
+
+      const helpFooter = overlay.querySelector('.help-footer');
+      expect(helpFooter).not.toBeNull();
+      expect(helpFooter.textContent).toContain('slide_progress');
+    });
+  });
+
   describe('toggleHelp', () => {
     it('toggles the active class on the overlay', () => {
       const overlay = /** @type {HTMLElement} */ (document.getElementById(Selectors.OVERLAY));
-      
+
       toggleHelp(overlay, true);
       expect(overlay.classList.contains('active')).toBe(true);
-      
+
       toggleHelp(overlay, false);
       expect(overlay.classList.contains('active')).toBe(false);
     });
 
     it('toggles automatically if no argument is provided', () => {
       const overlay = /** @type {HTMLElement} */ (document.getElementById(Selectors.OVERLAY));
-      
+
       toggleHelp(overlay);
       expect(overlay.classList.contains('active')).toBe(true);
-      
+
       toggleHelp(overlay);
       expect(overlay.classList.contains('active')).toBe(false);
     });
@@ -70,7 +90,7 @@ describe('ui.js', () => {
     it('toggles the light-theme class on the body', () => {
       toggleTheme();
       expect(document.body.classList.contains(Themes.LIGHT)).toBe(true);
-      
+
       toggleTheme();
       expect(document.body.classList.contains(Themes.LIGHT)).toBe(false);
     });
@@ -79,13 +99,13 @@ describe('ui.js', () => {
   describe('flashTheme', () => {
     it('toggles the theme twice with a delay', async () => {
       vi.useFakeTimers();
-      
+
       flashTheme();
       expect(document.body.classList.contains(Themes.LIGHT)).toBe(true);
-      
+
       vi.advanceTimersByTime(THEME_FLASH_DURATION_MS);
       expect(document.body.classList.contains(Themes.LIGHT)).toBe(false);
-      
+
       vi.useRealTimers();
     });
   });

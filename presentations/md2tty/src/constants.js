@@ -26,7 +26,7 @@ import { t } from './i18n.js';
 
 /** @enum {string} */
 export const Selectors = {
-  TARGET: 'render-target',
+  TARGET: 'slide-container',
   FOOTER: 'footer',
   OVERLAY: 'shortcuts-overlay',
   MEASURE_CONTAINER: 'measure-container',
@@ -42,12 +42,10 @@ export const getHelpMarkdown = () => `
 # ${t('about_md2tty_js')}
 
 ${t('about_md2tty')}
-[https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/presentations/md2tty](https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/presentations/md2tty)
-
-&nbsp;
+[https://github.com/GoogleCloudPlatform/cicd-foundation
+/tree/main/presentations/md2tty](https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/presentations/md2tty)
 
 # ${t('shortcuts')}
-
 | **${t('key')}** | **${t('action')}** | **${t('key')}** | **${t('action')}** |
 |:---|:---|:---|:---|
 | \`j\`, \`n\`, \`s\`, \`→\` | ${t('next_slide')} | \`k\`, \`p\`, \`w\`, \`←\` | ${t('previous_slide')} |

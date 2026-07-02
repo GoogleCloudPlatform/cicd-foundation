@@ -60,17 +60,25 @@ body {
 /* Layout Containers */
 #slide-container {
   width: 100%;
-  padding: 30px;
+  padding: 2rem;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  align-items: flex-start; /* Left-align slides */
   height: 100%;
 }
 
 .slide-content {
+  display: none;
   width: fit-content;
   line-height: 1.4;
   flex-grow: 1;
+}
+
+.slide-content.active {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 /* Header Banners (Gum-style) */
@@ -176,7 +184,8 @@ a:hover {
 }
 
 /* Footer & Navigation Hints */
-#footer {
+.slide-footer,
+.help-footer {
   margin-top: 1rem;
   color: var(--footer-fg);
   font-size: var(--base-font-size);
@@ -215,12 +224,12 @@ a:hover {
   background-color: var(--bg);
   color: var(--fg);
   z-index: 1000;
-  padding: 30px; /* Same padding as #slide-container */
+  padding: 2rem; /* Same padding as #slide-container */
   box-sizing: border-box;
   font-family: var(--font-family);
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: center; /* Center vertically */
+  align-items: flex-start; /* Left-align (terminal style) */
   cursor: pointer;
   overflow: hidden; /* Footer at bottom, content can scroll if needed */
 }
@@ -234,6 +243,8 @@ a:hover {
   background-color: transparent;
   cursor: default;
   overflow-y: auto;
+  flex-grow: 1; /* Push footer to bottom */
+  line-height: 1.4; /* Match slide typography */
 }
 
 .shortcuts-content h1 {
@@ -241,14 +252,14 @@ a:hover {
   color: var(--header-fg);
   display: inline-block;
   padding: 5px 15px; /* Match main h1 padding */
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 0 !important;
   font-size: var(--base-font-size);
 }
 
 .shortcuts-content table {
   border-collapse: collapse;
   width: fit-content;
-  margin: 10px 0 30px 0;
+  margin: 0 0 20px 0 !important;
   border: none;
 }
 
@@ -280,12 +291,6 @@ a:hover {
   line-height: 1.6;
 }
 
-.help-footer {
-  width: 100%;
-  flex-shrink: 0;
-  color: var(--footer-fg);
-  margin-top: 1rem;
-}
 
 /* Terminal Blinking Cursor */
 #cursor {
@@ -306,5 +311,70 @@ a:hover {
 @media (max-width: 768px) {
   :root {
     --base-font-size: 1rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  @page {
+    size: landscape;
+    margin: 0; /* Maximize print area */
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+  }
+
+  body {
+    font-size: var(--base-font-size) !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  #slide-container {
+    padding: 0 !important;
+    height: auto !important;
+  }
+
+  .slide-content {
+    display: flex !important; /* Show all slides in print */
+    flex-direction: column !important; /* Keep column layout in print */
+    height: 100vh !important; /* Force each slide to take full page height */
+    width: 100% !important; /* Force full width to fill page background */
+    padding: 30px !important; /* Padding for print margins */
+    box-sizing: border-box;
+    justify-content: space-between; /* Push footer to bottom */
+    background-color: var(--bg) !important; /* Force theme background in print */
+  }
+
+  /* Only break page after slides that are not the last slide */
+  .slide-content:not(:last-child) {
+    page-break-after: always;
+    break-after: page;
+  }
+
+
+  /* Hide UI elements and measurement container that are not part of the presentation flow */
+  .print-hide,
+  #measure-container {
+    display: none !important;
+  }
+
+  /* Print styles for shortcuts help overlay (as the last page) */
+  #shortcuts-overlay {
+    display: flex !important; /* Force display in print */
+    position: relative !important; /* Allow layout flow in print */
+    height: 100vh !important;
+    padding: 0 !important; /* Reset padding to prevent double padding with .help-container */
+    page-break-before: always !important; /* Force page break before the help screen */
+    break-before: page !important;
+  }
+
+  /* Keep blinking cursor hidden in print */
+  #cursor {
+    display: none !important;
   }
 }

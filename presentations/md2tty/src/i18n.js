@@ -32,7 +32,7 @@ export async function initI18n() {
   const browserLang = (urlLang || navigator.language || 'en').substring(0, 2);
   currentLangIndex = SUPPORTED_LANGS.includes(browserLang) ? SUPPORTED_LANGS.indexOf(browserLang) : 0;
 
-  const fetches = SUPPORTED_LANGS.map(lang => 
+  const fetches = SUPPORTED_LANGS.map(lang =>
     fetch(`locales/${lang}.json`)
       .then(res => res.ok ? res.json() : [])
       .then(data => ({ lang, data }))
@@ -43,7 +43,7 @@ export async function initI18n() {
   );
 
   const results = await Promise.all(fetches);
-  
+
   for (const { lang, data } of results) {
     translations[lang] = {};
     for (const item of data) {
@@ -61,8 +61,8 @@ export function cycleLanguage() {
 
 /**
  * Translates a key, replacing template variables like {{.Current}}
- * @param {string} key 
- * @param {Record<string, string|number>} params 
+ * @param {string} key
+ * @param {Record<string, string|number>} params
  * @returns {string}
  */
 export function t(key, params = {}) {

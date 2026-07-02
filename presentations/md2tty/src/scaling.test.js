@@ -39,9 +39,9 @@ describe('scaling', () => {
     vi.stubGlobal('innerWidth', 1000);
     vi.stubGlobal('innerHeight', 800);
 
-    // Mock offsetWidth and offsetHeight for measureContainer
-    Object.defineProperty(measureContainer, 'offsetWidth', { configurable: true, value: 400 });
-    Object.defineProperty(measureContainer, 'offsetHeight', { configurable: true, value: 300 });
+    // Mock scrollWidth and scrollHeight for measureContainer
+    Object.defineProperty(measureContainer, 'scrollWidth', { configurable: true, value: 400 });
+    Object.defineProperty(measureContainer, 'scrollHeight', { configurable: true, value: 300 });
   });
 
   afterEach(() => {
@@ -60,9 +60,9 @@ describe('scaling', () => {
 
   it('calculates scale and sets --base-font-size on document.documentElement', () => {
     const setPropertySpy = vi.spyOn(document.documentElement.style, 'setProperty');
-    
+
     autoScale(['# slide 1', '# slide 2'], target, measureContainer);
-    
+
     // maxW = 400 + 60 = 460
     // maxH = 300 + 100 = 400
     // viewportW = 1000, viewportH = 800
@@ -70,8 +70,23 @@ describe('scaling', () => {
     // scaleH = 800 / 400 = 2.0
     // scale = Math.min(2.17, 2.0) * 0.95 = 2.0 * 0.95 = 1.9
     // finalFontSize = Math.max(10, Math.floor(INITIAL_FONT_SIZE * 1.9)) = Math.max(10, Math.floor(20 * 1.9)) = Math.max(10, 38) = 38
-    
+
     expect(setPropertySpy).toHaveBeenCalledWith('--base-font-size', '20px');
     expect(setPropertySpy).toHaveBeenCalledWith('--base-font-size', '38px');
+  });
+
+  it('uses custom viewport dimensions if provided', () => {
+    const setPropertySpy = vi.spyOn(document.documentElement.style, 'setProperty');
+
+    autoScale(['# slide 1'], target, measureContainer, 500, 400);
+
+    // maxW = 460, maxH = 400
+    // viewportW = 500, viewportH = 400
+    // scaleW = 500 / 460 = 1.086
+    // scaleH = 400 / 400 = 1.0
+    // scale = Math.min(1.086, 1.0) * 0.95 = 0.95
+    // finalFontSize = Math.floor(20 * 0.95) = 19
+
+    expect(setPropertySpy).toHaveBeenCalledWith('--base-font-size', '19px');
   });
 });

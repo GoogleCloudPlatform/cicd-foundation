@@ -17,7 +17,7 @@ limitations under the License.
 # 💡 Key Takeaways
 
 - **Automated IaC** scales enterprise infrastructure 📈
-- **Bridge tech** enables complex GUI apps 🌉
-- **Persistent execution** for agentic workflows 🤖
 - **Continuous builds** ensure security compliance 🛡️
+- **Remote desktop** enables complex GUI apps 🌉
 - **Flexible connectivity** empowers remote devs 🌍
+- **Persistent execution** for agentic workflows 🤖

@@ -19,5 +19,6 @@ limitations under the License.
 - **Contact**: <cicd-foundation@google.com> 📧
 - **GitHub**: [`GoogleCloudPlatform/cicd-foundation`](https://github.com/GoogleCloudPlatform/cicd-foundation)
 - **Blueprint**: [`/infra/blueprints/workstations`](https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/infra/blueprints/workstations)
+- **Custom Images**: [`/apps/workstations`](https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/apps/workstations)
 
 *Thank you for your time!* 🙏

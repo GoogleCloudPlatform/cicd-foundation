@@ -31,6 +31,7 @@ limitations under the License.
 ### For Terminal Mode
 *   **[gum](https://github.com/charmbracelet/gum)** (v0.14.0 or later recommended): Used for formatting and UI components.
 *   **bash** (v4.0 or later).
+*   **Node.js** (v18 or later): Required to generate locales on first run or when translations change.
 
 ### For Web Mode
 *   **Node.js** (v18 or later) & **npm**.
