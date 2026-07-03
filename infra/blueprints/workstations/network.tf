@@ -32,7 +32,9 @@ module "vpc" {
     }
   }]
 
-  depends_on = [data.google_project.project]
+  depends_on = [
+    data.google_project.project,
+  ]
 }
 
 module "fw" {
@@ -45,7 +47,9 @@ module "fw" {
     cidr_tpl_file = "firewall/cidrs.yaml"
   }
 
-  depends_on = [data.google_project.project]
+  depends_on = [
+    data.google_project.project,
+  ]
 }
 
 module "nat" {
@@ -56,8 +60,7 @@ module "nat" {
   project_id     = var.project_id
   region         = var.vpc_region
   name           = "${var.vpc_name}-nat"
-  router_network = var.create_vpc ? module.vpc[0].name : var.vpc_name
   router_create  = true
-
-  router_name = "${var.vpc_name}-router"
+  router_name    = "${var.vpc_name}-router"
+  router_network = var.create_vpc ? module.vpc[0].name : var.vpc_name
 }

@@ -50,6 +50,8 @@ module "cicd_foundation" {
   # go/keep-sorted end
 
   depends_on = [
-    module.vpc
+    module.vpc,
+    google_project_iam_member.admin_roles,
+    google_project_iam_member.user_roles,
   ]
 }

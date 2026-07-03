@@ -246,6 +246,31 @@ variable "build_timeout_default_seconds" {
 }
 # go/keep-sorted end
 
+
+variable "workstation_users" {
+  type        = list(string)
+  description = "The list of user emails for workstations and IAM."
+  default     = []
+}
+
+variable "admin_users" {
+  type        = list(string)
+  description = "The list of admin user emails."
+  default     = []
+}
+
+variable "admin_roles" {
+  type        = list(string)
+  description = "List of roles assigned to the admin user."
+  default     = []
+}
+
+variable "user_roles" {
+  type        = list(string)
+  description = "List of roles assigned to all workstation users."
+  default     = []
+}
+
 # Cloud Workstations Custom Images
 
 variable "cws_custom_images" {

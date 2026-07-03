@@ -57,6 +57,31 @@ project_id = "YOUR_PROJECT_ID"
 # Optional: The Secure Source Manager (SSM) branch that triggers Cloud Build on push. Defaults to "main".
 #git_branch_trigger = "dev"
 
+# Optional: The list of global Cloud Workstation user emails.
+# Note: These users are automatically added as implicit workstation creators for the "custom" configuration.
+# Defaults to [].
+#workstation_users = [
+#  "user1@example.com",
+#  "user2@example.com",
+#]
+
+# Optional: The list of administrator emails.
+# Note: These users are automatically added as implicit workstation creators for the "custom" configuration.
+# Defaults to [].
+#admin_users = [
+#  "admin@example.com",
+#]
+
+# Optional: List of project-level IAM roles assigned to all workstation users (workstation_users + admin_users). Defaults to [].
+#user_roles = [
+#  "roles/viewer",
+#]
+
+# Optional: List of project-level IAM roles assigned exclusively to admin_users. Defaults to [].
+#admin_roles = [
+#  "roles/editor",
+#]
+
 # Custom images for Cloud Workstations
 cws_custom_images = {
   # Custom Cloud Workstation Image with Antigravity

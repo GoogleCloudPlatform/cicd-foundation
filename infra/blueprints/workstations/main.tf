@@ -16,9 +16,16 @@ locals {
   target_names       = keys(var.android_targets)
   has_android_builds = length(var.android_branches) > 0 && length(local.target_names) > 0
 
+  cws_configs_with_creators = {
+    for k, v in var.cws_configs : k => merge(v, {
+      creators  = k == "custom" ? distinct(concat(var.workstation_users, var.admin_users, coalesce(v.creators, []))) : lookup(v, "creators", null)
+      instances = null
+    })
+  }
+
   # Generate all combinations of config, branch, and target
   cws_combinations = flatten([
-    for config_key, config_value in var.cws_configs : [
+    for config_key, config_value in local.cws_configs_with_creators : [
       for item in setproduct(var.android_branches, local.target_names) :
       {
         config_key   = config_key
@@ -51,7 +58,7 @@ locals {
         }]
       }
     )
-  } : var.cws_configs
+  } : local.cws_configs_with_creators
   # Final decision on Cloud NAT deployment
   deploy_nat = var.create_cloud_nat != null ? var.create_cloud_nat : (var.disable_public_ip_addresses_default || anytrue([
     for k, v in var.cws_configs : coalesce(v.disable_public_ip_addresses, var.disable_public_ip_addresses_default)
