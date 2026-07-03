@@ -16,7 +16,7 @@ locals {
   # go/keep-sorted start
   cloudbuild_service_agent        = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
   cloudbuild_webhook_uri_template = "https://cloudbuild.googleapis.com/v1/projects/%s/locations/%s/triggers/%s:webhook"
-  create_ssm_ca_pool              = local.source.ssm && ! local.ssm_instance_is_provided && var.secure_source_manager_create_ca_pool && var.secure_source_manager_ca_pool == null
+  create_ssm_ca_pool              = local.source.ssm && !local.ssm_instance_is_provided && var.secure_source_manager_create_ca_pool && var.secure_source_manager_ca_pool == null
   ssm_instance_accessor_members = toset(concat(
     [module.service_account_cloud_build.iam_email],
     length(google_service_account.git_clone_and_push) > 0 ? [google_service_account.git_clone_and_push[0].member] : [],
@@ -89,7 +89,7 @@ resource "google_privateca_certificate_authority" "ssm_root_ca" {
 # Secure Source Manager (SSM) Instance
 
 resource "google_secure_source_manager_instance" "cicd_foundation" {
-  count = local.source.ssm && ! local.ssm_instance_is_provided ? 1 : 0
+  count = local.source.ssm && !local.ssm_instance_is_provided ? 1 : 0
 
   project         = data.google_project.project.project_id
   location        = var.secure_source_manager_region
@@ -297,7 +297,7 @@ resource "google_cloudbuild_trigger" "git_clone_and_push" {
 }
 
 resource "null_resource" "run_git_clone_and_push" {
-  count = length(google_cloudbuild_trigger.git_clone_and_push) > 0 ? 1 : 0
+  count = local.source.ssm && var.secure_source_manager_repo_git_url_to_clone != null ? 1 : 0
 
   triggers = {
     ssm_repository_id = google_secure_source_manager_repository.cicd_foundation[0].id
