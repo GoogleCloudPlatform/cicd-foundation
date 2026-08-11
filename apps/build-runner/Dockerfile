@@ -54,7 +54,7 @@ RUN curl ${CURL_OPTS} "https://github.com/google-antigravity/antigravity-sdk-pyt
 FROM gcr.io/k8s-skaffold/skaffold:${SKAFFOLD_VERSION}
 USER root
 
-ARG DEVCONTAINER_CLI_VERSION=0.56.0
+ARG DEVCONTAINER_CLI_VERSION=0.88.0
 ARG EXTRA_PKGS="curl nodejs npm python3 python3-pip"
 
 # Map to ENVs for the installer and runtime

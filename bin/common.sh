@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Copyright 2023-2025 Google LLC
+# Copyright 2023-2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -124,6 +124,11 @@ generateRequirementsTxt() {
     then
       cd $(dirname $PYPROJECT)
       poetry export -f requirements.txt --output requirements.txt
+      cd -
+    elif [ -f "$(dirname $PYPROJECT)/uv.lock" ] || grep -q "hatchling.build" $PYPROJECT
+    then
+      cd $(dirname $PYPROJECT)
+      uv export --format requirements-txt -o requirements.txt
       cd -
     fi
   done
