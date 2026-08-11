@@ -6,7 +6,10 @@
   },
   "features": {
     "ghcr.io/devcontainers/features/terraform:1": {},
-    "ghcr.io/devcontainers/features/node:2": {}
+    "ghcr.io/devcontainers/features/node:2": {},
+    "./features/devcontainer-cli-installer": {
+      "version": "latest"
+    }
   },
   "containerEnv": {
     "CLOUD_WORKSTATIONS_ENABLE_METADATA_CREDS_CHECK": "false"

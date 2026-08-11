@@ -1,0 +1,17 @@
+{
+  "id": "devcontainer-cli-installer",
+  "version": "1.0.0",
+  "name": "Devcontainer CLI Installer",
+  "description": "Installs @devcontainers/cli globally using npm",
+  "options": {
+    "version": {
+      "type": "string",
+      "proposals": ["latest", "0.88.0"],
+      "default": "latest",
+      "description": "Version of @devcontainers/cli to install"
+    }
+  },
+  "installAfter": [
+    "ghcr.io/devcontainers/features/node"
+  ]
+}
