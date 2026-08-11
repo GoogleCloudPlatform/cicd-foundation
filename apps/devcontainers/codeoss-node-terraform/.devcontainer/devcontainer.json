@@ -1,8 +1,14 @@
 {
   "name": "Code-OSS DevContainer (Node & Terraform)",
-  "image": "us-central1-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
   "features": {
     "ghcr.io/devcontainers/features/terraform:1": {},
     "ghcr.io/devcontainers/features/node:2": {}
+  },
+  "containerEnv": {
+    "CLOUD_WORKSTATIONS_ENABLE_METADATA_CREDS_CHECK": "false"
   }
 }

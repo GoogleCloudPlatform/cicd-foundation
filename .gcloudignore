@@ -8,3 +8,7 @@
 **/*.log
 .vscode/
 .idea/
+.venv/
+.pytest_cache/
+.ruff_cache/
+**/.terraform/
