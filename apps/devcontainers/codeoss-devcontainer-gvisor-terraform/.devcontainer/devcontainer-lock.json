@@ -14,9 +14,7 @@
       "version": "1.5.0",
       "resolved": "ghcr.io/devcontainers/features/terraform@sha256:bc9eaf21aaba050bace59f411c282cb58058535a48232c059e60c19f86caa8f5",
       "integrity": "sha256:bc9eaf21aaba050bace59f411c282cb58058535a48232c059e60c19f86caa8f5",
-      "dependsOn": [
-        "ghcr.io/devcontainers/features/github-cli:1"
-      ]
+      "dependsOn": ["ghcr.io/devcontainers/features/github-cli:1"]
     }
   }
 }

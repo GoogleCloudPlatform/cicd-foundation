@@ -15,9 +15,9 @@
 apiVersion: skaffold/v3
 kind: Config
 metadata:
-  name: devcontainer-codeoss-node-terraform
+  name: codeoss-devcontainer-gvisor-terraform
 build:
   artifacts:
-    - image: devcontainer-codeoss-node-terraform
+    - image: codeoss-devcontainer-gvisor-terraform
       custom:
         buildCommand: build_devcontainer $IMAGE

@@ -11,7 +11,5 @@
       "description": "Version of @devcontainers/cli to install"
     }
   },
-  "installAfter": [
-    "ghcr.io/devcontainers/features/node"
-  ]
+  "installAfter": ["ghcr.io/devcontainers/features/node"]
 }
