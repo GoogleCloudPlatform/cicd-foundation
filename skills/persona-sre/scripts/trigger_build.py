@@ -24,8 +24,10 @@ and submitting it.
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -130,6 +132,18 @@ def adapt_config(trigger_json: Dict[str, Any]) -> Dict[str, Any]:
     }
 
     return adapted_build
+
+
+def filter_substitutions(substitutions: Dict[str, str], build_config: Dict[str, Any]) -> Dict[str, str]:
+    """Filters substitutions to only include those referenced in the build config."""
+    config_str = json.dumps(build_config)
+    filtered = {}
+    for k, v in substitutions.items():
+        # Match $_VAR or ${_VAR}
+        pattern = rf"\$\{{?{re.escape(k)}\b"
+        if re.search(pattern, config_str):
+            filtered[k] = v
+    return filtered
 
 
 def main():
@@ -264,9 +278,17 @@ def main():
 
     log(f"Submitting build with service account: {service_account}")
 
-    subst_str = ",".join([f"{k}={v}" for k, v in substitutions.items()])
+    filtered_subs = filter_substitutions(substitutions, build_config)
+    removed_subs = set(substitutions.keys()) - set(filtered_subs.keys())
+    if removed_subs:
+        log(f"Filtered out unused substitutions: {', '.join(removed_subs)}")
+    subst_str = ",".join([f"{k}={v}" for k, v in filtered_subs.items()])
 
-    # Submit the build with local source and the adapted config via stdin
+    # Write adapted config to a temp file
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_config:
+        json.dump(build_config, temp_config, indent=2)
+        temp_config_path = temp_config.name
+
     submit_cmd = [
         "gcloud",
         "builds",
@@ -276,15 +298,19 @@ def main():
         f"--region={region}",
         f"--service-account=projects/{project}/serviceAccounts/{service_account}",
         f"--substitutions={subst_str}",
-        "--config=-",
+        f"--config={temp_config_path}",
     ]
 
     try:
-        subprocess.run(
-            submit_cmd, input=json.dumps(build_config), text=True, check=True
-        )
+        log(f"Using temporary config file: {temp_config_path}")
+        subprocess.run(submit_cmd, check=True)
     except subprocess.CalledProcessError as e:
         error(f"build submission failed with exit code {e.returncode}")
+    finally:
+        try:
+            os.unlink(temp_config_path)
+        except OSError:
+            pass
 
 
 if __name__ == "__main__":

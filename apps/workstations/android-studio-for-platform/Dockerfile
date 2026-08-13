@@ -27,7 +27,7 @@ ARG BUILDER_PKGS="\
   equivs \
   git \
   golang"
-ARG LIBTINFO5_VERSION="6.3-2ubuntu0.1_amd64"
+ARG LIBTINFO5_VERSION="6.3-2ubuntu0.2_amd64"
 ARG RETRY_ATTEMPTS=3
 ARG RETRY_DELAY=5
 ARG CUTTLEFISH_RETRY_ATTEMPTS=8
@@ -77,6 +77,8 @@ ARG RETRY_ATTEMPTS
 ARG RETRY_DELAY
 ARG CUTTLEFISH_RETRY_ATTEMPTS
 ARG GCP_REGION
+
+SHELL ["/bin/bash", "-c"]
 
 # Use common.sh retry helper from base image
 COPY --from=base-provider /google/scripts/common.sh /google/scripts/common.sh
