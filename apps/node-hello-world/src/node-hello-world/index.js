@@ -1,4 +1,4 @@
-// Copyright 2023-2024 Google LLC
+// Copyright 2023-2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
+"use strict";
 
-const port = 8080
-const name = process.env.NAME || 'World';
+const port = 8080;
+const name = process.env.NAME || "World";
 
-const express = require('express')
-const app = express()
+const express = require("express");
+const app = express();
 
-app.use(express.static('public'));
-app.get('/', (req, res) => res.send(`Hello ${name} from NodeJS!`))
+app.use(express.static("public"));
+app.get("/", (req, res) => res.send(`Hello ${name} from NodeJS!`));
 
-app.listen(port, () => console.log(`Listening on Port ${port}.`))
+app.listen(port, () => console.log(`Listening on Port ${port}.`));

@@ -1,3 +1,19 @@
+<!--
+Copyright 2026 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
 # Applications
 
 This directory hosts demo applications in kind of a mono-repository.
@@ -10,6 +26,7 @@ The directory structure is as follows:
 
 The following environment file is read by `/bin/` scripts when `envsubst`ing
 template files, starting services locally, or deploying to CloudRun:
+
 ```sh
 /apps/.env
 ```
@@ -21,7 +38,9 @@ You can overwrite variables for an application in these file(s):
 ```sh
 /apps/${APP_NAME}/envs/base/.env
 ```
+
 and/or further refine it for a specific environment:
+
 ```sh
 /apps/${APP_NAME}/envs/{ENV_NAME}/.env
 ```
@@ -31,6 +50,7 @@ and/or further refine it for a specific environment:
 ```sh
 /apps/${APP_NAME}/
 ```
+
 hosts an application or micro-service named `$APP_NAME`.
 The granularity of such application should be a (consumable) service in the scale of a pod,
 i.e., one or more containers running in one GKE Pod or Cloud Run instance.
@@ -38,9 +58,11 @@ i.e., one or more containers running in one GKE Pod or Cloud Run instance.
 #### skaffold.yaml
 
 Each such directory corresponds to a Skaffold project and must contain a
+
 ```sh
 /apps/${APP_NAME}/skaffold.yaml
 ```
+
 file that describes the project's dependencies, and/or how it
 can be built, tested, validated, and/or deployed
 (cf. [skaffold.yaml reference](https://skaffold.dev/docs/references/yaml/)).
@@ -58,6 +80,7 @@ Typical environment names are `dev`, `test`, and `prod` for development, testing
 ##### Kustomize
 
 For Kubernetes manifests `kustomize` (part of `kubectl`) is leveraged and referenced as part of `skaffold` `profiles`:
+
 ```sh
 /apps/${APP_NAME}/envs/${ENV_NAME}/kustomization.yaml
 ```
@@ -65,6 +88,7 @@ For Kubernetes manifests `kustomize` (part of `kubectl`) is leveraged and refere
 ##### Template Files
 
 The `base` directory may contain a template of a manifest file for Knative services and/or jobs:
+
 ```sh
 /apps/${APP_NAME}/envs/base/knative.yaml.tmpl
 ```
@@ -78,13 +102,17 @@ The templating approach is adopted as CloudRun does not support namespaces
 (in contrast to GKE) and we use pre- and postfixes as part of the name.
 
 In addition to the global (`/apps/.env`) environment file (see above), application specific
+
 ```sh
 /apps/${APP_NAME}/envs/base/.env
 ```
- and environment specific files
+
+and environment specific files
+
 ```sh
 /apps/${APP_NAME}/envs/${ENV_NAME}/.env
 ```
+
 can be provided, e.g., to overwrite default and/or to define application
 or environment specific values.
 
@@ -94,6 +122,7 @@ or environment specific values.
 
 Code for the deployment of infrastructure - specifically required for the application
 (in contrast to predeployed and available shared resources such as Kubernetes clusters)
+
 - should be stored in
 
 ```sh

@@ -83,7 +83,7 @@
   "software_description": "This blueprint provides a high-performance, containerized GNOME desktop environment for Google Cloud Workstations, featuring automated lifecycle management and immersive status monitoring.",
   "status_message": "You will be redirected when the connection is ready.",
   "status_message_manual": "You will be notified once the connection is ready.",
-  "status_message_permanent_failure": "Startup is taking longer than expected. Continuing with exponential backoff...",
+  "status_message_permanent_failure": "Workstation failed to start within the maximum time limit. Please contact support or try restarting the session.",
   "status_message_ready": "Connection is ready. Click or press Enter to continue.",
   "status_message_timeout": "Startup is taking longer than expected. Continuing with exponential backoff...",
   "status_ready": "READY",

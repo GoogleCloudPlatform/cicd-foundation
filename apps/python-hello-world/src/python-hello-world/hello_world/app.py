@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Google LLC
+# Copyright 2023-2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 """A Hello World application."""
 
 import os
+
 from flask import Flask
 
 app = Flask(__name__)
@@ -22,10 +23,10 @@ app = Flask(__name__)
 
 @app.route("/")
 def index() -> str:
-  """returns a hello world message
+    """returns a hello world message
 
-  Returns:
-      str: a hello world message
-  """
-  name = os.environ.get("NAME", "World")
-  return "Hello " + name + " from Python!"
+    Returns:
+        str: a hello world message
+    """
+    name = os.environ.get("NAME", "World")
+    return "Hello " + name + " from Python!"

@@ -32,7 +32,7 @@ graph TD
     Terraform[Terraform Config] -->|defines| CustomImage[cws_custom_images]
     CustomImage -->|triggers build| CloudBuild[Cloud Build Trigger]
     CloudBuild -->|runs| Skaffold[Skaffold Build]
-    Skaffold -->|auto-detects devcontainer| DevContainerCLI[@devcontainers/cli]
+    Skaffold -->|auto-detects devcontainer| DevContainerCLI["@devcontainers/cli"]
     DevContainerCLI -->|builds & pushes| AR[Artifact Registry]
     CWSConfig[CWS Config] -->|references image key| AR
 ```

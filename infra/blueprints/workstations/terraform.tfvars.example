@@ -84,13 +84,13 @@ project_id = "YOUR_PROJECT_ID"
 
 # Custom images for Cloud Workstations
 cws_custom_images = {
-  "devcontainer-codeoss-node-terraform" : {
+  "codeoss-devcontainer-gvisor-terraform" : {
     git_repo = {
       url    = "https://github.com/GoogleCloudPlatform/cicd-foundation.git"
       branch = "main"
     }
     build = {
-      skaffold_path   = "apps/devcontainers/codeoss-node-terraform"
+      skaffold_path   = "apps/devcontainers/codeoss-devcontainer-gvisor-terraform"
       timeout_seconds = 7200
     }
     workstation_config = {
@@ -164,7 +164,7 @@ cws_configs = {
     custom_image_names             = [
       "antigravity",
       "antigravity2",
-      "devcontainer-codeoss-node-terraform",
+      "codeoss-devcontainer-gvisor-terraform",
     ]
     cws_cluster                    = "workstations"
     #disable_public_ip_addresses    = true  # Defaults to false
@@ -251,6 +251,11 @@ android_targets = {
 #   "devcontainer-node-demo" : {
 #     build = {
 #       skaffold_path = "apps/devcontainers/node-demo"
+#     }
+#   },
+#   "devcontainer-gvisor-python" : {
+#     build = {
+#       skaffold_path = "apps/devcontainers/gvisor-python"
 #     }
 #   }
 # }

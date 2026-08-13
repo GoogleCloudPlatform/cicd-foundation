@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Google LLC
+# Copyright 2023-2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@ kind: Deployment
 metadata:
   name: python-hello-world
   labels:
-    commit-short-sha: ""          # from-param: ${commit-short-sha}
-    gcb-build-id: ""              # from-param: ${gcb-build-id}
+    commit-short-sha: "" # from-param: ${commit-short-sha}
+    gcb-build-id: "" # from-param: ${gcb-build-id}
 spec:
-  replicas: 3                     # from-param: ${replicas}
+  replicas: 3 # from-param: ${replicas}
   template:
     metadata:
       labels:
-        commit-short-sha: ""      # from-param: ${commit-short-sha}
-        gcb-build-id: ""          # from-param: ${gcb-build-id}
+        commit-short-sha: "" # from-param: ${commit-short-sha}
+        gcb-build-id: "" # from-param: ${gcb-build-id}
     spec:
       containers:
         - name: python-hello-world

@@ -1,3 +1,19 @@
+<!--
+Copyright 2026 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
 # Infrastructure Setup
 
 - For the hands-on workshop use the [simplified](simplified/) folder.
@@ -22,7 +38,7 @@ In the hands-on workshop the participants will be able to check out and work wit
 ### Cloud Storage Bucket
 
 This is for storing the Terraform state file.  
-It is recommended to create / use a bucket in a (central) "seed" project that is used for infrastructure automation.  
+It is recommended to create / use a bucket in a (central) "seed" project that is used for infrastructure automation.
 
 👉 Change `YOUR_BUCKET` in `backend.tf.example` and rename to `backend.tf`.
 
@@ -73,6 +89,7 @@ kritis_signer_image = "gcr.io/…/kritis-signer@sha256:…"
 ```
 
 Re-run terraform:
+
 ```
 terraform apply
 ```
@@ -80,7 +97,6 @@ terraform apply
 #### References 🔗
 
 - [Set up the Kritis Signer custom builder](https://cloud.google.com/binary-authorization/docs/creating-attestations-kritis#set_up_the_kritis_signer_custom_builder)
-
 
 ## Clean-up
 

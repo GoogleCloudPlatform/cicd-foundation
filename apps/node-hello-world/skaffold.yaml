@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Google LLC
+# Copyright 2023-2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,48 +18,48 @@ metadata:
   name: node-hello-world
 build:
   artifacts:
-  - image: node-hello-world
-    context: src/node-hello-world
-    buildpacks: {}
+    - image: node-hello-world
+      context: src/node-hello-world
+      buildpacks: {}
 manifests:
   hooks:
     before:
-    - host:
-        command:
-        - "/bin/sh"
-        - "-c"
-        - "../../bin/generate.sh 2>/dev/null || true"
+      - host:
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "../../bin/generate.sh 2>/dev/null || true"
 deploy:
   statusCheckDeadlineSeconds: 3600 # deployment should stabilize within 60 minutes (NEG operations can take a little longer)
   tolerateFailuresUntilDeadline: true
   kubectl: {}
   # cloudrun: {}
 profiles:
-- name: dev
-  activation:
-    - command: dev
-  manifests:
-    # rawYaml:
-    #   - envs/dev/knative.yaml
-    kustomize:
-      paths:
-      - envs/dev
-  portForward:
-    - resourceType: Deployment
-      resourceName: node-hello-world
-      port: 8080
-      localPort: 8080
-- name: test
-  manifests:
-    # rawYaml:
-    #   - envs/test/knative.yaml
-    kustomize:
-      paths:
-      - envs/test
-- name: prod
-  manifests:
-    # rawYaml:
-    #   - envs/prod/knative.yaml
-    kustomize:
-      paths:
-      - envs/prod
+  - name: dev
+    activation:
+      - command: dev
+    manifests:
+      # rawYaml:
+      #   - envs/dev/knative.yaml
+      kustomize:
+        paths:
+          - envs/dev
+    portForward:
+      - resourceType: Deployment
+        resourceName: node-hello-world
+        port: 8080
+        localPort: 8080
+  - name: test
+    manifests:
+      # rawYaml:
+      #   - envs/test/knative.yaml
+      kustomize:
+        paths:
+          - envs/test
+  - name: prod
+    manifests:
+      # rawYaml:
+      #   - envs/prod/knative.yaml
+      kustomize:
+        paths:
+          - envs/prod

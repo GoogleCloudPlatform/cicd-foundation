@@ -1,4 +1,4 @@
-# Copyright 2023 Google LLC
+# Copyright 2023-2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@ apiVersion: gateway.networking.k8s.io/v1beta1
 metadata:
   name: node-hello-world
   labels:
-    commit-short-sha: ""          # from-param: ${commit-short-sha}
-    gcb-build-id: ""              # from-param: ${gcb-build-id}
+    commit-short-sha: "" # from-param: ${commit-short-sha}
+    gcb-build-id: "" # from-param: ${gcb-build-id}
 spec:
   parentRefs:
-  - kind: Gateway
-    name: cicd-foundation-node
+    - kind: Gateway
+      name: cicd-foundation-node
   rules:
-  - backendRefs:
-    - name: node-hello-world
-      port: 80
+    - backendRefs:
+        - name: node-hello-world
+          port: 80
