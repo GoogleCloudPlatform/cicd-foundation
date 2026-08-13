@@ -253,9 +253,9 @@ android_targets = {
 #       skaffold_path = "apps/devcontainers/node-demo"
 #     }
 #   },
-#   "devcontainer-gvisor-python" : {
+#   "devcontainer-gvisor-antigravity" : {
 #     build = {
-#       skaffold_path = "apps/devcontainers/gvisor-python"
+#       skaffold_path = "apps/devcontainers/gvisor-antigravity"
 #     }
 #   }
 # }

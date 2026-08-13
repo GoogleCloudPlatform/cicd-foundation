@@ -1,0 +1,13 @@
+# Copyright 2026 Google LLC
+# Licensed under the Apache License, Version 2.0 (the "License");
+
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: devcontainer-gvisor-antigravity
+build:
+  artifacts:
+    - image: devcontainer-gvisor-antigravity
+      context: .
+      docker:
+        dockerfile: .devcontainer/Dockerfile

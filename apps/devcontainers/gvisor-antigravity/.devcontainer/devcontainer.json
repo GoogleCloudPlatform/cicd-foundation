@@ -1,0 +1,12 @@
+{
+  "name": "gVisor Antigravity DevContainer",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "runArgs": ["--runtime=runsc"],
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python"]
+    }
+  }
+}
