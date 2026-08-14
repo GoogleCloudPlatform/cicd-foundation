@@ -110,6 +110,14 @@ repos:
         pass_filenames: true
         require_serial: true
 
+      - id: markdown-link-checker
+        name: Markdown Link Checker (Go)
+        entry: bash -c 'cd skills/persona-swe/scripts && go run cmd/link_checker/main.go -- "${@/#/../../../}"' --
+        language: system
+        files: \.md$
+        pass_filenames: true
+        require_serial: true
+
       # --- SECTION: Skills & Personas ---
 
       - id: golangci-lint-persona

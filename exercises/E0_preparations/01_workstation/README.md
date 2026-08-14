@@ -2,12 +2,12 @@
 
 ## Your Cloud Workstation
 
-Using the [Infra-as-Code](../../infra/README.md) for the [simplified](../../infra/simplified/) architecture, your Cloud Workstation has been provisioned, e.g., by a central-IT team. You can directly jump to "Access your Cloud Workstation section".  
+Using the [Infra-as-Code](../../../infra/README.md) for the [simplified](../../../infra/simplified/) architecture, your Cloud Workstation has been provisioned, e.g., by a central-IT team. You can directly jump to "Access your Cloud Workstation section".  
 If you are interested on how to create a workstation, you can have a look at below folded section.
 
 <details>
 <summary>Create your Cloud Workstation</summary>
-If your Google Identity has been granted the [roles/workstations.workstationCreator](https://cloud.google.com/iam/docs/understanding-roles#workstations.workstationCreator) role in the project, you can create your workstation and use the provisioned [Workstation Cluster](../../infra/simplified/hub/workstations.tf#L15) and [Workstation Config](../../infra/simplified/hub/workstations.tf#L24).  
+If your Google Identity has been granted the [roles/workstations.workstationCreator](https://cloud.google.com/iam/docs/understanding-roles#workstations.workstationCreator) role in the project, you can create your workstation and use the provisioned [Workstation Cluster](../../../infra/simplified/hub/workstations.tf#L15) and [Workstation Config](../../../infra/simplified/hub/workstations.tf#L24).  
 
 <br/>
 Create your workstation with either of the methods below (gcloud, Terraform, Google Cloud Console):  

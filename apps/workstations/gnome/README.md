@@ -40,9 +40,9 @@ The core environment providing the desktop experience, systemd orchestration, an
 
 A cinematic loading interface that intercepts early traffic and provides technical telemetry.
 
-- 👉 **[UX Standards](../../preflight/docs/ux_standards.md)**
-- 👉 **[Language Priorities](../../preflight/docs/language_priorities.md)**
-- 👉 **[Design Document](../../preflight/docs/design.md)**
+- 👉 **[UX Standards](../preflight/docs/design.md#33-cinematic-ux-principles)**
+- 👉 **[Language Priorities](../preflight/docs/requirements.md#42-internationalization-i18n)**
+- 👉 **[Design Document](../preflight/docs/design.md)**
 
 ## 🛠️ Global Tooling
 

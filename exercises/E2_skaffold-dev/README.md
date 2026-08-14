@@ -22,7 +22,7 @@ gcloud auth configure-docker $REGION-docker.pkg.dev
 <details>
 <summary>Skaffold</summary>
 
-⚠️ Did you [set the default container repository for Skaffold](../04_skaffold/)?
+⚠️ Did you [set the default container repository for Skaffold](../E0_preparations/05_skaffold/)?
 
 ```sh
 skaffold dev
@@ -31,7 +31,7 @@ skaffold dev
 
 ### Validating the deployment
 
-⚠️ In case you are using [Remote-SSH](../01_workstation/README.md#remote-ssh) a `Preview Link` is provided that you can open.
+⚠️ In case you are using [Remote-SSH](../E0_preparations/01_workstation/README.md#remote-ssh) a `Preview Link` is provided that you can open.
 
 <details>
 <summary>HTTP Request</summary>
@@ -68,5 +68,5 @@ Note: By default an **internal** Application Load Balancer is used that can only
 
 You may want to customize the value of the `NAME` environment variable as defined in the [`deployment.yaml`](../../apps/go-hello-world/envs/base/deployment.yaml#L46).
 
-Also you can modify [`main.go`](../../apps/go-hello-world/src/main.go#L55), e.g., by uppercassing `Hello` or translating it to another language.
+Also you can modify [`main.go`](../../apps/go-hello-world/src/go-hello-world/main.go#L55), e.g., by uppercassing `Hello` or translating it to another language.
 </details>

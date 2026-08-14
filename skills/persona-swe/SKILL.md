@@ -2,6 +2,7 @@
 name: persona-swe
 description: Adopts the Software Engineer persona. Focuses on functional correctness, structural integrity, and architectural hygiene, including Source Code Versioning History Refactoring.
 license: Apache-2.0
+allowed-tools: skills/persona-swe/scripts/cmd/link_checker/main.go
 metadata:
   author: sce-taid <sce@taid.me>
   resources:

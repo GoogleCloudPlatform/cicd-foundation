@@ -128,7 +128,7 @@ cws_configs = {
 
 For detailed instructions on running the Terraform commands, monitoring the build, and connecting via SSH, refer to the deployment guide:
 
-👉 **[Infrastructure & Deployment Guide](../iac/admin_guide.md)**
+👉 **[Infrastructure & Deployment Guide](iac/admin_guide.md)**
 
 ## 3. Governance & Constraints
 

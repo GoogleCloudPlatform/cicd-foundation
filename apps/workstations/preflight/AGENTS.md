@@ -33,7 +33,7 @@ These mandates apply specifically to the Preflight layer (`examples/preflight/`)
 ## 3. Global Foundation Skills
 
 Refer to the root instructions for global tools:
-👉 **[Foundation Skills](../../AGENTS.md#3-global-agent-skills-foundation)**
+👉 **[Foundation Skills](../../../AGENTS.md#3-global-agent-skills-foundation)**
 
 ## 4. Mandatory Testing
 
