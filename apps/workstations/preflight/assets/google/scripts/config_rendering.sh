@@ -20,7 +20,7 @@
 set -euo pipefail
 
 # Source common utilities
-# shellcheck source=/dev/null
+# shellcheck source=apps/workstations/base/assets/google/scripts/common.sh
 source /google/scripts/common.sh
 
 # Generates random ephemeral credentials and exports them.
@@ -60,15 +60,23 @@ render_templates() {
   # Support legacy environment variables if set in Dockerfile
   export ENABLE_AUDIO_INPUT="${DEFAULT_ENABLE_AUDIO_INPUT:-false}"
 
+  # Derive routing natively from the requested proxy path without hardcoding image aliases
+  export BACKEND_PROXY_PATH="${BACKEND_PROXY_PATH:-/guacamole/}"
+  export BACKEND_PROXY_URL="${BACKEND_PROXY_URL:-http://127.0.0.1:8080}"
+
   # Protocol Logic
-  local supported_protocols="RDP,SSH"
-  export SUPPORTED_PROTOCOLS="${supported_protocols}"
+  local supported_protocols
   export VNC_XML_BLOCK=""
 
-  if [[ "${ENABLE_TIGERVNC:-false}" == "true" ]]; then
-    supported_protocols="${supported_protocols},VNC"
-    export SUPPORTED_PROTOCOLS="${supported_protocols}"
-    export VNC_XML_BLOCK="$(cat <<EOV
+  if [[ "${BACKEND_PROXY_PATH}" == "/" || "${DEFAULT_CLIENT_PROTOCOL:-}" =~ ^(HTTP|HTTPS)$ || "${DEFAULT_PROTOCOL:-}" =~ ^(HTTP|HTTPS)$ ]]; then
+    supported_protocols="${SUPPORTED_PROTOCOLS:-HTTP,SSH}"
+    export DEFAULT_CLIENT_PROTOCOL="${DEFAULT_CLIENT_PROTOCOL:-${DEFAULT_PROTOCOL:-HTTP}}"
+    export DEFAULT_REDIRECT_URL="${DEFAULT_REDIRECT_PATH:-/}"
+  else
+    supported_protocols="${SUPPORTED_PROTOCOLS:-RDP,SSH}"
+    if [[ "${ENABLE_TIGERVNC:-false}" == "true" ]]; then
+      supported_protocols="${supported_protocols},VNC"
+      export VNC_XML_BLOCK="$(cat <<EOV
         <!-- VNC Connection -->
         <connection name="VNC">
             <protocol>vnc</protocol>
@@ -78,32 +86,35 @@ render_templates() {
         </connection>
 EOV
 )"
+    fi
+    export DEFAULT_CLIENT_PROTOCOL="${DEFAULT_PROTOCOL:-${DEFAULT_CLIENT_PROTOCOL:-RDP}}"
+    local guac_identifier
+    guac_identifier=$(echo -ne "${DEFAULT_CLIENT_PROTOCOL}\0c\0default" | base64 | tr -d '\n=')
+    export DEFAULT_REDIRECT_URL="/guacamole/#/client/${guac_identifier}"
   fi
-
-  # Default to RDP for the client protocol if not explicitly set
-  export DEFAULT_CLIENT_PROTOCOL="${DEFAULT_PROTOCOL:-RDP}"
+  export SUPPORTED_PROTOCOLS="${supported_protocols}"
 
   # Technical metadata for the preflight page
   export HOSTNAME="$(hostname)"
-  export UPLINK="${DEFAULT_CLIENT_PROTOCOL}"
   export TIMEOUT_MS="${DEFAULT_TIMEOUT_MS:-200000}"
 
   # Dynamic Nginx routing based on startup page presence
   if [[ -f "/var/www/html/startup.html" ]]; then
     export ROOT_REDIRECT="/startup.html"
     export PROXY_INTERCEPT_ON_OFF="on"
-    export ERROR_PAGE_DIRECTIVE="error_page 502 503 504 =302 /startup.html;"
+    export ERROR_PAGE_DIRECTIVE="error_page 502 503 504 =200 /startup.html;"
   else
-    export ROOT_REDIRECT="\$default_redirect"
+    export ROOT_REDIRECT="${DEFAULT_REDIRECT_URL}"
     export PROXY_INTERCEPT_ON_OFF="off"
     export ERROR_PAGE_DIRECTIVE=""
   fi
 
-  # Validate that the requested protocol is actually supported
-  if [[ ! ",${supported_protocols}," == *",${DEFAULT_CLIENT_PROTOCOL},"* ]]; then
-    log "Warning: Requested DEFAULT_CLIENT_PROTOCOL (${DEFAULT_CLIENT_PROTOCOL}) is not enabled. Falling back to RDP."
-    export DEFAULT_CLIENT_PROTOCOL="RDP"
-    export UPLINK="RDP"
+  if [[ "${BACKEND_PROXY_PATH}" == "/" ]]; then
+    # If the app claims the root path explicitly, prevent intercept HTTP 302 loops
+    export ROOT_REDIRECT_BLOCK=""
+  else
+    # Otherwise, proxy is nested. Setup HTTP 302 bounce to Dashboard or UI
+    export ROOT_REDIRECT_BLOCK="location = / { return 302 ${ROOT_REDIRECT}; }"
   fi
 
   # Render standard config templates
@@ -117,16 +128,19 @@ $DEFAULT_CLIENT_PROTOCOL
 $SUPPORTED_PROTOCOLS
 $VNC_XML_BLOCK
 $HOSTNAME
-$UPLINK
 $TIMEOUT_MS
 $ROOT_REDIRECT
+$DEFAULT_REDIRECT_URL
 $PROXY_INTERCEPT_ON_OFF
 $ERROR_PAGE_DIRECTIVE
+$ROOT_REDIRECT_BLOCK
 $WORKSTATION_USER
 $RDP_HOST
 $RDP_PORT
 $SSH_HOST
 $SSH_PORT
+$BACKEND_PROXY_URL
+$BACKEND_PROXY_PATH
 EOV
   # Convert multi-line to single line for envsubst
   allowed_vars=$(echo "$allowed_vars" | tr '\n' ' ')

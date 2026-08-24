@@ -23,7 +23,7 @@
 # Changes: https://android-review.googlesource.com/q/branch:android15-automotiveos-dev
 
 # Source common utilities
-# shellcheck source=/dev/null
+# shellcheck source=apps/workstations/base/assets/google/scripts/common.sh
 source /google/scripts/common.sh
 
 CODEBASE_DIR="${HOME}/aaos/vcar"

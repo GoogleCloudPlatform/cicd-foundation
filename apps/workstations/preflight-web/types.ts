@@ -19,13 +19,13 @@
  */
 export interface AppConfig {
   readonly hostname: string;
-  readonly uplink: string;
   readonly timeoutMs: number;
   readonly retryIntervalMs: number;
   readonly autoRedirect: boolean;
   readonly showDebug: boolean;
   readonly lang: string;
   readonly connectionId: string;
+  readonly redirectUrl: string;
   readonly connectionTypes: ReadonlyArray<string>;
   readonly clientIp: string;
 }
@@ -99,13 +99,13 @@ export interface AppState {
  */
 export const DEFAULT_CONFIG: AppConfig = {
   hostname: "",
-  uplink: "us-central1-a",
   timeoutMs: 200000,
   retryIntervalMs: 1000,
   autoRedirect: true,
   showDebug: false,
   lang: "en",
   connectionId: "RDP",
+  redirectUrl: "",
   connectionTypes: ["RDP", "SSH"],
   clientIp: "0.0.0.0",
 };
@@ -199,8 +199,9 @@ declare global {
     syncRetryIntervalState: () => void;
     CWS_CONFIG?: {
       hostname?: string;
-      uplink?: string;
       supportedProtocols?: string[];
+      connectionId?: string;
+      redirectUrl?: string;
       serverLang?: string;
       clientIp?: string;
     };

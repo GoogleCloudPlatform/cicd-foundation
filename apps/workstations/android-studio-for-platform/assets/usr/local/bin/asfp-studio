@@ -14,9 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# shellcheck disable=SC1091
+
 set -euo pipefail
 
-# shellcheck source=/dev/null
+# shellcheck source=apps/workstations/remote-desktop/assets/google/scripts/desktop_utils.sh
 source /google/scripts/desktop_utils.sh
 
 # In headless cloud environments, GNOME Shell may start before a virtual monitor

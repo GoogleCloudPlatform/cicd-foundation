@@ -61,6 +61,8 @@
   "label_license": "许可证",
   "label_loading_manifest": "正在加载软件清单...",
   "label_loading_privacy": "正在加载隐私权声明...",
+  "label_protocol_http": "Web 应用程序 (HTTP)",
+  "label_protocol_https": "安全 Web 应用程序 (HTTPS)",
   "label_protocol_rdp": "远程桌面协议 (RDP)",
   "label_protocol_ssh": "安全外壳协议 (SSH)",
   "label_protocol_vnc": "虚拟网络计算 (VNC)",

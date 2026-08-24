@@ -1,4 +1,4 @@
-# Copyright 2025-2026 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,19 +17,13 @@ kind: Config
 metadata:
   name: gnome
 requires:
-  - path: ../preflight/skaffold.yaml
+  - path: ../remote-desktop/skaffold.yaml
 build:
   artifacts:
     - image: gnome
       context: .
       docker:
         network: cloudbuild
-        buildArgs:
-          CWS_BASE_IMAGE_TAG: '{{.CWS_BASE_IMAGE_TAG | default "latest"}}'
-          ALPINE_VERSION: '{{.ALPINE_VERSION | default "3.19"}}'
-          GCP_REGION: '{{.GCP_REGION | default "us-central1"}}'
-          PREFLIGHT_WEB_REPO: '{{.PREFLIGHT_WEB_REPO | default ""}}'
-          PREFLIGHT_WEB_DIR: '{{.PREFLIGHT_WEB_DIR | default ""}}'
       requires:
-        - image: preflight
+        - image: remote-desktop
           alias: BASE_IMAGE

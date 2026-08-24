@@ -1,0 +1,17 @@
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network-online.target firewalld.service containerd.service
+Wants=network-online.target containerd.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+# dockerd is started with the data-root and MTU required for Cloud Workstations.
+# Preparation (mounts, cgroups) is handled by 000_configure-docker.sh.
+ExecStart=/usr/bin/dockerd --data-root /home/.docker_data --mtu=1460
+Restart=always
+RestartSec=2
+Delegate=yes
+KillMode=process
+OOMScoreAdjust=-500

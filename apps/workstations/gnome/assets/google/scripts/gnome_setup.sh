@@ -22,7 +22,7 @@ set -euo pipefail
 EXTENSION_READY_TIMEOUT=15
 
 # Source common utilities
-# shellcheck source=/dev/null
+# shellcheck source=apps/workstations/base/assets/google/scripts/common.sh
 source /google/scripts/common.sh
 
 # Waits for a GNOME extension to become available in the shell.
@@ -102,7 +102,6 @@ setup_gnome_settings() {
   log "Configuring GNOME settings..."
 
   local ext="just-perfection-desktop@just-perfection"
-  wait_for_extension "${ext}" || true
 
   runuser -u "${WORKSTATION_USER}" -- bash -s "${ext}" "${WORKSTATION_UID}" <<'EOF'
     ext_id="${1}"
@@ -111,24 +110,13 @@ setup_gnome_settings() {
     export XDG_RUNTIME_DIR="/run/user/${uid}"
     export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${uid}/bus"
 
-    gsettings set org.gnome.shell disable-user-extensions false
-
-    if gnome-extensions list | grep -q "${ext_id}"; then
-      echo "Enabling ${ext_id}..."
-      gnome-extensions enable "${ext_id}" || true
-    fi
+    gsettings set org.gnome.shell disable-user-extensions false 2>/dev/null || true
 
     # Standard Workstation UI Tweak
-    gsettings set org.gnome.shell.extensions.just-perfection screen-sharing-indicator false
-    gsettings set org.gnome.shell.extensions.just-perfection screen-recording-indicator false
-    gsettings set org.gnome.shell.extensions.just-perfection startup-status 0
-    gsettings set org.gnome.shell.extensions.just-perfection support-notifier-type 0
-
-    gsettings set org.gnome.SessionManager auto-save-session true
-    gsettings set org.gnome.desktop.screensaver lock-enabled false
-    gsettings set org.gnome.desktop.screensaver idle-activation-enabled false
-    gsettings set org.gnome.desktop.session idle-delay 0
-    gsettings set org.gnome.desktop.lockdown disable-lock-screen false
+    gsettings set org.gnome.shell.extensions.just-perfection screen-sharing-indicator false 2>/dev/null || true
+    gsettings set org.gnome.shell.extensions.just-perfection screen-recording-indicator false 2>/dev/null || true
+    gsettings set org.gnome.shell.extensions.just-perfection startup-status 0 2>/dev/null || true
+    gsettings set org.gnome.shell.extensions.just-perfection support-notifier-type 0 2>/dev/null || true
 EOF
 }
 

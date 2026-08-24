@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# shellcheck disable=SC1091
+
 # This helper defines common variables for unit tests.
 
 # We use the helper's own location as a stable anchor.
@@ -35,12 +37,12 @@ find_repo_root() {
 PROJECT_ROOT="$(find_repo_root "${HELPER_DIR}")"
 
 # Source common.sh from the project root
-# shellcheck disable=SC1091
+# shellcheck source=skills/common.sh
 source "${PROJECT_ROOT}/skills/common.sh"
 
 export ANTIGRAVITY_LAYER_DIR="$(cd "${HELPER_DIR}/../.." && pwd)"
 export HOOKS_DIR="${ANTIGRAVITY_LAYER_DIR}/assets/build-hooks.d"
 
 # Load centralized BATS utilities
-# shellcheck disable=SC1091
+# shellcheck source=skills/validate-image-updates/tests/bats_common.bash
 source "${PROJECT_ROOT}/skills/validate-image-updates/tests/bats_common.bash"

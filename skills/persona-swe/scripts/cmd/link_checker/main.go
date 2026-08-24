@@ -27,8 +27,8 @@ import (
 	"github.com/GoogleCloudPlatform/cicd-foundation/skills/persona-swe/scripts/internal/linkchecker"
 )
 
-// EXCLUDE_DIRS defines directories to skip during scanning.
-var EXCLUDE_DIRS = map[string]bool{
+// excludeDirs defines directories to skip during scanning.
+var excludeDirs = map[string]bool{
 	".git":         true,
 	".terraform":   true,
 	".venv":        true,
@@ -103,7 +103,7 @@ func main() {
 				return err
 			}
 			if d.IsDir() {
-				if EXCLUDE_DIRS[d.Name()] {
+				if excludeDirs[d.Name()] {
 					return filepath.SkipDir
 				}
 				return nil

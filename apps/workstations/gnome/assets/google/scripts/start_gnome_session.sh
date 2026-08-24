@@ -17,7 +17,7 @@
 set -euo pipefail
 
 # Source common utilities
-# shellcheck source=/dev/null
+# shellcheck source=apps/workstations/base/assets/google/scripts/common.sh
 source /google/scripts/common.sh
 
 # Sets up the session environment variables.
@@ -33,6 +33,15 @@ setup_environment() {
   if [[ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
     export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${target_uid}/bus"
   fi
+
+  # Wait for the user D-Bus session socket to become active to avoid race conditions
+  local dbus_socket="/run/user/${target_uid}/bus"
+  local count=0
+  until [[ -S "${dbus_socket}" ]] || (( count >= 30 )); do
+    log "Waiting for user D-Bus bus socket: ${dbus_socket}..."
+    sleep 0.5
+    (( count += 1 ))
+  done
 
   # GNOME Headless Wayland defaults
   export WAYLAND_DISPLAY=wayland-0
@@ -55,53 +64,6 @@ setup_environment() {
   fi
 }
 
-# Configures RDP using credentials from the ephemeral environment.
-configure_rdp() {
-  local target_user="${1}"
-
-  # Wait for config rendering to complete (ephemeral.env creation)
-  local timeout=60
-  local count=0
-  until [[ -f "${EPHEMERAL_ENV_PATH}" ]] || (( count >= timeout )); do
-    log "Waiting for ephemeral credentials file..."
-    sleep 2
-    (( count += 2 ))
-  done
-
-  if [[ -f "${EPHEMERAL_ENV_PATH}" ]]; then
-    # shellcheck disable=SC1091
-    source "${EPHEMERAL_ENV_PATH}"
-    if [[ -n "${EPHEMERAL_PASS:-}" ]]; then
-      log "Configuring RDP credentials for ${target_user}..."
-      local grd_cert_dir="/home/${target_user}/.local/share/gnome-remote-desktop"
-
-      # RETRY LOOP: Ensure grdctl can talk to the D-Bus session bus
-      local max_retries=60
-      local sleep_duration=1
-      local retry=0
-      until grdctl --headless rdp disable >/dev/null 2>&1 || (( retry >= max_retries )); do
-        log "Waiting for RDP control interface (grdctl retry ${retry})..."
-        sleep $sleep_duration
-        retry=$((retry + 1))
-      done
-
-      # Configure credentials with error checking
-      grdctl --headless rdp set-tls-key "${grd_cert_dir}/rdp-tls.key" || log "warning: failed to set RDP TLS key"
-      grdctl --headless rdp set-tls-cert "${grd_cert_dir}/rdp-tls.crt" || log "warning: failed to set RDP TLS cert"
-      grdctl --headless rdp set-credentials "${target_user}" "${EPHEMERAL_PASS}" || log "error: failed to set RDP credentials"
-      grdctl --headless rdp set-port 3389 || log "warning: failed to set RDP port"
-      grdctl --headless rdp enable || log "error: failed to enable RDP"
-      grdctl --headless rdp disable-view-only || log "warning: failed to disable view-only mode"
-
-      log "RDP credentials synchronized."
-    else
-      log "error: EPHEMERAL_PASS not found in ephemeral.env."
-    fi
-  else
-    log "error: ${EPHEMERAL_ENV_PATH} not found after timeout. RDP configuration will likely fail."
-  fi
-}
-
 main() {
   local target_user="${1:-$WORKSTATION_USER}"
 
@@ -109,11 +71,11 @@ main() {
   setup_environment "${target_user}"
 
   # Thoroughly clean up any stale session/D-Bus state for this user
-  pkill -9 -u "${target_user}" gnome-session || true
-  pkill -9 -u "${target_user}" gnome-shell || true
-  pkill -9 -u "${target_user}" gnome-remote-de || true
+  pkill -u "${target_user}" gnome-session || true
+  pkill -u "${target_user}" gnome-shell || true
+  pkill -u "${target_user}" gnome-remote-de || true
   # Do NOT kill the user's D-Bus bus itself if possible, but clear the session bus if needed
-  # pkill -9 -u "${target_user}" dbus-daemon || true
+  # pkill -u "${target_user}" dbus-daemon || true
 
   # SEC-04 Compliance: Headless remote automated workstations utilize a blank password
   # for GNOME Keyring to prevent blocking GUI prompts (e.g. from Chrome, gcloud, VS Code)
@@ -127,7 +89,6 @@ main() {
 
   log "Pre-seeding blank password for login keyring..."
   printf '\n' | gnome-keyring-daemon --unlock --components=secrets || log "Warning: failed to unlock keyring daemon"
-
 
   /usr/libexec/gnome-session-binary --session=ubuntu &
   local session_pid=$!
@@ -143,35 +104,19 @@ main() {
   done
   log "GNOME Shell is ready."
 
-  # CRITICAL: Configure RDP AFTER Shell is ready (so D-Bus is available)
-  # then let grdctl handle the configuration.
-  configure_rdp "${target_user}"
-
-  log "Starting GNOME Remote Desktop daemon..."
-  # Clean up any stale PIDs to avoid bus name conflicts
-  pkill -9 -u "${target_user}" gnome-remote-de || true
-  sleep 1
-
-  /usr/libexec/gnome-remote-desktop-daemon --headless &
-  local grd_pid=$!
-
-  # Wait for daemon readiness via D-Bus
-  until gdbus introspect --session --dest org.gnome.RemoteDesktop.Headless --object-path /org/gnome/RemoteDesktop >/dev/null 2>&1; do
-    log "Waiting for GNOME Remote Desktop daemon..."
-    sleep 2
-    if ! kill -0 "${grd_pid}" 2>/dev/null; then
-      log "error: GNOME Remote Desktop daemon failed to start."
-      break
-    fi
-  done
+  # Enable extensions now that GNOME Shell is running
+  local ext="just-perfection-desktop@just-perfection"
+  if gnome-extensions list 2>/dev/null | grep -q "${ext}"; then
+    gnome-extensions enable "${ext}" 2>/dev/null || true
+  fi
 
   log_event SERVICE_READY "GNOME session is active" SERVICE=gnome-session
+  systemd-notify --ready || log "Warning: systemd-notify failed"
 
   # Wait for the session to exit
   # IMPORTANT: We MUST wait for the background process or the script exits,
   # causing systemd to restart it.
   wait "${session_pid}"
-  kill "${grd_pid}" 2>/dev/null || true
 }
 
 main "$@"

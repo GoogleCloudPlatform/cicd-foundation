@@ -94,6 +94,7 @@ setup() {
   cp "${SCRIPTS_DIR}/gnome_setup.sh" "${test_script}"
   sed -i 's|source /google/scripts/common.sh||g' "${test_script}"
 
+  # shellcheck source=/dev/null
   source "${test_script}"
 
   # Mock gnome-extensions and gsettings inside the bash execution

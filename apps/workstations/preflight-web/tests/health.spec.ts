@@ -95,6 +95,14 @@ describe("Health Module", () => {
     startRedirect();
     expect(assignSpy).toHaveBeenCalledWith(getGuacamoleUrl("SSH"));
 
+    state.config = { ...state.config, connectionId: "HTTP", redirectUrl: "/custom-ide/" };
+    startRedirect();
+    expect(assignSpy).toHaveBeenCalledWith("/custom-ide/");
+
+    state.config = { ...state.config, connectionId: "HTTPS", redirectUrl: "" };
+    startRedirect();
+    expect(assignSpy).toHaveBeenCalledWith("/");
+
     state.config = { ...state.config, connectionId: "" };
     startRedirect();
     expect(assignSpy).toHaveBeenCalledWith("/");
@@ -250,7 +258,10 @@ describe("Health Module", () => {
   });
   test("manualConnect not healthy", () => {
     state.isHealthy = false;
+    const assignMock = vi.fn();
+    windowUtils.assign = assignMock;
     manualConnect();
+    expect(assignMock).not.toHaveBeenCalled();
   });
   test("startRedirect", () => {
     startRedirect();

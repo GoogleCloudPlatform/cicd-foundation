@@ -16,9 +16,9 @@
 
 window.CWS_CONFIG = {
   connectionId: '${DEFAULT_CLIENT_PROTOCOL}',
+  redirectUrl: '${DEFAULT_REDIRECT_URL}',
   supportedProtocols: '${SUPPORTED_PROTOCOLS}'.split(','),
   hostname: '${HOSTNAME}',
-  uplink: '${UPLINK}',
   serverLang: "@@SERVER_LANG@@",
   clientIp: "${CLIENT_IP}",
   timeoutMs: ${TIMEOUT_MS}

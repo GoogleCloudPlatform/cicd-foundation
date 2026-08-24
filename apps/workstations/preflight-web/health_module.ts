@@ -18,6 +18,7 @@ import {
   APP_STATUS_HEADER,
   APP_STATUS_STARTING,
   getGuacamoleUrl,
+  isNativeWebProtocol,
   MAX_BACKOFF_INTERVAL_MS,
   PROGRESS_RING_CIRCUMFERENCE,
 } from "./constants";
@@ -48,7 +49,7 @@ export async function checkHealth(): Promise<void> {
   const startTime = performance.now();
   updateState({ pollCount: state.pollCount + 1 });
   try {
-    const response = await fetch("/healthz");
+    const response = await fetch("/readyz");
     updateState({
       latencyMs: Math.round(performance.now() - startTime),
       lastStatus: response.headers.get(APP_STATUS_HEADER),
@@ -325,6 +326,10 @@ export function updateTimer(): void {
  * Manually triggers a redirection to the workstation backend.
  */
 export function manualConnect(): void {
+  if (!state.isHealthy) {
+    void checkHealth();
+    return;
+  }
   startRedirect();
 }
 
@@ -332,7 +337,11 @@ export function manualConnect(): void {
  * Assigns the browser location to the specific protocol path or root fallback.
  */
 export function startRedirect(): void {
-  const protocol = state.config.connectionId;
-  const targetUrl = protocol ? getGuacamoleUrl(protocol) : "/";
-  windowUtils.assign(targetUrl);
+  const protocol = (state.config.connectionId || "").toUpperCase();
+  if (isNativeWebProtocol(protocol) || !protocol) {
+    const targetUrl = state.config.redirectUrl || "/";
+    windowUtils.assign(targetUrl);
+    return;
+  }
+  windowUtils.assign(getGuacamoleUrl(protocol));
 }

@@ -18,24 +18,21 @@ limitations under the License.
 
 ## 1. Context and Scope
 
-**Primary Goal**: The GNOME layer is responsible for providing a performant, headless graphical environment within the workstation container. It provides the core remote desktop environment and orchestrates the user's graphical session.
+**Primary Goal**: The GNOME layer is responsible for providing a performant, headless graphical environment within the workstation container. It provides the core remote desktop environment consisting of Wayland and Mutter, and orchestrates the user's graphical session.
 
 **Scope**: This document covers:
 
 - GNOME Shell orchestration and Systemd service management.
-- The Remote Desktop Protocol implementation (`gnome-remote-desktop`).
-- The containerized Web Gateway (Apache Guacamole).
 - The hook-based extension model for downstream layers.
 
 ## 2. Architecture Overview & Inheritance
 
 ### Thin Layer Philosophy
 
-The GNOME layer establishes a "Thin Layer" architectural pattern for all downstream specialized images (e.g., Android Studio for Platform). Child layers are designed to be lightweight applications on top of this foundation, relying entirely on the parent for:
+The GNOME layer establishes a "Thin Layer" architectural pattern building directly on top of the `remote-desktop` dependency layer. Child layers are designed to be lightweight applications on top of this foundation, relying entirely on the parent for:
 
-- Core OS lifecycle and Systemd orchestration.
-- The Wayland compositor and RDP remote access protocol.
-- Security mechanisms and ephemeral credential management.
+- Core OS lifecycle and Systemd orchestration (inherited from `base`).
+- The Remote Desktop Gateway mechanisms (inherited from `remote-desktop`).
 
 ### Centralized & Declarative Configuration
 
@@ -59,31 +56,11 @@ To avoid brittle bash-script entrypoints, this layer utilizes a declarative nati
 
 ### The Startup Sequence
 
-The GNOME orchestration is tightly integrated into the broader workstation startup sequence defined by Preflight:
+1.  **User Initialization**: `user-setup.service` configures the unprivileged workstation user's environment.
+2.  **Graphical Session**: `gnome-session@user.service` starts the headless Wayland shell. This, in turn, triggers the `gnome-remote-desktop-daemon`, which begins listening on the internal RDP port (3389).
+3.  **Gateway Handover**: The Preflight UI (serving via Nginx) polls the health endpoint. Once Guacamole (from the `remote-desktop` layer) is initialized, the browser is redirected to the Guacamole endpoint, establishing the RDP session.
 
-1.  **Rendering Stage**: Systemd triggers `config-rendering.service` (inherited from Preflight), which generates an ephemeral password and renders the Guacamole `user-mapping.xml`.
-2.  **User Initialization**: `user-setup.service` configures the unprivileged workstation user's environment. Crucially, it unlocks the GNOME Keyring using the newly generated ephemeral password.
-3.  **Graphical Session**: `gnome-session@user.service` starts the headless Wayland shell. This, in turn, triggers the `gnome-remote-desktop-daemon`, which begins listening on the internal RDP port (3389).
-4.  **Gateway Handover**: The Preflight UI (serving via Nginx) polls the health endpoint. Once Guacamole is initialized, the browser is redirected to the Guacamole endpoint, establishing the RDP session.
-
-## 4. Detailed Design: Remote Access & Security
-
-### Containerized Guacamole (Docker-in-Docker)
-
-Rather than installing Apache Guacamole directly via APT, it is run as containerized workloads (`guacd` and the Tomcat web application) managed by Systemd via a Docker-in-Docker (DinD) configuration.
-
-- **Design Rationale**: This approach significantly simplifies maintenance, avoids OS dependency hell (specifically regarding Java and Tomcat versioning), and provides a clean upgrade path, which outweighs the overhead of running a nested Docker daemon.
-
-### Ephemeral Security Model
-
-Credentials for the RDP session are highly ephemeral:
-
-- A unique password is generated per container start.
-- This password is injected dynamically into Guacamole's `user-mapping.xml`.
-- The password is used to seamlessly unlock the GNOME keyring for the session.
-- These credentials are never persisted to disk across workstation restarts, heavily locking down unauthorized or stale access.
-
-## 5. Detailed Design: Build-Time Orchestration & Hooks
+## 4. Detailed Design: Build-Time Orchestration & Hooks
 
 The GNOME layer introduces a mandatory, opinionated hook system orchestrated by the `configure_workstation.sh` script. Because the GNOME layer is where the base OS (Ubuntu) is significantly mutated with `apt` packages, it serves as the logical integration point for child layers (like Android Studio for Platform) to extend the image cleanly without modifying the core `Dockerfile`.
 
@@ -116,7 +93,7 @@ COPY assets/ /
 RUN /google/scripts/build/configure_workstation.sh
 ```
 
-## 6. Detailed Design: Desktop UX Integration
+## 5. Detailed Design: Desktop UX Integration
 
 Desktop integration (autostart, dock pinning, menu visibility) is managed automatically through a metadata-driven system located in `/google/scripts/build/desktop_integration.sh`.
 
@@ -144,7 +121,7 @@ To ensure stability, move the polling logic into a dedicated wrapper script in `
 ```bash
 # Example: /usr/local/bin/my-application-wrapper
 #!/bin/bash
-# shellcheck source=/dev/null
+# shellcheck source=apps/workstations/remote-desktop/assets/google/scripts/desktop_utils.sh
 source /google/scripts/desktop_utils.sh
 
 # Wait for GNOME Shell to initialize at least one monitor
@@ -162,7 +139,7 @@ Then, use a simple `Exec` line in the application's `.desktop` file:
 Exec=/usr/local/bin/my-application-wrapper
 ```
 
-## 7. CI/CD Orchestration
+## 6. CI/CD Orchestration
 
 The image build lifecycle is managed using the `cicd-foundation` Terraform modules.
 
@@ -170,7 +147,7 @@ The image build lifecycle is managed using the `cicd-foundation` Terraform modul
 - **Automated Builds**: Nightly builds are triggered via Cloud Scheduler to ensure "Image Freshness" and automated security patching.
 - **Validation**: The agentic 6-step validation lifecycle (as defined in `AGENTS.md`) is required for all changes during development to ensure structural and behavioral integrity.
 
-## 8. Observability and Structured Logging
+## 7. Observability and Structured Logging
 
 The workstation image implements a standardized, SLO-agnostic logging strategy to facilitate external monitoring and reporting.
 

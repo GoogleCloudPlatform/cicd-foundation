@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# shellcheck disable=SC1091
+
 # Helper functions for BATS integration tests
 
 # We use the helper's own location as a stable anchor.
@@ -35,9 +37,9 @@ find_repo_root() {
 PROJECT_ROOT="$(find_repo_root "${HELPER_DIR}")"
 
 # Source common.sh from the project root
-# shellcheck disable=SC1091
+# shellcheck source=skills/common.sh
 source "${PROJECT_ROOT}/skills/common.sh"
 
 # Load centralized integration helpers
-# shellcheck disable=SC1091
+# shellcheck source=skills/validate-image-updates/tests/bats_integration.bash
 source "${PROJECT_ROOT}/skills/validate-image-updates/tests/bats_integration.bash"

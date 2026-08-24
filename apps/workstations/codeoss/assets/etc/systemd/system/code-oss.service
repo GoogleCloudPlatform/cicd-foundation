@@ -1,0 +1,15 @@
+[Unit]
+Description=Code OSS Editor
+After=network.target
+
+[Service]
+User=user
+Group=user
+WorkingDirectory=/home/user
+Environment=EDITOR_PORT=8080
+ExecStart=/opt/code-oss/bin/codeoss-cloudworkstations --port=8080 --host=0.0.0.0
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

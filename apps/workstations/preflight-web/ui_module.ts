@@ -265,8 +265,10 @@ export function renderConnectionTypeList(): void {
 
   state.config.connectionTypes.forEach((proto) => {
     const btn = document.createElement("button");
+    const isActive =
+      state.config.connectionId.toUpperCase() === proto.toUpperCase();
     btn.className = `w-full text-left p-3 rounded mb-2 border transition-colors ${
-      state.config.connectionId === proto
+      isActive
         ? "bg-secondary/20 border-secondary text-secondary"
         : "bg-white/5 border-neutral-800 text-white hover:bg-white/10"
     }`;

@@ -1,0 +1,4 @@
+{
+  "storage-driver": "vfs",
+  "exec-opts": ["native.cgroupdriver=cgroupfs"]
+}

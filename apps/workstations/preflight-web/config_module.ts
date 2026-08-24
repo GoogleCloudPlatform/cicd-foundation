@@ -101,8 +101,9 @@ export function loadConfig(): void {
         ...config,
         ...saved,
         hostname: config.hostname,
-        uplink: config.uplink,
         clientIp: config.clientIp,
+        connectionId: config.connectionId,
+        redirectUrl: config.redirectUrl,
       };
     } catch (e) {
       console.error("failed to parse config", e);
@@ -112,8 +113,9 @@ export function loadConfig(): void {
   if (window.CWS_CONFIG) {
     config = {
       ...config,
+      connectionId: window.CWS_CONFIG.connectionId ?? config.connectionId,
+      redirectUrl: window.CWS_CONFIG.redirectUrl ?? config.redirectUrl,
       hostname: window.CWS_CONFIG.hostname ?? config.hostname,
-      uplink: window.CWS_CONFIG.uplink ?? config.uplink,
       connectionTypes:
         window.CWS_CONFIG.supportedProtocols ?? config.connectionTypes,
       clientIp: window.CWS_CONFIG.clientIp ?? config.clientIp,
@@ -161,8 +163,13 @@ export function loadConfig(): void {
   }
 
   const protocolParam = params.get("protocol");
-  if (protocolParam && config.connectionTypes.includes(protocolParam)) {
-    config = { ...config, connectionId: protocolParam };
+  if (protocolParam) {
+    const matched = config.connectionTypes.find(
+      (t) => t.toUpperCase() === protocolParam.toUpperCase(),
+    );
+    if (matched) {
+      config = { ...config, connectionId: matched };
+    }
   }
 
   const langParam = params.get("lang");

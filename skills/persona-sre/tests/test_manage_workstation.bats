@@ -111,3 +111,9 @@ setup() {
   grep -q "Host ws" "${HOME}/.ssh/config"
   grep -q "Port 2222" "${HOME}/.ssh/config"
 }
+
+@test "manage_workstation.sh status outputs the workstation state" {
+  run bash "${SCRIPTS_DIR}/manage_workstation.sh" status mock-ws --project mock-proj --cluster mock-cluster --config mock-config --region mock-region
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"STATE_RUNNING"* ]]
+}

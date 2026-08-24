@@ -22,39 +22,47 @@ This document outlines the architectural layers, system technologies, and render
 
 ## 1. Modular Layer Overview
 
-The custom workstation image is composed of three layered components:
+The custom workstation image is composed of composable dependency layers:
 
 ### 1.1 Preflight Layer (Web Frontend & Gateway)
 
-The Preflight layer is responsible for the initial user experience, configuration rendering, and traffic control.
+The Preflight layer is responsible for the initial user experience and traffic control proxying.
 
-- **Technologies**: Vanilla TypeScript, Vite, HTML5, Tailwind CSS, Nginx, and Bash scripts.
+- **Technologies**: Vanilla TypeScript, Vite, HTML5, Tailwind CSS, Nginx.
 - **Key Features**:
-  - **Dynamic Configuration Rendering**: Uses `envsubst` to generate ephemeral credentials and inject configuration variables at runtime.
-  - **Content Negotiation**: Nginx uses `sub_filter` to negotiate language settings server-side without relying on cookies.
+  - **Dynamic Reverse Proxy**: Routes WebSockets and HTTP dynamically to CodeOSS or Guacamole.
   - **Health Polling & Backoff**: The web UI implements exponential backoff to poll the backend readiness, hiding connection errors from users.
   - **Localization (i18n)**: Full support for multiple languages dynamically loaded by the browser.
-  - **Traffic Control**: Employs systemd logic (`permit-traffic.service`) to gate external network access until all backend systems are healthy.
 
-### 1.2 GNOME Layer (Desktop & Remote Access)
+### 1.2 Base Layer (OS & Tooling Orchestrator)
 
-The GNOME layer provides the core remote desktop environment and orchestrates the user's graphical session.
+The Base layer unifies dependency acquisition and runtime OS injection mechanisms.
 
-- **Technologies**: GNOME Shell (Headless Wayland), Mutter, Apache Guacamole, `gnome-remote-desktop` (RDP), FreeRDP, and systemd.
+- **Technologies**: Systemd, Chezmoi, Bash Build Hooks.
 - **Key Features**:
-  - **Headless Wayland Session**: Optimized for containerized environments using software rendering (`LIBGL_ALWAYS_SOFTWARE=1`).
-  - **Ephemeral Credentials**: RDP passwords are generated per-startup and never persisted, locking down unauthorized access.
-  - **Containerized Guacamole**: Runs Guacamole in a `docker-in-docker` configuration directly orchestrated by systemd, mapping the ephemeral credentials into `user-mapping.xml`.
+  - **Environment Discovery**: Automatically downloads and maps tools (Antigravity CLI, Agent Development Kit, Devcontainers CLI, gVisor) based on environment flags.
+  - **Traffic Control**: Employs systemd logic (`permit-traffic.service`) to gate external network access until backend systems report fully healthy.
+  
+### 1.3 Remote Desktop Layer (Gateway Infrastructure)
 
-### 1.3 Android Studio for Platform Layer (ASfP & AI Tools)
+Sets up the Apache Guacamole ecosystem explicitly designed for visual OS runtimes.
 
-The ASfP layer extends the workstation with enterprise-grade development tools and AI-driven workflows.
-
-- **Technologies**: Antigravity CLI, Agent Skills, and systemd build hooks.
+- **Technologies**: Apache Guacamole, Tomcat, TigerVNC.
 - **Key Features**:
-  - **Native AI Integration**: The **Antigravity CLI** provides developers with context-aware, multimodal AI assistance directly in their terminal.
-  - **Skill Modular System**: Contains specific skills (e.g., `persona-sre`, `persona-legal`, `persona-swe`) that guide AI behavior safely inside the workspace.
-  - **Build-time Hooks**: Enables clean, isolated tool installations (`assets/build-hooks.d/`) without dirtying the core desktop OS.
+  - **Containerized Network Translation**: Bootstraps the backend RDP/VNC translation daemons natively within Systemd context.
+  - **Ephemeral Credential Ingestion**: Reads ephemeral `$RDP_PASSWORD` tokens dynamically into `user-mapping.xml`.
+
+### 1.4 GNOME Layer (Graphical Wayland Runtime)
+
+Provides the OS graphical shells and extensions.
+
+- **Technologies**: GNOME Shell (Headless Wayland), Mutter, RDP.
+- **Key Features**:
+  - **Headless Soft Rendering**: Executes Wayland rendering pipeline natively inside a container runtime environment via standard fallback flags.
+
+### 1.5 CodeOSS Layer (Headless Compute)
+
+Inherits tooling and environment hooks for a pristine headless IDE workspace context, dropping the heavy footprint of Remote Desktop.
 
 ---
 

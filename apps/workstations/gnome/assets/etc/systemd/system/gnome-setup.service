@@ -14,7 +14,8 @@
 
 [Unit]
 Description=GNOME Session and Desktop Setup
-After=user-setup.service gnome-session@user.service
+After=user-setup.service
+Before=gnome-session@user.service
 Wants=gnome-session@user.service
 
 [Service]

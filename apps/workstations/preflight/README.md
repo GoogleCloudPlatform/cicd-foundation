@@ -18,6 +18,8 @@ limitations under the License.
 
 Web-based loading experience for Google Cloud Workstations.
 
+This module acts as the universal asset provider for the front-facing user experience, rendering loading pages dynamically whether the backend resolves to a remote desktop environment (like GNOME via Guacamole) or a Headless IDE (like CodeOSS).
+
 ## Features
 
 ### Phased Monitoring State Machine

@@ -61,6 +61,8 @@
   "label_license": "الترخيص",
   "label_loading_manifest": "جاري تحميل بيان البرنامج...",
   "label_loading_privacy": "جاري تحميل إشعار الخصوصية...",
+  "label_protocol_http": "تطبيق ويب (HTTP)",
+  "label_protocol_https": "تطبيق ويب آمن (HTTPS)",
   "label_protocol_rdp": "Remote Desktop Protocol (RDP)",
   "label_protocol_ssh": "Secure Shell (SSH)",
   "label_protocol_vnc": "Virtual Network Computing (VNC)",

@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-# shellcheck source=/dev/null
+# shellcheck source=apps/workstations/base/assets/google/scripts/common.sh
 source /google/scripts/common.sh
 
 DESKTOP_FILE="/usr/share/applications/asfp-canary.desktop"

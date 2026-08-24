@@ -24,7 +24,7 @@ main() {
   echo "Registering base applications..."
 
   # Explicitly register core apps with high priority
-  # shellcheck source=/dev/null
+  # shellcheck source=apps/workstations/remote-desktop/assets/google/scripts/build/desktop_integration.sh
   source /google/scripts/build/desktop_integration.sh
 
   if [[ -f "${apps_dir}/google-chrome.desktop" ]]; then

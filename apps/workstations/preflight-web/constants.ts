@@ -22,6 +22,23 @@ export const PROGRESS_RING_CIRCUMFERENCE = 282.7;
 export const APP_STATUS_HEADER = "x-app-status";
 export const APP_STATUS_STARTING = "STARTING";
 
+export const NATIVE_WEB_PROTOCOLS: ReadonlyArray<string> = ["HTTP", "HTTPS"];
+export const GUACAMOLE_PROTOCOLS: ReadonlyArray<string> = ["RDP", "SSH", "VNC"];
+
+/**
+ * Checks if a protocol is a direct browser web protocol.
+ */
+export function isNativeWebProtocol(protocol: string): boolean {
+  return NATIVE_WEB_PROTOCOLS.includes((protocol || "").toUpperCase());
+}
+
+/**
+ * Checks if a protocol is routed via the Guacamole proxy.
+ */
+export function isGuacamoleProtocol(protocol: string): boolean {
+  return GUACAMOLE_PROTOCOLS.includes((protocol || "").toUpperCase());
+}
+
 /**
  * Generates the Guacamole client path for a specific protocol.
  * The identifier is a base64 encoded string: "<connection_name>\0c\0default"
@@ -41,6 +58,8 @@ export function getGuacamoleUrl(protocol: string): string {
  */
 export function getProtocolFullName(proto: string): string {
   const labels: Record<string, string> = {
+    http: "label_protocol_http",
+    https: "label_protocol_https",
     rdp: "label_protocol_rdp",
     ssh: "label_protocol_ssh",
     vnc: "label_protocol_vnc",

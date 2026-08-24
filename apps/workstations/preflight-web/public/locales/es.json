@@ -61,6 +61,8 @@
   "label_license": "Licencia",
   "label_loading_manifest": "Cargando manifiesto de software...",
   "label_loading_privacy": "Cargando aviso de privacidad...",
+  "label_protocol_http": "Aplicación web (HTTP)",
+  "label_protocol_https": "Aplicación web segura (HTTPS)",
   "label_protocol_rdp": "Protocolo de escritorio remoto (RDP)",
   "label_protocol_ssh": "Secure Shell (SSH)",
   "label_protocol_vnc": "Virtual Network Computing (VNC)",

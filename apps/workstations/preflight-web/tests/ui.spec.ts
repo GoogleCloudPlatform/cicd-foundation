@@ -82,7 +82,6 @@ describe("UI Module", () => {
     state.config = {
       ...state.config,
       hostname: "test-host",
-      uplink: "test-uplink",
     };
     updateDisplayData();
     expect(document.getElementById("display-hostname")?.textContent).toBe(

@@ -31,7 +31,7 @@ find_repo_root() {
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(find_repo_root "${SCRIPT_DIR}")"
-# shellcheck disable=SC1091
+# shellcheck source=skills/common.sh
 source "${REPO_ROOT}/skills/common.sh"
 
 # This script runs frontend tests and then hot-patches the live workstation.

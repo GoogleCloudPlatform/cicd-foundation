@@ -14,12 +14,14 @@
 
 [Unit]
 Description=GNOME Session for %i
-After=systemd-user-sessions.service
-Wants=systemd-user-sessions.service
+After=systemd-user-sessions.service user@1000.service
+Wants=systemd-user-sessions.service gnome-remote-desktop@%i.service
 
 [Service]
+Type=notify
+NotifyAccess=all
 User=%i
-PAMName=login
+PAMName=systemd-user
 Environment=XDG_SESSION_TYPE=wayland
 Environment=XDG_CURRENT_DESKTOP=ubuntu:GNOME
 Environment=GNOME_SHELL_SESSION_MODE=ubuntu

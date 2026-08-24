@@ -30,15 +30,23 @@ Select your role to find the most relevant documentation and workflows:
 
 ## 🏗️ Architectural Modules
 
-This blueprint is organized into self-contained modules to ensure high maintainability and clarity:
+This blueprint is organized into self-contained modules to ensure high maintainability and clarity. The GNOME layer is the top of a 4-tier stack:
 
 ### 1. GNOME Desktop Layer (`apps/workstations/gnome/`)
 
-The core environment providing the desktop experience, systemd orchestration, and terminal tools.
+The core graphical shell providing Mutter, Wayland, and professional workspace extensions.
 
-### 2. Preflight Dashboard (`apps/workstations/preflight/`)
+### 2. Remote Desktop Layer (`apps/workstations/remote-desktop/`)
 
-A cinematic loading interface that intercepts early traffic and provides technical telemetry.
+The foundational parent to GNOME, providing the Apache Guacamole gateway and Remote Desktop daemon integration.
+
+### 3. Base OS Layer (`apps/workstations/base/`)
+
+The underlying orchestration layer compiling developer tooling (Antigravity, ADK, Chezmoi) into the image via dynamic hooks.
+
+### 4. Preflight Dashboard (`apps/workstations/preflight/`)
+
+A cinematic loading interface injected at the Base layer that intercepts early traffic and provides technical telemetry.
 
 - 👉 **[UX Standards](../preflight/docs/design.md#33-cinematic-ux-principles)**
 - 👉 **[Language Priorities](../preflight/docs/requirements.md#42-internationalization-i18n)**

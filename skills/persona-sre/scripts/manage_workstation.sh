@@ -22,12 +22,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../../common.sh"
 
 usage() {
-  echo "Usage: $0 [start|stop|restart|wait|ssh|tunnel] [WORKSTATION] [flags/args]"
+  echo "Usage: $0 [start|stop|restart|status|wait|ssh|tunnel] [WORKSTATION] [flags/args]"
   echo ""
   echo "Actions:"
   echo "  start   : Starts the workstation and waits for STATE_RUNNING."
   echo "  stop    : Stops the workstation and waits for STATE_STOPPED."
   echo "  restart : Stops and then starts the workstation."
+  echo "  status  : Outputs the current state of the workstation."
   echo "  wait    : Polls until the workstation reaches a TARGET_STATE (default: STATE_RUNNING)."
   echo "  ssh     : Connects to the workstation via SSH."
   echo "  tunnel  : Establishes an SSH tunnel and optionally opens the workstation URL."
@@ -189,6 +190,22 @@ stop_ws() {
   wait_for_ws_state "${workstation}" "STATE_STOPPED" "${project}" "${cluster}" "${config}" "${region}" "${timeout}"
 }
 
+status_ws() {
+  local workstation="$1"
+  local project="$2"
+  local cluster="$3"
+  local config="$4"
+  local region="$5"
+
+  local state
+  state=$(gcloud workstations describe "${workstation}" \
+    --project="${project}" --cluster="${cluster}" \
+    --config="${config}" --region="${region}" \
+    --format="value(state)" 2>/dev/null || echo "UNKNOWN")
+
+  echo "${state}"
+}
+
 tunnel_ws() {
   local workstation="$1"
   local project="$2"
@@ -337,6 +354,9 @@ main() {
     restart)
       stop_ws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}"
       start_ws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}" "${browser}"
+      ;;
+    status)
+      status_ws "${workstation}" "${project}" "${cluster}" "${config}" "${region}"
       ;;
     wait)
       wait_for_ws_state "${workstation}" "${target_state}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}"

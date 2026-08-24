@@ -50,7 +50,6 @@ install_extensions() {
     local tmp_zip
     tmp_zip=$(mktemp)
     # Source common.sh to get CURL_OPTS if available
-    # shellcheck disable=SC1091
     [[ -f /google/scripts/common.sh ]] && . /google/scripts/common.sh
     local curl_cmd="curl ${CURL_OPTS:--fsSL --retry 3 --connect-timeout 10 --max-time 300}"
 

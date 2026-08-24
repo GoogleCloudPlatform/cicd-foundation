@@ -22,14 +22,16 @@ configure_system() {
   # Dynamic setup for systemd units and other configs
   /sbin/ldconfig -Xv
   glib-compile-schemas /usr/share/glib-2.0/schemas
+  dconf update || true
 
-  export DESKTOP_SERVICE="gnome-session@user.service"
+  export DESKTOP_SERVICE="gnome-session@user.service gnome-remote-desktop@user.service"
   # These variables should be available from the build environment
   envsubst '${GUACAMOLE_VERSION} ${DESKTOP_SERVICE} ${CONTAINER_REGISTRY}' < /etc/systemd/system/guacd.service.template > /etc/systemd/system/guacd.service
   envsubst '${GUACAMOLE_VERSION} ${DESKTOP_SERVICE} ${CONTAINER_REGISTRY}' < /etc/systemd/system/guacamole.service.template > /etc/systemd/system/guacamole.service
+  envsubst '${DESKTOP_SERVICE}' < /etc/systemd/system/multi-user.target.d/20-desktop.conf.template > /etc/systemd/system/multi-user.target.d/20-desktop.conf
 
   # Clean up templates and default files
-  rm -f /etc/systemd/system/guacd.service.template /etc/systemd/system/guacamole.service.template
+  rm -f /etc/systemd/system/guacd.service.template /etc/systemd/system/guacamole.service.template /etc/systemd/system/multi-user.target.d/20-desktop.conf.template
   chmod -x /usr/lib/ubuntu-release-upgrader/check-new-release-gtk
 }
 

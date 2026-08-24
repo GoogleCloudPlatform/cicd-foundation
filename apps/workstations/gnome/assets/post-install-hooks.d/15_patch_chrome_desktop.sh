@@ -25,7 +25,7 @@ if [[ -f "${DESKTOP_FILE}" ]]; then
 
   # Register as a high-priority favorite (but do not autostart)
   # Priority 20 ensures it appears before IDEs (30)
-  # shellcheck source=/dev/null
+  # shellcheck source=apps/workstations/remote-desktop/assets/google/scripts/build/desktop_integration.sh
   source /google/scripts/build/desktop_integration.sh
   desktop_register_app "${DESKTOP_FILE}" 20 false true
 

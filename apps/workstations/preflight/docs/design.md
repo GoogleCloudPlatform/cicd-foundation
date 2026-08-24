@@ -35,8 +35,8 @@ graph TD
     User((Developer)) -->|HTTPS| Nginx[Nginx Gatekeeper]
     Nginx -->|Serves| SPA[Vanilla TS Dashboard]
     SPA -->|Polls /healthz| Nginx
-    Nginx -->|Proxy| Guac[Apache Guacamole]
-    Guac -->|RDP/VNC/SSH| Backend[Workstation OS]
+    Nginx -->|Proxy| Backend[Dynamic Workspace Proxy]
+    Backend -->|CodeOSS / Guacamole| Workstation[Workstation OS]
 ```
 
 ### 2.1. Traffic Interception

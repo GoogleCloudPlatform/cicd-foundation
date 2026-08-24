@@ -139,10 +139,10 @@ This is a [broken root relative link](/broken.md).
 	for i, ext := range expected {
 		got := broken[i]
 		if got.Link != ext.link {
-			t.Errorf("Link[%d]: expected %q, got %q", i, ext.link, got.Link)
+			t.Errorf("Link[%d] = %q, want %q", i, got.Link, ext.link)
 		}
 		if got.LineNum != ext.lineNum {
-			t.Errorf("LineNum[%d] (link %s): expected %d, got %d", i, ext.link, ext.lineNum, got.LineNum)
+			t.Errorf("LineNum[%d] (link %s) = %d, want %d", i, ext.link, got.LineNum, ext.lineNum)
 		}
 	}
 }

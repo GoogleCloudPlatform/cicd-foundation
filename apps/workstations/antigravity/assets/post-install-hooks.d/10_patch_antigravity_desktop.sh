@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-# shellcheck source=/dev/null
+# shellcheck source=apps/workstations/base/assets/google/scripts/common.sh
 source /google/scripts/common.sh
 
 DESKTOP_FILE="/usr/share/applications/antigravity.desktop"
@@ -28,7 +28,7 @@ if [[ -f "${DESKTOP_FILE}" ]]; then
 
   # Register as a top-priority favorite and enable autostart
   # Priority 10 ensures it appears first in the dock
-  # shellcheck source=/dev/null
+  # shellcheck source=apps/workstations/remote-desktop/assets/google/scripts/build/desktop_integration.sh
   source /google/scripts/build/desktop_integration.sh
   desktop_register_app "${DESKTOP_FILE}" 10 true true
 

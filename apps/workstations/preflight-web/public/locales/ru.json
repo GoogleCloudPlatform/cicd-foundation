@@ -61,6 +61,8 @@
   "label_license": "Лицензия",
   "label_loading_manifest": "Загрузка манифеста программного обеспечения...",
   "label_loading_privacy": "Загрузка уведомления о конфиденциальности...",
+  "label_protocol_http": "Веб-приложение (HTTP)",
+  "label_protocol_https": "Защищенное веб-приложение (HTTPS)",
   "label_protocol_rdp": "Remote Desktop Protocol (RDP)",
   "label_protocol_ssh": "Secure Shell (SSH)",
   "label_protocol_vnc": "Virtual Network Computing (VNC)",

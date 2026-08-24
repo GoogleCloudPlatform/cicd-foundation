@@ -16,7 +16,8 @@
 
 set -euo pipefail
 
-source /google/scripts/fetch_assets.sh
+# shellcheck source=apps/workstations/base/assets/google/scripts/build/install_functions.sh
+source /google/scripts/build/install_functions.sh
 
 # Define variables
 # shellcheck disable=SC2269

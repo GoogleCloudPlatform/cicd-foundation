@@ -19,9 +19,11 @@
 *.swp
 *~
 .DS_Store
+.antigravity/
 .history/
 .idea/
 .vscode/
+antigravity
 # go/keep-sorted end
 
 # ==========================================
