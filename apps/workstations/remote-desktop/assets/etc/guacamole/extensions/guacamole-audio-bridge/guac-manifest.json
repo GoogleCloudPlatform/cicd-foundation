@@ -1,0 +1,8 @@
+{
+  "guacamoleVersion": "1.6.0",
+  "name": "WebAudio Streaming Bridge",
+  "namespace": "guac-audio-bridge",
+  "js": [
+    "audio-bridge.js"
+  ]
+}

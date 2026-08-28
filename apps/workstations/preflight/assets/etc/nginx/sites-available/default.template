@@ -122,6 +122,25 @@ server {
         proxy_set_header X-Forwarded-Port $server_port;
     }
 
+    # Low-Latency Bidirectional Audio & Microphone Streamer
+    location /audio/ {
+        proxy_pass http://127.0.0.1:8081/;
+        proxy_buffering off;
+        proxy_http_version 1.1;
+        proxy_read_timeout 7d;
+        proxy_send_timeout 7d;
+        proxy_socket_keepalive on;
+
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Host $http_host;
+
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Port $server_port;
+    }
+
     location @backend_proxy {
         proxy_intercept_errors ${PROXY_INTERCEPT_ON_OFF};
         ${ERROR_PAGE_DIRECTIVE}

@@ -13,13 +13,19 @@
 # limitations under the License.
 
 [Unit]
-# Pull in desktop-specific services for the GNOME environment.
-# Optional services will skip execution if their ConditionEnvironment is not met.
-Wants=guacamole.service \
-      guacd.service \
-      gnome-setup.service \
-      docker.service \
-      tigervnc.service \
-      chrome-remote-desktop-setup.service \
-      audio-streamer.service \
-      ${DESKTOP_SERVICE}
+Description=Workstation Low-Latency Audio Streamer
+After=systemd-user-sessions.service user@1000.service
+Wants=systemd-user-sessions.service
+
+[Service]
+Type=simple
+User=user
+PAMName=systemd-user
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=PULSE_SERVER=unix:/run/user/1000/pulse/native
+ExecStart=/usr/bin/node /google/scripts/audio_streamer.js
+Restart=always
+RestartSec=2s
+
+[Install]
+WantedBy=multi-user.target

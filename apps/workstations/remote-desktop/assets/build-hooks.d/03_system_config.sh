@@ -28,6 +28,18 @@ configure_system() {
   envsubst '${GUACAMOLE_VERSION} ${DESKTOP_SERVICE} ${CONTAINER_REGISTRY}' < /etc/systemd/system/guacamole.service.template > /etc/systemd/system/guacamole.service
   envsubst '${DESKTOP_SERVICE}' < /etc/systemd/system/multi-user.target.d/20-desktop.conf.template > /etc/systemd/system/multi-user.target.d/20-desktop.conf
 
+  # Package custom Guacamole extensions from source if present
+  if [[ -d "/etc/guacamole/extensions/guacamole-audio-bridge" ]]; then
+    export DEFAULT_ENABLE_AUDIO_INPUT="${DEFAULT_ENABLE_AUDIO_INPUT:-false}"
+    envsubst '${DEFAULT_ENABLE_AUDIO_INPUT}' < /etc/guacamole/extensions/guacamole-audio-bridge/audio-bridge.js > /etc/guacamole/extensions/guacamole-audio-bridge/audio-bridge.js.tmp
+    mv /etc/guacamole/extensions/guacamole-audio-bridge/audio-bridge.js.tmp /etc/guacamole/extensions/guacamole-audio-bridge/audio-bridge.js
+    (
+      cd /etc/guacamole/extensions/guacamole-audio-bridge
+      zip -q -r /etc/guacamole/extensions/guacamole-audio-bridge.jar .
+    )
+    rm -rf /etc/guacamole/extensions/guacamole-audio-bridge
+  fi
+
   # Clean up templates and default files
   rm -f /etc/systemd/system/guacd.service.template /etc/systemd/system/guacamole.service.template /etc/systemd/system/multi-user.target.d/20-desktop.conf.template
   chmod -x /usr/lib/ubuntu-release-upgrader/check-new-release-gtk
