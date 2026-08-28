@@ -19,6 +19,7 @@ After=network.target nginx.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
+TimeoutStartSec=600s
 ExecStart=/google/scripts/backend_readiness_probe.sh
 EnvironmentFile=-/etc/systemd/system.conf.d/10-env.conf
 

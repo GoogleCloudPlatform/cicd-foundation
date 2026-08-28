@@ -26,6 +26,7 @@ import {
   updateUIFromConfig,
 } from "./config_module";
 import { getProtocolFullName } from "./constants";
+import { checkHealth } from "./health_module";
 import { filterLanguages } from "./i18n_module";
 import { backToComponentDetails, renderLicenseList } from "./sbom_module";
 import { filterShortcuts, renderShortcutsList } from "./shortcuts_module";
@@ -276,6 +277,9 @@ export function renderConnectionTypeList(): void {
     btn.onclick = (): void => {
       updateState({ config: { ...state.config, connectionId: proto } });
       renderConnectionTypeList();
+      if (!state.isHealthy) {
+        void checkHealth();
+      }
     };
     container.appendChild(btn);
   });

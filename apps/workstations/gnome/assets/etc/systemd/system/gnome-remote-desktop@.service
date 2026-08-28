@@ -20,6 +20,7 @@ PartOf=gnome-session@%i.service
 
 [Service]
 Type=simple
+TimeoutStartSec=600s
 User=%i
 PAMName=systemd-user
 EnvironmentFile=-/etc/systemd/system.conf.d/10-env.conf
@@ -27,7 +28,6 @@ Environment=XDG_RUNTIME_DIR=/run/user/1000
 Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
 ExecStartPre=/google/scripts/configure_rdp.sh %i
 ExecStart=/usr/libexec/gnome-remote-desktop-daemon --headless
-ExecStartPost=/google/scripts/wait_for_rdp_ready.sh %i
 Restart=on-failure
 RestartSec=2s
 

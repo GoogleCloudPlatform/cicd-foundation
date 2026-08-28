@@ -28,6 +28,15 @@ map $http_upgrade $connection_upgrade {
     ''      close;
 }
 
+# Map incoming query protocol parameter to lowercase readiness flag file
+map $arg_protocol $readiness_proto {
+    default $arg_protocol;
+    ~*^ssh$ "ssh";
+    ~*^(http|https)$ "http";
+    ~*^rdp$ "rdp";
+    ~*^vnc$ "vnc";
+}
+
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -54,21 +63,21 @@ server {
         return 200 "OK";
     }
 
-    # Readiness probe: Is the backend dynamically initialized and ready to accept traffic?
-    location = /readyz {
+    # Readiness probe: Checks either overall backend readiness or a specific protocol (?protocol=SSH|RDP|HTTP|VNC)
+    location /readyz {
+        root /run/readiness;
         add_header Cache-Control $cache_control_no_cache always;
         add_header Content-Type text/plain always;
-
-        # Backend readiness is strictly governed by the backend-readiness.service
-        # which physically verifies socket bindings on 22, 3389, 4822, and 8080.
-        if (!-f /run/backend_ready) {
-            add_header App-Status "STARTING" always;
-            return 503 "Backend Starting";
-        }
-        
-        # When ready, intercept locally without blindly bouncing 404s off Tomcat
         add_header App-Status "READY" always;
-        return 200 "OK";
+
+        try_files /$readiness_proto /all @not_ready;
+    }
+
+    location @not_ready {
+        add_header Cache-Control $cache_control_no_cache always;
+        add_header Content-Type text/plain always;
+        add_header App-Status "STARTING" always;
+        return 503 "Starting";
     }
 
     # Config injection with server-side language detection

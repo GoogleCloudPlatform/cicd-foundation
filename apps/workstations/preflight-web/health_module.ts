@@ -49,7 +49,11 @@ export async function checkHealth(): Promise<void> {
   const startTime = performance.now();
   updateState({ pollCount: state.pollCount + 1 });
   try {
-    const response = await fetch("/readyz");
+    const selectedProtocol = (state.config.connectionId || "").trim().toLowerCase();
+    const readyzUrl = selectedProtocol
+      ? `/readyz?protocol=${encodeURIComponent(selectedProtocol)}`
+      : "/readyz";
+    const response = await fetch(readyzUrl);
     updateState({
       latencyMs: Math.round(performance.now() - startTime),
       lastStatus: response.headers.get(APP_STATUS_HEADER),

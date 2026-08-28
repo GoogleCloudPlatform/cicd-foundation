@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-# shellcheck source=apps/workstations/base/assets/google/scripts/build/install_functions.sh
+# shellcheck source=apps/workstations/common/assets/google/scripts/build/install_functions.sh
 source /google/scripts/build/install_functions.sh
 
 # Define variables

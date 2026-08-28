@@ -61,11 +61,25 @@ describe("Health Module", () => {
       createMockResponse({}, { "x-app-status": "READY" }),
     );
 
+    state.config = { ...state.config, connectionId: "SSH" };
     await checkHealth();
 
+    expect(global.fetch).toHaveBeenCalledWith("/readyz?protocol=ssh");
     expect(state.isHealthy).toBe(true);
     expect(state.pollCount).toBe(1);
     expect(state.lastStatus).toBe("READY");
+  });
+
+  test("checkHealth handles empty protocol by calling /readyz directly", async () => {
+    (global.fetch as vi.MockedFunction<typeof fetch>).mockResolvedValue(
+      createMockResponse({}, { "x-app-status": "READY" }),
+    );
+
+    state.config = { ...state.config, connectionId: "" };
+    await checkHealth();
+
+    expect(global.fetch).toHaveBeenCalledWith("/readyz");
+    expect(state.isHealthy).toBe(true);
   });
 
   test("handleHealthSuccess updates UI classes", () => {

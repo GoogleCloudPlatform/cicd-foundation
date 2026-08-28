@@ -16,7 +16,7 @@
 
 #
 # Source common utilities
-# shellcheck source=apps/workstations/base/assets/google/scripts/common.sh
+# shellcheck source=apps/workstations/common/assets/google/scripts/common.sh
 source /google/scripts/common.sh
 
 OUTPUT_DIR="${HOME}/aosp"

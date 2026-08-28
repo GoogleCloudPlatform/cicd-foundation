@@ -17,7 +17,7 @@
 set -euo pipefail
 
 # Sourced logic (from preflight or local)
-# shellcheck source=apps/workstations/base/assets/google/scripts/common.sh
+# shellcheck source=apps/workstations/common/assets/google/scripts/common.sh
 source "/google/scripts/common.sh"
 
 install_aosp_tooling() {

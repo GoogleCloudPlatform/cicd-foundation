@@ -178,7 +178,10 @@ repos:
             fi
             if [ ${#targets[@]} -gt 0 ]; then
               unique_targets=($(echo "${targets[@]}" | tr " " "\n" | sort -u))
-              exec bats "${unique_targets[@]}"
+              for t in "${unique_targets[@]}"; do
+                bats "$t"
+              done
+              exit 0
             fi
             for d in skills/*/tests; do
               [ -d "$d" ] || continue
@@ -190,6 +193,7 @@ repos:
         language: system
         pass_filenames: true
         files: ^skills/
+        require_serial: true
 
       - id: pytest-skills
         name: Skills Unit Tests (Pytest)

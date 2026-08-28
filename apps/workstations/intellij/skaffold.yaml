@@ -17,7 +17,7 @@ kind: Config
 metadata:
   name: intellij
 requires:
-  - path: ../base/skaffold.yaml
+  - path: ../common/skaffold.yaml
 build:
   artifacts:
     - image: intellij
@@ -25,5 +25,5 @@ build:
       docker:
         network: cloudbuild
       requires:
-        - image: base
+        - image: common
           alias: BASE_IMAGE

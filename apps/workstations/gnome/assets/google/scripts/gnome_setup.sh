@@ -22,7 +22,7 @@ set -euo pipefail
 EXTENSION_READY_TIMEOUT=15
 
 # Source common utilities
-# shellcheck source=apps/workstations/base/assets/google/scripts/common.sh
+# shellcheck source=apps/workstations/common/assets/google/scripts/common.sh
 source /google/scripts/common.sh
 
 # Waits for a GNOME extension to become available in the shell.

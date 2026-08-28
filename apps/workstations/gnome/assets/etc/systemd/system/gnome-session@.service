@@ -14,12 +14,14 @@
 
 [Unit]
 Description=GNOME Session for %i
+Requires=user@1000.service
 After=systemd-user-sessions.service user@1000.service
 Wants=systemd-user-sessions.service gnome-remote-desktop@%i.service
 
 [Service]
 Type=notify
 NotifyAccess=all
+TimeoutStartSec=600s
 User=%i
 PAMName=systemd-user
 Environment=XDG_SESSION_TYPE=wayland

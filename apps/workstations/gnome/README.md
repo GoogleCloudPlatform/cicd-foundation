@@ -40,7 +40,7 @@ The core graphical shell providing Mutter, Wayland, and professional workspace e
 
 The foundational parent to GNOME, providing the Apache Guacamole gateway and Remote Desktop daemon integration.
 
-### 3. Base OS Layer (`apps/workstations/base/`)
+### 3. Common OS Layer (`apps/workstations/common/`)
 
 The underlying orchestration layer compiling developer tooling (Antigravity, ADK, Chezmoi) into the image via dynamic hooks.
 

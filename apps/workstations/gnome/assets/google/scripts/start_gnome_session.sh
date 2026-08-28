@@ -17,7 +17,7 @@
 set -euo pipefail
 
 # Source common utilities
-# shellcheck source=apps/workstations/base/assets/google/scripts/common.sh
+# shellcheck source=apps/workstations/common/assets/google/scripts/common.sh
 source /google/scripts/common.sh
 
 # Sets up the session environment variables.
@@ -37,11 +37,17 @@ setup_environment() {
   # Wait for the user D-Bus session socket to become active to avoid race conditions
   local dbus_socket="/run/user/${target_uid}/bus"
   local count=0
-  until [[ -S "${dbus_socket}" ]] || (( count >= 30 )); do
+  until [[ -S "${dbus_socket}" ]] || (( count >= 10 )); do
     log "Waiting for user D-Bus bus socket: ${dbus_socket}..."
     sleep 0.5
     (( count += 1 ))
   done
+
+  if [[ ! -S "${dbus_socket}" ]]; then
+    log "User D-Bus socket not found after timeout. Launching managed session bus daemon..."
+    dbus-daemon --session --address="unix:path=${dbus_socket}" --nofork --nopidfile &
+    sleep 0.5
+  fi
 
   # GNOME Headless Wayland defaults
   export WAYLAND_DISPLAY=wayland-0
@@ -93,10 +99,10 @@ main() {
   /usr/libexec/gnome-session-binary --session=ubuntu &
   local session_pid=$!
 
-  # Wait for shell readiness via D-Bus
-  until gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell --method org.gnome.Shell.Eval "Main.sessionMode" >/dev/null 2>&1; do
+  # Wait for shell readiness via D-Bus Properties
+  until gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell --method org.freedesktop.DBus.Properties.Get org.gnome.Shell ShellVersion >/dev/null 2>&1; do
     log "Waiting for GNOME Shell..."
-    sleep 2
+    sleep 1
     if ! kill -0 "${session_pid}" 2>/dev/null; then
       log "GNOME Session failed to start."
       exit 1

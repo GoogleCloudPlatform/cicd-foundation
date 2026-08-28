@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Copyright 2025-2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This script handles final dynamic service enablement and starts systemd.
+
+set -euo pipefail
+
+# Source common utilities
+# shellcheck source=apps/workstations/common/assets/google/scripts/common.sh
+source /google/scripts/common.sh
+
+# Propagates required environment variables to the systemd manager.
+# This ensures ConditionEnvironment= checks work correctly for PID 1.
+propagate_env() {
+  local env_conf="/etc/systemd/system.conf.d/10-env.conf"
+  mkdir -p "$(dirname "${env_conf}")"
+
+  log "Propagating environment variables to systemd manager..."
+  {
+    echo "[Manager]"
+    echo -n "DefaultEnvironment="
+    # Capture relevant variables from the current environment
+    env | grep -E '^(ENABLE_|DEFAULT_|BACKEND_|GCP_|PORT|WORKSTATION_|RDP_|SSH_|CONTAINER_|SUPPORTED_)' | xargs || true
+  } > "${env_conf}"
+}
+
+main() {
+  # Ensure SSH runtime environment and host keys exist
+  rm -f /etc/ssh/sshd_not_to_be_run
+  mkdir -p /run/sshd
+  chmod 0755 /run/sshd
+  if command -v ssh-keygen >/dev/null 2>&1; then
+    ssh-keygen -A 2>/dev/null || true
+  fi
+
+  run_hooks "/etc/workstation-startup.d"
+  propagate_env
+
+  # Start systemd with the explicitly defined machine id (inherited from entrypoint)
+  log_event SYSTEMD_STARTING "Handing over execution to systemd init"
+  exec /sbin/init --system --unit=multi-user.target --machine-id "${MACHINE_ID:-}"
+}
+
+main "$@"

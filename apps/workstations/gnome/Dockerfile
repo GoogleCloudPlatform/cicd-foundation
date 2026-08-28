@@ -16,7 +16,6 @@
 
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
-ENV BACKEND_WAIT_SERVICES="gnome-session@\$WORKSTATION_USER.service gnome-remote-desktop@\$WORKSTATION_USER.service"
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DPKG_OPTS="-o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
