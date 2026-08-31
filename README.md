@@ -35,19 +35,26 @@ The repository is built to meet strict corporate compliance and security require
 ## 2. Repository Map
 
 ```
-├── apps/                          <-- Application Templates & Custom Workstation Layers
+├── apps/                          <-- Application Templates, DevContainers & Workstation Layers
+│   ├── devcontainers/             <-- Standalone DevContainers for developer use
+│   │   ├── gvisor-antigravity/    <-- gVisor + Antigravity devcontainer
+│   │   ├── intellij/              <-- IntelliJ Ultimate devcontainer (with Antigravity CLI & SDK)
+│   │   └── node-demo/             <-- Node.js DevContainer demo application
+│   ├── workstations/              <-- Custom Google Cloud Workstation container layers
+│   │   ├── android-studio-for-... <-- Android Studio for Platform (ASfP) workstation profile
+│   │   ├── codeoss/               <-- Code OSS base workstation layer
+│   │   ├── codeoss-devcontainer-intellij/ <-- Code OSS workstation with embedded IntelliJ devcontainer
+│   │   ├── codeoss-devcontainer-gvisor-terraform/ <-- Code OSS workstation with gVisor and Terraform
+│   │   ├── common/                <-- Central foundation workstation scripts & utilities
+│   │   ├── gnome/                 <-- Secure, graphical headless RDP/Wayland GNOME workstation
+│   │   ├── preflight/             <-- Preflight gateway daemon (controls desktop traffic)
+│   │   ├── preflight-web/         <-- Preflight frontend status dashboard (Nginx & TypeScript)
+│   │   └── remote-desktop/        <-- Apache Guacamole clientless browser remote desktop
+│   ├── build-runner/              <-- Custom CI runner image supporting devcontainer.json builds
 │   ├── go-hello-world/            <-- Go demo application template
 │   ├── java-hello-world/          <-- Java demo application template
-│   ├── devcontainers/
-│   │   └── node-demo/             <-- Node.js DevContainer demo application template
 │   ├── node-hello-world/          <-- Node.js demo application template
-│   ├── python-hello-world/        <-- Python demo application template
-│   ├── build-runner/              <-- Custom CI runner image supporting devcontainer.json builds
-│   └── workstations/              <-- Custom Workstation container layers
-│       ├── android-studio-for-... <-- Android Studio for Platform (ASfP) workstation profile
-│       ├── gnome/                 <-- Secure, graphical headless RDP/Wayland GNOME workstation
-│       ├── preflight/             <-- Preflight gateway daemon (controls desktop traffic)
-│       └── preflight-web/         <-- Preflight frontend status dashboard (Nginx & TypeScript)
+│   └── python-hello-world/        <-- Python demo application template
 │
 ├── docs/                          <-- System documentation and user guides
 │

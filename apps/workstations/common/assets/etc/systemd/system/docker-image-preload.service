@@ -1,0 +1,15 @@
+[Unit]
+Description=Preload Cached Container Images into Docker
+Documentation=https://cloud.google.com/workstations/docs
+After=docker.service
+Requires=docker.service
+ConditionDirectoryNotEmpty=/opt/images
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/google/scripts/load_cached_images.sh
+TimeoutStartSec=180
+
+[Install]
+WantedBy=multi-user.target

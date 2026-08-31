@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,10 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[Desktop Entry]
-Name=Cloud Workstation Setup
-Comment=Initializes the developer workspace
-Exec=bash -c 'if [ -f /google/etc/setup-workstation.yaml ] && /google/bin/setup-workstation --needs-setup 2>/dev/null; then gnome-terminal --wait -- bash -c "/google/bin/setup-workstation"; fi'
-Terminal=false
-Type=Application
-X-GNOME-Autostart-enabled=true
+set -euo pipefail
+
+# Remove legacy workstation startup scripts inherited from predefined base image
+# to prevent execution before systemd and user setup initialization, and prevent
+# port 80 collisions with Nginx (preflight dashboard) and port 22 conflicts with systemd sshd.
+rm -f /etc/workstation-startup.d/110_start-intellij-ultimate.sh \
+      /etc/workstation-startup.d/130_jetbrains-ready-server.sh \
+      /etc/workstation-startup.d/020_start-sshd.sh

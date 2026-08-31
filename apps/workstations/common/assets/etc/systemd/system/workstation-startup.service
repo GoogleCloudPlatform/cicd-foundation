@@ -21,9 +21,10 @@ After=network-online.target local-fs.target nginx.socket
 # Crucially, ensure this finishes before Docker, our user setup, and user logins are allowed
 Before=docker.service systemd-user-sessions.service
 
+# Ensure it only runs if the script exists in the container
+ConditionPathIsExecutable=/usr/bin/workstation-startup
+
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-# Ensure it only runs if the script exists in the container
-ConditionPathIsExecutable=/usr/bin/workstation-startup
 ExecStart=/usr/bin/workstation-startup

@@ -90,7 +90,7 @@ cws_custom_images = {
       branch = "main"
     }
     build = {
-      skaffold_path   = "apps/devcontainers/codeoss-devcontainer-gvisor-terraform"
+      skaffold_path   = "apps/workstations/codeoss-devcontainer-gvisor-terraform"
       timeout_seconds = 7200
     }
     workstation_config = {
@@ -246,7 +246,7 @@ android_targets = {
   #"arm64-eng" : "aosp_cf_x86_64_phone-trunk_staging-eng",
 }
 
-# Additional applications built and triggered by the CI/CD pipeline (e.g. DevContainers)
+# Additional applications or DevContainers built and triggered by the CI/CD pipeline
 # apps = {
 #   "devcontainer-node-demo" : {
 #     build = {

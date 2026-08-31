@@ -22,7 +22,9 @@ set -euo pipefail
 # Workaround for Docker 25+ file descriptor limit issues.
 fix_ulimits() {
   # https://github.com/docker/cli/issues/4807
-  sed -i 's/ulimit -Hn 524288/# ulimit -Hn 524288/g' /etc/init.d/docker
+  if [[ -f /etc/init.d/docker ]]; then
+    sed -i 's/ulimit -Hn 524288/# ulimit -Hn 524288/g' /etc/init.d/docker
+  fi
 }
 
 # Performs essential mounts and system configuration for DinD.
@@ -33,7 +35,9 @@ prepare_dind_env() {
   fi
 
   # 2. iptables legacy for Docker compatibility
-  update-alternatives --set iptables /usr/sbin/iptables-legacy
+  if command -v update-alternatives >/dev/null 2>&1 && [[ -x /usr/sbin/iptables-legacy ]]; then
+    update-alternatives --set iptables /usr/sbin/iptables-legacy 2>/dev/null || true
+  fi
 
   # 3. Ensure loopback devices (min 4)
   local i

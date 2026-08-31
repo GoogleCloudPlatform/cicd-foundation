@@ -147,6 +147,14 @@ main() {
     fi
   done
 
+  for ssh_sock in /lib/systemd/system/ssh.socket /usr/lib/systemd/system/ssh.socket /etc/systemd/system/ssh.socket; do
+    if [[ -f "${ssh_sock}" ]]; then
+      mkdir -p /etc/systemd/system/sockets.target.wants
+      ln -sf "${ssh_sock}" /etc/systemd/system/sockets.target.wants/ssh.socket
+      break
+    fi
+  done
+
   # Auto-enable any locally injected systemd overlays from assets/
   for svc_file in /etc/systemd/system/*.service; do
     if [[ -f "${svc_file}" ]]; then

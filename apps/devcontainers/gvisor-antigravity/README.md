@@ -22,14 +22,15 @@ This guide explains how to start the `gvisor-antigravity` DevContainer using gVi
 
 To support this setup, you first need a Cloud Workstations (CWS) environment equipped with Development Containers and gVisor.
 
-The [`codeoss-devcontainer-gvisor-terraform`](../codeoss-devcontainer-gvisor-terraform) setup in `apps/devcontainers` can be utilized to build this custom CWS image.
+The [`codeoss-devcontainer-gvisor-terraform`](../../workstations/codeoss-devcontainer-gvisor-terraform) setup in `apps/workstations` can be utilized to build this custom CWS image.
 
 Once you have started a CWS instance running the custom image built by the `cicd-foundation`, you can verify the runtime environment. The gVisor binaries will be available at `/usr/local/bin/gvisor-bin/`, and you can confirm `runsc` is registered by checking Docker's configuration:
 
 ```bash
 docker info | grep -i runtime
 ```
-*(This command should list `runsc` among the available runtimes).*
+
+_(This command should list `runsc` among the available runtimes)._
 
 ## Project Configuration
 
@@ -41,9 +42,7 @@ Example configuration:
 {
   "name": "devcontainer-gvisor-antigravity",
   "image": "$REGION-docker.pkg.dev/$PROJECT_ID/cicd-foundation/devcontainer-gvisor-antigravity:latest",
-  "runArgs": [
-    "--runtime=runsc"
-  ],
+  "runArgs": ["--runtime=runsc"],
   "containerEnv": {
     "AGY_ADC_AUTH": "true"
   },
@@ -52,7 +51,8 @@ Example configuration:
   ]
 }
 ```
-*(Note: Replace `$REGION` and `$PROJECT_ID` with your actual Google Cloud region and project ID).*
+
+_(Note: Replace `$REGION` and `$PROJECT_ID` with your actual Google Cloud region and project ID)._
 
 ## Authentication
 
@@ -66,6 +66,7 @@ For detailed authentication instructions, see the official documentation:
 ## Execution
 
 Before bringing up the DevContainer, ensure that the local directory for persisting authentication state exists:
+
 ```bash
 mkdir -p ~/.config/antigravity
 ```
@@ -73,11 +74,13 @@ mkdir -p ~/.config/antigravity
 Once your CWS instance is running and the `.devcontainer.json` is configured, you can bring up the DevContainer and execute commands.
 
 Bring up the DevContainer:
+
 ```bash
 devcontainer up
 ```
 
 Execute an Antigravity (`agy`) command inside the gVisor-secured container:
+
 ```bash
 devcontainer exec agy -p "Create a Hello World example in a fun programming language."
 ```

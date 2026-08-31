@@ -1,0 +1,23 @@
+{
+  "name": "IntelliJ Ultimate Devcontainer",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "forwardPorts": [22],
+  "appPort": ["22:22"],
+  "portsAttributes": {
+    "22": {
+      "label": "SSH Server (IntelliJ Remote Development)",
+      "onAutoForward": "notify"
+    }
+  },
+  "remoteUser": "user",
+  "overrideCommand": false,
+  "customizations": {
+    "vscode": {
+      "settings": {},
+      "extensions": []
+    }
+  }
+}

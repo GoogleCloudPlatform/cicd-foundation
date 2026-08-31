@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,10 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[Desktop Entry]
-Name=Cloud Workstation Setup
-Comment=Initializes the developer workspace
-Exec=bash -c 'if [ -f /google/etc/setup-workstation.yaml ] && /google/bin/setup-workstation --needs-setup 2>/dev/null; then gnome-terminal --wait -- bash -c "/google/bin/setup-workstation"; fi'
-Terminal=false
-Type=Application
-X-GNOME-Autostart-enabled=true
+set -euo pipefail
+
+# Register IntelliJ-Ultimate backend location for JetBrains Gateway
+if [[ -x /opt/ideaIU/bin/remote-dev-server ]]; then
+  runuser -l "${WORKSTATION_USER:-user}" -c "/opt/ideaIU/bin/remote-dev-server registerBackendLocationForGateway" || true
+fi

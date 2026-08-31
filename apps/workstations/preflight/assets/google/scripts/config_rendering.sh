@@ -68,7 +68,11 @@ render_templates() {
   local supported_protocols
   export VNC_XML_BLOCK=""
 
-  if [[ "${BACKEND_PROXY_PATH}" == "/" || "${DEFAULT_CLIENT_PROTOCOL:-}" =~ ^(HTTP|HTTPS)$ || "${DEFAULT_PROTOCOL:-}" =~ ^(HTTP|HTTPS)$ ]]; then
+  if [[ "${DEFAULT_CLIENT_PROTOCOL:-}" == "SSH" || "${DEFAULT_PROTOCOL:-}" == "SSH" ]]; then
+    supported_protocols="${SUPPORTED_PROTOCOLS:-SSH}"
+    export DEFAULT_CLIENT_PROTOCOL="SSH"
+    export DEFAULT_REDIRECT_URL="${DEFAULT_REDIRECT_PATH:-/startup.html}"
+  elif [[ "${BACKEND_PROXY_PATH}" == "/" || "${DEFAULT_CLIENT_PROTOCOL:-}" =~ ^(HTTP|HTTPS)$ || "${DEFAULT_PROTOCOL:-}" =~ ^(HTTP|HTTPS)$ ]]; then
     supported_protocols="${SUPPORTED_PROTOCOLS:-HTTP,SSH}"
     export DEFAULT_CLIENT_PROTOCOL="${DEFAULT_CLIENT_PROTOCOL:-${DEFAULT_PROTOCOL:-HTTP}}"
     export DEFAULT_REDIRECT_URL="${DEFAULT_REDIRECT_PATH:-/}"
@@ -109,11 +113,11 @@ EOV
     export ERROR_PAGE_DIRECTIVE=""
   fi
 
-  if [[ "${BACKEND_PROXY_PATH}" == "/" ]]; then
+  if [[ "${BACKEND_PROXY_PATH}" == "/" && "${DEFAULT_CLIENT_PROTOCOL}" != "SSH" ]]; then
     # If the app claims the root path explicitly, prevent intercept HTTP 302 loops
     export ROOT_REDIRECT_BLOCK=""
   else
-    # Otherwise, proxy is nested. Setup HTTP 302 bounce to Dashboard or UI
+    # Otherwise, proxy is nested or SSH-only. Setup HTTP 302 bounce to Dashboard or UI
     export ROOT_REDIRECT_BLOCK="location = / { return 302 ${ROOT_REDIRECT}; }"
   fi
 

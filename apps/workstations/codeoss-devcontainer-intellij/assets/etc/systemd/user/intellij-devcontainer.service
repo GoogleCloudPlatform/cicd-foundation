@@ -1,0 +1,13 @@
+[Unit]
+Description=IntelliJ Devcontainer User Service
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h
+ExecStart=/google/scripts/start_intellij_devcontainer.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

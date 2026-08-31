@@ -14,8 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if [[ $- == *i* ]]; then
-  if [[ -f "/google/etc/setup-workstation.yaml" ]] && /google/bin/setup-workstation --needs-setup 2>/dev/null; then
-    /google/bin/setup-workstation
+set -euo pipefail
+
+IMAGES_DIR="${1:-/opt/images}"
+
+main() {
+  if [[ -d "${IMAGES_DIR}" ]]; then
+    for tarball in "${IMAGES_DIR}"/*.tar; do
+      if [[ -f "${tarball}" ]]; then
+        echo "Loading cached container image: ${tarball}..."
+        docker load -i "${tarball}" || echo "Warning: Failed to load ${tarball}"
+      fi
+    done
+    # Ensure local devcontainer-intellij:latest tag is present
+    docker tag us-central1-docker.pkg.dev/cloud-workstations-images/predefined/intellij-ultimate:latest devcontainer-intellij:latest 2>/dev/null || true
   fi
-fi
+
+}
+
+main "$@"

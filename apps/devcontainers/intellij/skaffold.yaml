@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[Desktop Entry]
-Name=Cloud Workstation Setup
-Comment=Initializes the developer workspace
-Exec=bash -c 'if [ -f /google/etc/setup-workstation.yaml ] && /google/bin/setup-workstation --needs-setup 2>/dev/null; then gnome-terminal --wait -- bash -c "/google/bin/setup-workstation"; fi'
-Terminal=false
-Type=Application
-X-GNOME-Autostart-enabled=true
+apiVersion: skaffold/v3
+kind: Config
+metadata:
+  name: devcontainer-intellij
+build:
+  artifacts:
+    - image: devcontainer-intellij
+      custom:
+        buildCommand: build_devcontainer $IMAGE

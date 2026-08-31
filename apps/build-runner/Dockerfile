@@ -55,7 +55,7 @@ FROM gcr.io/k8s-skaffold/skaffold:${SKAFFOLD_VERSION}
 USER root
 
 ARG DEVCONTAINER_CLI_VERSION=0.88.0
-ARG EXTRA_PKGS="curl nodejs npm python3 python3-pip"
+ARG EXTRA_PKGS="curl jq nodejs npm python3 python3-pip"
 
 # Map to ENVs for the installer and runtime
 ENV EXTRA_PKGS=${EXTRA_PKGS}

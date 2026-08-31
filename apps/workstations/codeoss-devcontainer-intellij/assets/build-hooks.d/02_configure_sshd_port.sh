@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,10 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[Desktop Entry]
-Name=Cloud Workstation Setup
-Comment=Initializes the developer workspace
-Exec=bash -c 'if [ -f /google/etc/setup-workstation.yaml ] && /google/bin/setup-workstation --needs-setup 2>/dev/null; then gnome-terminal --wait -- bash -c "/google/bin/setup-workstation"; fi'
-Terminal=false
-Type=Application
-X-GNOME-Autostart-enabled=true
+set -euo pipefail
+
+configure_sshd_port() {
+  local config_file="/etc/ssh/sshd_config"
+  if [[ -f "${config_file}" ]]; then
+    if ! grep -q "^Port 2222" "${config_file}"; then
+      echo "Configuring host sshd to listen on port 2222..."
+      echo -e "\n# Move host SSH to 2222 to free port 22 for devcontainer\nPort 2222" >> "${config_file}"
+    fi
+  fi
+}
+
+main() {
+  configure_sshd_port
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  main "$@"
+fi

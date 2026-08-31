@@ -30,7 +30,7 @@ download_and_validate() {
   local output_file="$3"
 
   echo "Downloading from ${url}..."
-  curl ${CURL_OPTS:-"-fsSL --retry 3"} "${url}" -o "${output_file}"
+  curl ${CURL_OPTS:--fsSL --retry 3} "${url}" -o "${output_file}"
   
   if [[ "${sha256}" != "NOCHECK" ]]; then
     echo "${sha256}  ${output_file}" | sha256sum -c -
