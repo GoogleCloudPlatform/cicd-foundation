@@ -191,3 +191,37 @@ log_event() {
   envsubst '$TS $SEV $EVT $MSG $SVC $META' < "${template}" | tr -d '\n' | sed 's/  */ /g'
   echo ""
 }
+
+# Waits for the Docker daemon socket to be responsive.
+# Arguments:
+#   $1: Timeout in seconds (default: 60)
+wait_for_docker() {
+  local timeout="${1:-60}"
+  local count=0
+  log "Waiting for Docker daemon to become responsive..."
+  while (( count < timeout )); do
+    if docker info >/dev/null 2>&1; then
+      log "Docker daemon is ready."
+      return 0
+    fi
+    sleep 1
+    (( count += 1 ))
+  done
+  log "Warning: Docker daemon did not respond within ${timeout}s."
+  return 1
+}
+
+# Loads cached container images from tarballs into the Docker daemon.
+# Arguments:
+#   $1: Path to directory containing image tarballs (default: /opt/images)
+load_cached_images() {
+  local images_dir="${1:-/opt/images}"
+  if [[ -d "${images_dir}" ]]; then
+    for tarball in "${images_dir}"/*.tar; do
+      if [[ -f "${tarball}" ]]; then
+        log "Loading cached container image: ${tarball}..."
+        docker load -i "${tarball}" || log "Warning: Failed to load ${tarball}"
+      fi
+    done
+  fi
+}

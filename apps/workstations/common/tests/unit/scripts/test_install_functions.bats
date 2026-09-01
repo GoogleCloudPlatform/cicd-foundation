@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# shellcheck disable=SC2329
+# shellcheck disable=SC2032,SC2329
 
 load ../test_helper.bash
 
@@ -77,4 +77,21 @@ setup() {
   [[ "$output" == *"MOCK_MV: file /usr/local/bin/my-file"* ]]
   [[ "$output" == *"MOCK_LN: -sf my-file /usr/local/bin/my-alias"* ]]
   [[ "$output" == *"MOCK_RM: -f ${BATS_TEST_TMPDIR}/file.tar.gz"* ]]
+}
+
+@test "fetch_image invokes crane pull into target file" {
+  crane() {
+    echo "MOCK_CRANE: $*"
+    return 0
+  }
+  timeout() {
+    shift # drop timeout duration
+    "$@"
+  }
+  export -f crane timeout
+
+  run fetch_image "mcr.microsoft.com/devcontainers/java:latest" "${BATS_TEST_TMPDIR}/test.tar"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Pulling mcr.microsoft.com/devcontainers/java:latest to ${BATS_TEST_TMPDIR}/test.tar..."* ]]
+  [[ "$output" == *"MOCK_CRANE: pull mcr.microsoft.com/devcontainers/java:latest ${BATS_TEST_TMPDIR}/test.tar"* ]]
 }

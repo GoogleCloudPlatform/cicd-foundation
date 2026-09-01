@@ -97,8 +97,9 @@ variable "apps" {
       # The timeout for the build in seconds.
       timeout_seconds = optional(number)
       # The machine type to use for the build.
-      machine_type = optional(string)
-      env          = optional(map(string), {})
+      machine_type   = optional(string)
+      env            = optional(map(string), {})
+      included_files = optional(list(string), [])
       })
     )
     runtime = optional(string),

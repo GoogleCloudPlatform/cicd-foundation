@@ -160,12 +160,13 @@ locals {
     }
   }
 
-  # Files to include in the Cloud Build context for each application,
-  # typically based on the skaffold_path.
+  # Files to include in the Cloud Build context for each application.
+  # Automatically resolves recursive transitive skaffold.yaml dependencies and combines with explicit overrides.
   ci_included_files = {
-    for app_name, app_config in var.apps : app_name => [
-      "${local.app_skaffold_paths[app_name]}/**",
-    ]
+    for app_name, app_config in var.apps : app_name => distinct(compact(concat(
+      split(",", data.external.skaffold_deps[app_name].result.included_files),
+      try(app_config.build.included_files, [])
+    )))
   }
 
   ci_runner_image = "${local.artifact_registry_repository_uri}/build-runner:latest"
@@ -216,6 +217,16 @@ locals {
     )
   }
   # go/keep-sorted end
+}
+
+# Automatically resolve transitive skaffold.yaml dependencies recursively
+data "external" "skaffold_deps" {
+  for_each = var.apps
+  program  = ["python3", "${path.module}/scripts/resolve_skaffold_deps.py"]
+  query = {
+    skaffold_path = local.app_skaffold_paths[each.key]
+    repo_root     = abspath("${path.module}/../../..")
+  }
 }
 
 # cf. https://cloud.google.com/build/docs/securing-builds/configure-user-specified-service-accounts

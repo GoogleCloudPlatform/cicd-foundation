@@ -58,7 +58,7 @@ specific user.
 
 ```terraform
 module "cicd_workstations" {
-  source = "github.com/GoogleCloudPlatform/cicd-foundation//infra/modules/cicd_workstations?ref=v6.0.0"
+  source = "github.com/GoogleCloudPlatform/cicd-foundation//infra/modules/cicd_workstations?ref=v8.0.0"
 
   project_id = "your-gcp-project-id"
 

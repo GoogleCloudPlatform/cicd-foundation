@@ -286,6 +286,7 @@ variable "cws_custom_images" {
       timeout_seconds = optional(number)
       machine_type    = optional(string)
       env             = optional(map(string), {})
+      included_files  = optional(list(string), [])
       })
     )
     workstation_config = optional(object({
@@ -472,6 +473,7 @@ variable "apps" {
       timeout_seconds = optional(number)
       machine_type    = optional(string)
       env             = optional(map(string), {})
+      included_files  = optional(list(string), [])
     }))
     runtime = optional(string)
     stages  = optional(map(map(string)))

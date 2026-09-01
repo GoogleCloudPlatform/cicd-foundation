@@ -140,7 +140,7 @@ locals {
     "tf_module_github_org"  = "GoogleCloudPlatform"
     "tf_module_github_repo" = "cicd-foundation"
     "tf_module_name"        = "cicd_pipelines"
-    "tf_module_version"     = "v6-0-0"
+    "tf_module_version"     = "v8-0-0"
   }
 
   kms_project_id = data.google_project.project.project_id
