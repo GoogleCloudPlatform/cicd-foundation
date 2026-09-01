@@ -15,53 +15,64 @@
  * limitations under the License.
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { autoScale } from './scaling.js';
-import { INITIAL_FONT_SIZE } from './constants.js';
+import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+import { autoScale } from "./scaling.js";
 
-vi.mock('marked', () => ({
+vi.mock("marked", () => ({
   marked: {
-    parse: vi.fn((str) => `<p>${str}</p>`)
-  }
+    parse: vi.fn((str) => `<p>${str}</p>`),
+  },
 }));
 
-describe('scaling', () => {
+describe("scaling", () => {
   let target;
   let measureContainer;
 
   beforeEach(() => {
-    target = document.createElement('div');
-    measureContainer = document.createElement('div');
+    target = document.createElement("div");
+    measureContainer = document.createElement("div");
     document.body.appendChild(target);
     document.body.appendChild(measureContainer);
 
     // Mock window innerWidth and innerHeight
-    vi.stubGlobal('innerWidth', 1000);
-    vi.stubGlobal('innerHeight', 800);
+    vi.stubGlobal("innerWidth", 1000);
+    vi.stubGlobal("innerHeight", 800);
 
     // Mock scrollWidth and scrollHeight for measureContainer
-    Object.defineProperty(measureContainer, 'scrollWidth', { configurable: true, value: 400 });
-    Object.defineProperty(measureContainer, 'scrollHeight', { configurable: true, value: 300 });
+    Object.defineProperty(measureContainer, "scrollWidth", {
+      configurable: true,
+      value: 400,
+    });
+    Object.defineProperty(measureContainer, "scrollHeight", {
+      configurable: true,
+      value: 300,
+    });
   });
 
   afterEach(() => {
-    document.body.innerHTML = '';
+    document.body.innerHTML = "";
     vi.unstubAllGlobals();
   });
 
-  it('bails out early if missing arguments', () => {
-    const setPropertySpy = vi.spyOn(document.documentElement.style, 'setProperty');
+  it("bails out early if missing arguments", () => {
+    const setPropertySpy = vi.spyOn(
+      document.documentElement.style,
+      "setProperty",
+    );
     autoScale([], target, measureContainer);
     expect(setPropertySpy).not.toHaveBeenCalled();
 
-    autoScale(['slide'], target, null);
+    autoScale(["slide"], target, null);
     expect(setPropertySpy).not.toHaveBeenCalled();
   });
 
-  it('calculates scale and sets --base-font-size on document.documentElement', () => {
-    const setPropertySpy = vi.spyOn(document.documentElement.style, 'setProperty');
+  it("calculates scale and sets --base-font-size on document.documentElement", () => {
+    const setPropertySpy = vi.spyOn(
+      document.documentElement.style,
+      "setProperty",
+    );
 
-    autoScale(['# slide 1', '# slide 2'], target, measureContainer);
+    autoScale(["# slide 1", "# slide 2"], target, measureContainer);
 
     // maxW = 400 + 60 = 460
     // maxH = 300 + 100 = 400
@@ -71,14 +82,17 @@ describe('scaling', () => {
     // scale = Math.min(2.17, 2.0) * 0.95 = 2.0 * 0.95 = 1.9
     // finalFontSize = Math.max(10, Math.floor(INITIAL_FONT_SIZE * 1.9)) = Math.max(10, Math.floor(20 * 1.9)) = Math.max(10, 38) = 38
 
-    expect(setPropertySpy).toHaveBeenCalledWith('--base-font-size', '20px');
-    expect(setPropertySpy).toHaveBeenCalledWith('--base-font-size', '38px');
+    expect(setPropertySpy).toHaveBeenCalledWith("--base-font-size", "20px");
+    expect(setPropertySpy).toHaveBeenCalledWith("--base-font-size", "38px");
   });
 
-  it('uses custom viewport dimensions if provided', () => {
-    const setPropertySpy = vi.spyOn(document.documentElement.style, 'setProperty');
+  it("uses custom viewport dimensions if provided", () => {
+    const setPropertySpy = vi.spyOn(
+      document.documentElement.style,
+      "setProperty",
+    );
 
-    autoScale(['# slide 1'], target, measureContainer, 500, 400);
+    autoScale(["# slide 1"], target, measureContainer, 500, 400);
 
     // maxW = 460, maxH = 400
     // viewportW = 500, viewportH = 400
@@ -87,6 +101,6 @@ describe('scaling', () => {
     // scale = Math.min(1.086, 1.0) * 0.95 = 0.95
     // finalFontSize = Math.floor(20 * 0.95) = 19
 
-    expect(setPropertySpy).toHaveBeenCalledWith('--base-font-size', '19px');
+    expect(setPropertySpy).toHaveBeenCalledWith("--base-font-size", "19px");
   });
 });

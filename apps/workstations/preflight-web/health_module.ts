@@ -49,7 +49,9 @@ export async function checkHealth(): Promise<void> {
   const startTime = performance.now();
   updateState({ pollCount: state.pollCount + 1 });
   try {
-    const selectedProtocol = (state.config.connectionId || "").trim().toLowerCase();
+    const selectedProtocol = (state.config.connectionId || "")
+      .trim()
+      .toLowerCase();
     const readyzUrl = selectedProtocol
       ? `/readyz?protocol=${encodeURIComponent(selectedProtocol)}`
       : "/readyz";

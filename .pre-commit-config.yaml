@@ -274,13 +274,8 @@ repos:
         files: ^apps/workstations/
         pass_filenames: false
 
-  - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v9.31.0
+  - repo: https://github.com/oxc-project/mirrors-oxlint
+    rev: v1.80.0
     hooks:
-      - id: eslint
-        files: ^apps/workstations/preflight-web/
-        args: [--config, apps/workstations/preflight-web/eslint.config.js]
-        additional_dependencies:
-          - eslint@9.31.0
-          - "typescript-eslint@8.58.2"
-          - "globals@15.15.0"
+      - id: oxlint
+        files: ^(apps/workstations/preflight-web|presentations/md2tty)/

@@ -4,7 +4,7 @@
   "description": "High-fidelity terminal-styled interactive presentation",
   "main": "src/md2tty.js",
   "scripts": {
-    "lint": "eslint src",
+    "lint": "oxlint src scripts",
     "check-types": "tsc",
     "test": "vitest run",
     "dev": "npm run generate-manifest && vite",
@@ -30,6 +30,7 @@
     "@types/marked": "^5.0.0",
     "@vitest/coverage-v8": "^4.1.9",
     "jsdom": "^29.1.1",
+    "oxlint": "^1.80.0",
     "typescript": "6.0.3",
     "vite": "8.0.16",
     "vitest": "^4.1.9"

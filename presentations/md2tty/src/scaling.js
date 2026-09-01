@@ -17,8 +17,8 @@
 
 /** @fileoverview Handles dynamic font scaling to fit slides to the viewport. */
 
-import { marked } from 'marked';
-import {INITIAL_FONT_SIZE, SCALE_MARGIN, Selectors} from './constants.js';
+import { marked } from "marked";
+import { INITIAL_FONT_SIZE, SCALE_MARGIN } from "./constants.js";
 
 /**
  * Calculates and applies the optimal font size to fill the viewport.
@@ -30,24 +30,27 @@ import {INITIAL_FONT_SIZE, SCALE_MARGIN, Selectors} from './constants.js';
  * @return {void}
  */
 export function autoScale(
-  slideContents, 
-  target, 
-  measureContainer, 
-  viewportW = window.innerWidth, 
-  viewportH = window.innerHeight
+  slideContents,
+  target,
+  measureContainer,
+  viewportW = window.innerWidth,
+  viewportH = window.innerHeight,
 ) {
   if (!slideContents || slideContents.length === 0 || !measureContainer) return;
 
   // Reset to a known base to measure.
-  document.documentElement.style.setProperty('--base-font-size', `${INITIAL_FONT_SIZE}px`);
+  document.documentElement.style.setProperty(
+    "--base-font-size",
+    `${INITIAL_FONT_SIZE}px`,
+  );
 
   let maxW = 0;
   let maxH = 0;
 
   measureContainer.style.fontSize = `${INITIAL_FONT_SIZE}px`;
-  measureContainer.style.width = 'auto';
-  measureContainer.style.maxWidth = '80ch'; // Enforce terminal-like max width
-  measureContainer.style.display = 'inline-block';
+  measureContainer.style.width = "auto";
+  measureContainer.style.maxWidth = "80ch"; // Enforce terminal-like max width
+  measureContainer.style.display = "inline-block";
 
   slideContents.forEach((md) => {
     measureContainer.innerHTML = /** @type {string} */ (marked.parse(md));
@@ -64,5 +67,8 @@ export function autoScale(
   const scale = Math.min(scaleW, scaleH) * SCALE_MARGIN;
 
   const finalFontSize = Math.max(10, Math.floor(INITIAL_FONT_SIZE * scale));
-  document.documentElement.style.setProperty('--base-font-size', `${finalFontSize}px`);
+  document.documentElement.style.setProperty(
+    "--base-font-size",
+    `${finalFontSize}px`,
+  );
 }

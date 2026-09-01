@@ -19,20 +19,22 @@
  * @fileoverview Script to generate a manifest of slide files and copy them to the public directory.
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const SOURCE_DIR = path.resolve(process.env.SLIDES_SRC || path.join(__dirname, '../slides'));
-const PUBLIC_DIR = path.join(__dirname, '../public');
-const SLIDES_OUT_DIR = path.join(PUBLIC_DIR, 'slides');
-const LOCALES_DIR = path.join(__dirname, '../locales');
-const PUBLIC_LOCALES_DIR = path.join(PUBLIC_DIR, 'locales');
+const SOURCE_DIR = path.resolve(
+  process.env.SLIDES_SRC || path.join(__dirname, "../slides"),
+);
+const PUBLIC_DIR = path.join(__dirname, "../public");
+const SLIDES_OUT_DIR = path.join(PUBLIC_DIR, "slides");
+const LOCALES_DIR = path.join(__dirname, "../locales");
+const PUBLIC_LOCALES_DIR = path.join(PUBLIC_DIR, "locales");
 
 /**
  * Orchestrates the slide manifest generation.
  */
 function main() {
-  console.log('Generating slide manifest...');
+  console.log("Generating slide manifest...");
 
   // Ensure directories exist.
   if (!fs.existsSync(PUBLIC_DIR)) {
@@ -52,30 +54,38 @@ function main() {
   }
 
   // Find and sort slides.
-  const files = fs.readdirSync(SOURCE_DIR)
-    .filter(file => /\.md$/.test(file))
-    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+  const files = fs
+    .readdirSync(SOURCE_DIR)
+    .filter((file) => file.endsWith(".md"))
+    .sort((a, b) =>
+      a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }),
+    );
 
   if (files.length === 0) {
-    console.warn('Warning: No slide files (slides/*.md) found in src/');
+    console.warn("Warning: No slide files (slides/*.md) found in src/");
   }
 
   // Copy slides to public directory.
   for (const file of files) {
-    fs.copyFileSync(path.join(SOURCE_DIR, file), path.join(SLIDES_OUT_DIR, file));
+    fs.copyFileSync(
+      path.join(SOURCE_DIR, file),
+      path.join(SLIDES_OUT_DIR, file),
+    );
   }
 
   // Process Locales
   if (fs.existsSync(LOCALES_DIR)) {
-    const locales = fs.readdirSync(LOCALES_DIR).filter(file => /\.json$/.test(file));
+    const locales = fs
+      .readdirSync(LOCALES_DIR)
+      .filter((file) => file.endsWith(".json"));
     for (const file of locales) {
       const srcPath = path.join(LOCALES_DIR, file);
       // Copy JSON to public
       fs.copyFileSync(srcPath, path.join(PUBLIC_LOCALES_DIR, file));
 
       // Generate .sh equivalent
-      const lang = file.replace('.json', '');
-      const data = JSON.parse(fs.readFileSync(srcPath, 'utf8'));
+      const lang = file.replace(".json", "");
+      const data = JSON.parse(fs.readFileSync(srcPath, "utf8"));
       let shContent = `#!/bin/bash
 # Copyright 2026 Google LLC
 #
@@ -97,16 +107,16 @@ declare -g -A i18n_${lang}=(\n`;
         const trans = item.translation.replace(/'/g, "'\\''");
         shContent += `  ["${id}"]='${trans}'\n`;
       }
-      shContent += ')\n';
+      shContent += ")\n";
       const shFilename = `${lang}.sh`;
-      fs.writeFileSync(path.join(LOCALES_DIR, shFilename), shContent, 'utf8');
+      fs.writeFileSync(path.join(LOCALES_DIR, shFilename), shContent, "utf8");
     }
   }
 
   // Write manifest.
   fs.writeFileSync(
-    path.join(PUBLIC_DIR, 'slides.json'),
-    JSON.stringify(files, null, 2)
+    path.join(PUBLIC_DIR, "slides.json"),
+    JSON.stringify(files, null, 2),
   );
 
   console.log(`Successfully manifested ${files.length} slides.`);

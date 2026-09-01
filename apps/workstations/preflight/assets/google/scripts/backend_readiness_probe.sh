@@ -78,6 +78,7 @@ probe_rdp() {
   log "Starting RDP readiness probe..."
   
   # 1. Wait for services to become active first
+  # shellcheck disable=SC2206
   local wait_services=(${BACKEND_WAIT_SERVICES:-})
   if [[ ${#wait_services[@]} -gt 0 ]]; then
     for svc in "${wait_services[@]}"; do
@@ -125,6 +126,7 @@ main() {
 
   local target_user="${WORKSTATION_USER:-user}"
   local supported="${SUPPORTED_PROTOCOLS:-${DEFAULT_CLIENT_PROTOCOL:-HTTP,SSH}}"
+  # shellcheck disable=SC2206
   local wait_ports=(${BACKEND_WAIT_PORTS:-})
   local pids=()
 

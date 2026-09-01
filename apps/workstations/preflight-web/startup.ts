@@ -194,5 +194,3 @@ if (document.readyState === "loading") {
 } else {
   void initialize();
 }
-
-export {};

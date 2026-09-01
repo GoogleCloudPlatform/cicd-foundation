@@ -17,15 +17,14 @@
 
 /** @fileoverview Handles slide loading, rendering, and title extraction. */
 
+import { marked } from "marked";
 
-import { marked } from 'marked';
-import {Selectors} from './constants.js';
-import {updateFooter, flashTheme} from './ui.js';
+import { updateFooter, flashTheme } from "./ui.js";
 
 // Configure marked options locally.
 marked.setOptions({
   breaks: true,
-  gfm: true
+  gfm: true,
 });
 
 /**
@@ -39,15 +38,14 @@ export function setTabTitle(slideContents) {
 
   // Find the first line that starts with a markdown header (#)
   const match = firstSlide.match(/^#+\s+(.+)$/m);
-  const title = match && match[1] ? match[1].trim() : '';
+  const title = match && match[1] ? match[1].trim() : "";
 
   if (title) {
     document.title = `md2tty.js - ${title}`;
   } else {
-    document.title = 'md2tty.js';
+    document.title = "md2tty.js";
   }
 }
-
 
 /**
  * Renders all slides into the container at startup.
@@ -57,23 +55,23 @@ export function setTabTitle(slideContents) {
  */
 export function renderAllSlides(container, slideNames, slideContents) {
   if (!container) return;
-  container.innerHTML = '';
+  container.innerHTML = "";
 
   slideContents.forEach((content, index) => {
-    const article = document.createElement('article');
-    const slideId = slideNames[index].replace('.md', '');
+    const article = document.createElement("article");
+    const slideId = slideNames[index].replace(".md", "");
     article.className = `slide-content slide-${slideId}`;
-    article.setAttribute('data-index', index);
+    article.setAttribute("data-index", index);
 
     // Slide body
-    const bodyDiv = document.createElement('div');
-    bodyDiv.className = 'slide-body';
+    const bodyDiv = document.createElement("div");
+    bodyDiv.className = "slide-body";
     bodyDiv.innerHTML = /** @type {string} */ (marked.parse(content));
     article.appendChild(bodyDiv);
 
     // Slide footer (per-slide for printing)
-    const footer = document.createElement('footer');
-    footer.className = 'slide-footer';
+    const footer = document.createElement("footer");
+    footer.className = "slide-footer";
     article.appendChild(footer);
     updateFooter(footer, index, slideContents.length);
 
@@ -90,7 +88,7 @@ export function renderAllSlides(container, slideNames, slideContents) {
  */
 export function activateSlide(index, container, flash = false) {
   if (index < 0) index = 0;
-  const slides = container.querySelectorAll('.slide-content');
+  const slides = container.querySelectorAll(".slide-content");
   if (slides.length === 0) return index;
   if (index >= slides.length) index = slides.length - 1;
 
@@ -98,14 +96,14 @@ export function activateSlide(index, container, flash = false) {
 
   slides.forEach((slide, idx) => {
     if (idx === index) {
-      slide.classList.add('active');
+      slide.classList.add("active");
     } else {
-      slide.classList.remove('active');
+      slide.classList.remove("active");
     }
   });
 
   // Update URL hash.
-  history.replaceState(null, '', `#${index + 1}`);
+  history.replaceState(null, "", `#${index + 1}`);
 
   return index;
 }
@@ -116,7 +114,10 @@ export function activateSlide(index, container, flash = false) {
  * @param {string} slidesDir The directory where slides are located.
  * @return {!Promise<{names: !Array<string>, contents: !Array<string>}>}
  */
-export async function initSlides(manifestUrl = 'slides.json', slidesDir = 'slides/') {
+export async function initSlides(
+  manifestUrl = "slides.json",
+  slidesDir = "slides/",
+) {
   const response = await fetch(manifestUrl);
   if (!response.ok) throw new Error(`Failed to load manifest: ${manifestUrl}`);
 
@@ -124,10 +125,11 @@ export async function initSlides(manifestUrl = 'slides.json', slidesDir = 'slide
   const names = await response.json();
 
   const fetchPromises = names.map((name) =>
-      fetch(`${slidesDir}${name}`).then((r) => r.text()));
+    fetch(`${slidesDir}${name}`).then((r) => r.text()),
+  );
   const contents = await Promise.all(fetchPromises);
 
-  return {names, contents};
+  return { names, contents };
 }
 
 /**
@@ -137,7 +139,7 @@ export async function initSlides(manifestUrl = 'slides.json', slidesDir = 'slide
  */
 export function updateAllFooters(container, totalSlides) {
   if (!container) return;
-  const footers = container.querySelectorAll('.slide-footer');
+  const footers = container.querySelectorAll(".slide-footer");
   footers.forEach((footer, index) => {
     updateFooter(footer, index, totalSlides);
   });

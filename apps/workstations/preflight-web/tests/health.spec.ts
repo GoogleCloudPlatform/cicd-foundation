@@ -109,7 +109,11 @@ describe("Health Module", () => {
     startRedirect();
     expect(assignSpy).toHaveBeenCalledWith(getGuacamoleUrl("SSH"));
 
-    state.config = { ...state.config, connectionId: "HTTP", redirectUrl: "/custom-ide/" };
+    state.config = {
+      ...state.config,
+      connectionId: "HTTP",
+      redirectUrl: "/custom-ide/",
+    };
     startRedirect();
     expect(assignSpy).toHaveBeenCalledWith("/custom-ide/");
 
