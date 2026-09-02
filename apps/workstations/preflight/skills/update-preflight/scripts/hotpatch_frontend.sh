@@ -59,11 +59,11 @@ main() {
 
   log "🚀 Hot-patching live workstation (${WORKSTATION}) in ${REGION} (Project: ${PROJECT})..."
 
-  local remote_cmd="sudo tar -xzf - -C /var/www/html/ && sudo chown -R root:root /var/www/html/ && sudo find /var/www/html/ -type d -exec chmod 755 {} + && sudo find /var/www/html/ -type f -exec chmod 644 {} +"
+  local remote_cmd="sudo tar -xzf - -C /var/www/html/ && sudo chown -R root:root /var/www/html/ && sudo find /var/www/html/ -type d -exec chmod 755 {} + && sudo find /var/www/html/ -type f -exec chmod 644 {} + && sudo rm -f /run/config-rendered && sudo PROJECT_ID='${PROJECT}' REGION='${REGION}' CLUSTER_NAME='${CLUSTER}' CONFIG_NAME='${CONFIG}' /google/scripts/config_rendering.sh"
 
   if [ "$wipe_flag" = true ]; then
     log "🧹 Wipe option enabled. Clearing /var/www/html/ before patch..."
-    remote_cmd="sudo rm -rf /var/www/html/* && ${remote_cmd} && sudo rm -f /run/config-rendered && sudo /google/scripts/config_rendering.sh"
+    remote_cmd="sudo rm -rf /var/www/html/* && ${remote_cmd}"
   fi
 
   cd "${preflight_dir}/dist"

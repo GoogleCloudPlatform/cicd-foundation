@@ -15,7 +15,7 @@
  */
 
 import { vi } from "vitest";
-import { state } from "../types";
+import { DEFAULT_CONFIG, state } from "../types";
 import { setupMockDOM, createMockResponse } from "./helpers";
 import {
   checkHealth,
@@ -42,7 +42,11 @@ describe("Health Module", () => {
     state.isHealthy = false;
     state.pollCount = 0;
     state.startTime = Date.now();
-    state.config = { ...state.config, timeoutMs: 5000, retryIntervalMs: 1000 };
+    state.config = {
+      ...DEFAULT_CONFIG,
+      timeoutMs: 5000,
+      retryIntervalMs: 1000,
+    };
     state.currentInterval = 1000;
 
     global.fetch = vi.fn() as unknown as typeof fetch;
@@ -124,18 +128,36 @@ describe("Health Module", () => {
     state.config = { ...state.config, connectionId: "" };
     startRedirect();
     expect(assignSpy).toHaveBeenCalledWith("/");
+
+    assignSpy.mockClear();
+    state.config = { ...state.config, redirectUrl: "/startup.html" };
+    startRedirect();
+    expect(assignSpy).not.toHaveBeenCalled();
   });
 
-  test("handleHealthSuccess configures SVG transition", () => {
+  test("handleHealthSuccess configures SVG transition and dispatches workstation-ready event", () => {
     const svg = document.createElement("div");
     vi.spyOn(document, "querySelector").mockImplementation((sel) => {
       if (sel === "main svg") return svg;
       return null;
     });
 
+    const readySpy = vi.fn();
+    window.addEventListener("workstation-ready", readySpy);
+
     handleHealthSuccess();
     expect(svg.style.transition).toBe("opacity 500ms ease-out");
     expect(svg.style.opacity).toBe("0");
+    expect(readySpy).toHaveBeenCalled();
+  });
+
+  test("manualConnect with redirectUrl /startup.html dispatches workstation-manual-connect", () => {
+    state.isHealthy = true;
+    state.config = { ...state.config, redirectUrl: "/startup.html" };
+    const connectSpy = vi.fn();
+    window.addEventListener("workstation-manual-connect", connectSpy);
+    manualConnect();
+    expect(connectSpy).toHaveBeenCalled();
   });
 
   test("checkHealth handles backoff or retry interval properly", async () => {

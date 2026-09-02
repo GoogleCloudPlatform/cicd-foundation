@@ -24,6 +24,9 @@ export const windowUtils = {
   get pathname(): string {
     return window.location.pathname;
   },
+  get hostname(): string {
+    return window.location.hostname;
+  },
   assign(url: string | URL): void {
     window.location.assign(url);
   },

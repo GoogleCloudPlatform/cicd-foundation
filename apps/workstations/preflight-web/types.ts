@@ -18,16 +18,26 @@
  * Configuration for the Preflight application.
  */
 export interface AppConfig {
-  readonly hostname: string;
-  readonly timeoutMs: number;
-  readonly retryIntervalMs: number;
+  // go/keep-sorted start
   readonly autoRedirect: boolean;
-  readonly showDebug: boolean;
-  readonly lang: string;
-  readonly connectionId: string;
-  readonly redirectUrl: string;
-  readonly connectionTypes: ReadonlyArray<string>;
   readonly clientIp: string;
+  readonly clusterName?: string;
+  readonly configName?: string;
+  readonly connectionId: string;
+  readonly connectionTypes: ReadonlyArray<string>;
+  readonly hasGuacamole?: boolean;
+  readonly hasJetbrainsGateway?: boolean;
+  readonly hostSshPort?: string;
+  readonly hostname: string;
+  readonly lang: string;
+  readonly projectId?: string;
+  readonly redirectUrl: string;
+  readonly region?: string;
+  readonly retryIntervalMs: number;
+  readonly showDebug: boolean;
+  readonly sshPort?: number;
+  readonly timeoutMs: number;
+  // go/keep-sorted end
 }
 
 /**
@@ -76,60 +86,74 @@ export interface TranslationSet {
  * Global application state.
  */
 export interface AppState {
-  readonly startTime: number;
-  readonly timerInterval: number | null;
+  // go/keep-sorted start
   readonly checkInterval: number | null;
   readonly config: AppConfig;
-  readonly currentModal: string | null;
-  readonly previousModal: string | null;
-  readonly isHealthy: boolean;
-  readonly simulateSec: number;
-  readonly sbom: SBOMManifest | null;
-  readonly translations: Record<string, TranslationSet>;
-  readonly localeHashes: Record<string, string>;
-  readonly latencyMs: number | null;
-  readonly pollCount: number;
-  readonly lastStatus: string | null;
   readonly currentInterval: number;
+  readonly currentModal: string | null;
+  readonly isHealthy: boolean;
+  readonly lastStatus: string | null;
+  readonly latencyMs: number | null;
+  readonly localeHashes: Record<string, string>;
+  readonly pollCount: number;
+  readonly previousModal: string | null;
+  readonly sbom: SBOMManifest | null;
+  readonly simulateSec: number;
+  readonly startTime: number;
+  readonly timerInterval: number | null;
+  readonly translations: Record<string, TranslationSet>;
   readonly uiTransient: unknown | null;
+  // go/keep-sorted end
 }
 
 /**
  * Default application configuration.
  */
 export const DEFAULT_CONFIG: AppConfig = {
-  hostname: "",
-  timeoutMs: 200000,
-  retryIntervalMs: 1000,
+  // go/keep-sorted start
   autoRedirect: true,
-  showDebug: false,
-  lang: "en",
-  connectionId: "RDP",
-  redirectUrl: "",
-  connectionTypes: ["RDP", "SSH"],
   clientIp: "0.0.0.0",
+  clusterName: "",
+  configName: "",
+  connectionId: "RDP",
+  connectionTypes: ["RDP", "SSH"],
+  hasGuacamole: true,
+  hasJetbrainsGateway: false,
+  hostSshPort: "",
+  hostname: "",
+  lang: "en",
+  projectId: "",
+  redirectUrl: "",
+  region: "",
+  retryIntervalMs: 1000,
+  showDebug: false,
+  sshPort: 22,
+  timeoutMs: 200000,
+  // go/keep-sorted end
 };
 
 /**
  * The singleton state instance for the application.
  */
 export const state: AppState = {
-  startTime: Date.now(),
-  timerInterval: null,
+  // go/keep-sorted start
   checkInterval: null,
   config: { ...DEFAULT_CONFIG },
-  currentModal: null,
-  previousModal: null,
-  isHealthy: false,
-  simulateSec: 0,
-  sbom: null,
-  translations: {},
-  localeHashes: {},
-  latencyMs: null,
-  pollCount: 0,
-  lastStatus: null,
   currentInterval: 1000,
+  currentModal: null,
+  isHealthy: false,
+  lastStatus: null,
+  latencyMs: null,
+  localeHashes: {},
+  pollCount: 0,
+  previousModal: null,
+  sbom: null,
+  simulateSec: 0,
+  startTime: Date.now(),
+  timerInterval: null,
+  translations: {},
   uiTransient: null,
+  // go/keep-sorted end
 };
 
 /**
@@ -165,45 +189,59 @@ export function logInfo(msg: string): void {
 
 declare global {
   interface Window {
-    openModal: (id: string) => void;
-    closeModal: (id: string) => void;
-    closeAllModals: () => void;
-    toggleRetry: () => void;
-    toggleDebug: () => void;
-    updateConfig: () => void;
-    resetConfig: () => void;
-    copySettingsUrl: () => void;
-    backToLicenseList: () => void;
-    backToComponentDetails: () => void;
-    viewFullLicenseText: (name: string) => void;
-    filterLanguages: () => void;
-    reportBug: () => void;
-    manualConnect: () => void;
+    // go/keep-sorted start
     applyTranslations: () => void;
-    updateUIFromConfig: () => void;
-    updateDebugInfo: () => void;
-    updateStatusMessage: () => void;
-    startHealthChecks: () => void;
-    updateTimer: () => void;
-    handleHealthSuccess: () => void;
+    backToComponentDetails: () => void;
+    backToLicenseList: () => void;
     checkHealth: () => void;
-    saveConfig: () => void;
-    t: (key: string, def: string) => string;
+    closeAllModals: () => void;
+    closeModal: (id: string) => void;
+    copySettingsUrl: () => void;
     fetchTranslations: (lang: string) => Promise<void>;
+    filterLanguages: () => void;
+    handleHealthSuccess: () => void;
     loadLocaleHashes: () => Promise<void>;
     loadSBOM: () => Promise<void>;
-    renderLanguageList: () => void;
+    manualConnect: () => void;
+    openModal: (id: string) => void;
     renderConnectionTypeList: () => void;
-    updateDisplayData: () => void;
+    renderLanguageList: () => void;
+    reportBug: () => void;
+    resetConfig: () => void;
     resetUIVisuals: () => void;
+    saveConfig: () => void;
+    startHealthChecks: () => void;
     syncRetryIntervalState: () => void;
+    t: (key: string, def: string) => string;
+    toggleDebug: () => void;
+    toggleRetry: () => void;
+    updateConfig: () => void;
+    updateDebugInfo: () => void;
+    updateDisplayData: () => void;
+    updateStatusMessage: () => void;
+    updateTimer: () => void;
+    updateUIFromConfig: () => void;
+    viewFullLicenseText: (name: string) => void;
+    // go/keep-sorted end
     CWS_CONFIG?: {
-      hostname?: string;
-      supportedProtocols?: string[];
-      connectionId?: string;
-      redirectUrl?: string;
-      serverLang?: string;
+      // go/keep-sorted start
+      autoRedirect?: boolean;
       clientIp?: string;
+      clusterName?: string;
+      configName?: string;
+      connectionId?: string;
+      hasGuacamole?: boolean;
+      hasJetbrainsGateway?: boolean;
+      hostSshPort?: string;
+      hostname?: string;
+      projectId?: string;
+      redirectUrl?: string;
+      region?: string;
+      serverLang?: string;
+      sshPort?: number;
+      supportedProtocols?: string[];
+      timeoutMs?: number;
+      // go/keep-sorted end
     };
   }
 }

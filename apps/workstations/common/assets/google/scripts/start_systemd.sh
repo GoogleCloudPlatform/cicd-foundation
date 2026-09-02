@@ -33,7 +33,7 @@ propagate_env() {
     echo "[Manager]"
     echo -n "DefaultEnvironment="
     # Capture relevant variables from the current environment
-    env | grep -E '^(ENABLE_|DEFAULT_|BACKEND_|GCP_|PORT|WORKSTATION_|RDP_|SSH_|CONTAINER_|SUPPORTED_)' | xargs || true
+    env | grep -E '^(ENABLE_|DEFAULT_|BACKEND_|GCP_|PORT|WORKSTATION_|CLOUD_|RDP_|SSH_|CONTAINER_|SUPPORTED_|PROJECT_|REGION|CLUSTER_|CONFIG_)' | xargs || true
   } > "${env_conf}"
 }
 

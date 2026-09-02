@@ -72,8 +72,9 @@ export function setupMockDOM(): void {
         <span data-i18n="label_debug_info">DEBUG</span>
         <div id="debug-info-content"></div>
       </div>
-      <h1 id="main-status" data-i18n="status_starting">STARTING</h1>
-      <p id="status-message" data-i18n="status_message"></p>
+      <button id="btn-manual-connect"><h1 id="main-status" data-i18n="status_starting">STARTING</h1></button>
+      <button id="btn-manual-connect-msg"><p id="status-message" data-i18n="status_message"></p></button>
+      <div id="ssh-card-container"></div>
       <span id="status-icon"></span>
       <button id="btn-open-settings-timer"><div id="live-timer">00:00</div></button>
       <button id="desktop-icon-trigger"></button>

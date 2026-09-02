@@ -119,6 +119,22 @@ export function loadConfig(): void {
       connectionTypes:
         window.CWS_CONFIG.supportedProtocols ?? config.connectionTypes,
       clientIp: window.CWS_CONFIG.clientIp ?? config.clientIp,
+      autoRedirect:
+        window.CWS_CONFIG.autoRedirect ??
+        (window.CWS_CONFIG.redirectUrl === "/startup.html" ||
+        (window.CWS_CONFIG.connectionId === "SSH" &&
+          !window.CWS_CONFIG.hasGuacamole)
+          ? false
+          : config.autoRedirect),
+      projectId: window.CWS_CONFIG.projectId ?? config.projectId,
+      region: window.CWS_CONFIG.region ?? config.region,
+      clusterName: window.CWS_CONFIG.clusterName ?? config.clusterName,
+      configName: window.CWS_CONFIG.configName ?? config.configName,
+      hasGuacamole: window.CWS_CONFIG.hasGuacamole ?? config.hasGuacamole,
+      sshPort: window.CWS_CONFIG.sshPort ?? config.sshPort,
+      hostSshPort: window.CWS_CONFIG.hostSshPort ?? config.hostSshPort,
+      hasJetbrainsGateway:
+        window.CWS_CONFIG.hasJetbrainsGateway ?? config.hasJetbrainsGateway,
     };
     const sLang = window.CWS_CONFIG.serverLang;
     if (sLang && sLang !== "@@SERVER_LANG@@") {
@@ -170,6 +186,74 @@ export function loadConfig(): void {
     if (matched) {
       config = { ...config, connectionId: matched };
     }
+  }
+
+  const projectParam = params.get("project");
+  if (projectParam) {
+    config = { ...config, projectId: projectParam };
+    try {
+      localStorage.setItem("cws_project_id", projectParam);
+    } catch {}
+  } else if (!config.projectId) {
+    try {
+      const stored = localStorage.getItem("cws_project_id");
+      if (stored) config = { ...config, projectId: stored };
+    } catch {}
+  }
+
+  const regionParam = params.get("region");
+  if (regionParam) {
+    config = { ...config, region: regionParam };
+    try {
+      localStorage.setItem("cws_region", regionParam);
+    } catch {}
+  } else if (!config.region) {
+    try {
+      const stored = localStorage.getItem("cws_region");
+      if (stored) config = { ...config, region: stored };
+    } catch {}
+  }
+  const clusterParam = params.get("cluster");
+  if (clusterParam) config = { ...config, clusterName: clusterParam };
+  const configParam = params.get("config");
+  if (configParam) config = { ...config, configName: configParam };
+  const sshPortParam = params.get("sshPort") ?? params.get("port");
+  if (sshPortParam) {
+    const p = parseInt(sshPortParam, 10);
+    if (!isNaN(p)) config = { ...config, sshPort: p };
+  }
+  const hostSshPortParam = params.get("hostSshPort");
+  if (hostSshPortParam) config = { ...config, hostSshPort: hostSshPortParam };
+
+  // Recover workstation name and config from URL hostname if available (e.g. 80-<workstation>.<cluster>...)
+  const hostMatch = (windowUtils.hostname || "").match(
+    /^(\d+)-([^.]+)\.([^.]+)/,
+  );
+  if (hostMatch) {
+    const urlWorkstation = hostMatch[2];
+    if (
+      urlWorkstation &&
+      (!config.hostname ||
+        config.hostname === "workstation" ||
+        !config.hostname.includes("-"))
+    ) {
+      config = { ...config, hostname: urlWorkstation };
+    }
+    if (!config.configName && urlWorkstation) {
+      config = { ...config, configName: urlWorkstation };
+    }
+    if (!config.clusterName) {
+      config = { ...config, clusterName: "workstations" };
+    }
+  }
+
+  // When protocol is SSH and Guacamole is absent, ensure autoRedirect defaults to false unless explicitly forced in URL
+  if (
+    config.connectionId.toUpperCase() === "SSH" &&
+    !config.hasGuacamole &&
+    redirectParam === null
+  ) {
+    config = { ...config, autoRedirect: false };
   }
 
   const langParam = params.get("lang");

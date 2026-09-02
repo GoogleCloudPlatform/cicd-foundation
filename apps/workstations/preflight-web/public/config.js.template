@@ -21,5 +21,14 @@ window.CWS_CONFIG = {
   hostname: '${HOSTNAME}',
   serverLang: "@@SERVER_LANG@@",
   clientIp: "${CLIENT_IP}",
-  timeoutMs: ${TIMEOUT_MS}
+  timeoutMs: ${TIMEOUT_MS},
+  autoRedirect: ${AUTO_REDIRECT},
+  projectId: '${PROJECT_ID}',
+  region: '${REGION}',
+  clusterName: '${CLUSTER_NAME}',
+  configName: '${CONFIG_NAME}',
+  hasGuacamole: ${HAS_GUACAMOLE},
+  sshPort: ${SSH_PORT},
+  hostSshPort: '${HOST_SSH_PORT}',
+  hasJetbrainsGateway: ${HAS_JETBRAINS_GATEWAY}
 };

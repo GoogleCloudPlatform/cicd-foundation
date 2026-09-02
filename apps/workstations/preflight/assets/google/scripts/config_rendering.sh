@@ -72,10 +72,12 @@ render_templates() {
     supported_protocols="${SUPPORTED_PROTOCOLS:-SSH}"
     export DEFAULT_CLIENT_PROTOCOL="SSH"
     export DEFAULT_REDIRECT_URL="${DEFAULT_REDIRECT_PATH:-/startup.html}"
+    export AUTO_REDIRECT="${AUTO_REDIRECT:-false}"
   elif [[ "${BACKEND_PROXY_PATH}" == "/" || "${DEFAULT_CLIENT_PROTOCOL:-}" =~ ^(HTTP|HTTPS)$ || "${DEFAULT_PROTOCOL:-}" =~ ^(HTTP|HTTPS)$ ]]; then
     supported_protocols="${SUPPORTED_PROTOCOLS:-HTTP,SSH}"
     export DEFAULT_CLIENT_PROTOCOL="${DEFAULT_CLIENT_PROTOCOL:-${DEFAULT_PROTOCOL:-HTTP}}"
     export DEFAULT_REDIRECT_URL="${DEFAULT_REDIRECT_PATH:-/}"
+    export AUTO_REDIRECT="${AUTO_REDIRECT:-true}"
   else
     supported_protocols="${SUPPORTED_PROTOCOLS:-RDP,SSH}"
     if [[ "${ENABLE_TIGERVNC:-false}" == "true" ]]; then
@@ -95,12 +97,78 @@ EOV
     local guac_identifier
     guac_identifier=$(echo -ne "${DEFAULT_CLIENT_PROTOCOL}\0c\0default" | base64 | tr -d '\n=')
     export DEFAULT_REDIRECT_URL="/guacamole/#/client/${guac_identifier}"
+    export AUTO_REDIRECT="${AUTO_REDIRECT:-true}"
   fi
   export SUPPORTED_PROTOCOLS="${supported_protocols}"
 
   # Technical metadata for the preflight page
   export HOSTNAME="$(hostname)"
   export TIMEOUT_MS="${DEFAULT_TIMEOUT_MS:-200000}"
+
+  # Attempt to detect Cloud Workstations instance metadata from GCP metadata server or resource name
+  local meta_project=""
+  local meta_region=""
+  local meta_endpoint=""
+
+  # Attempt to extract project, region, cluster, config, and workstation name from Cloud Workstations resource name
+  local res_name="${CLOUD_WORKSTATIONS_WORKSTATION_RESOURCE_NAME:-}"
+  if [[ -z "${res_name}" && -f "/etc/environment" ]]; then
+    res_name=$(grep -E '^CLOUD_WORKSTATIONS_WORKSTATION_RESOURCE_NAME=' /etc/environment | cut -d'=' -f2- | tr -d '"' | tr -d "'") || true
+  fi
+  if [[ -z "${res_name}" && -r "/proc/1/environ" ]]; then
+    res_name=$(tr '\0' '\n' < /proc/1/environ 2>/dev/null | grep -E '^CLOUD_WORKSTATIONS_WORKSTATION_RESOURCE_NAME=' | cut -d'=' -f2-) || true
+  fi
+  if [[ -n "${res_name}" ]]; then
+    if [[ "${res_name}" =~ projects/([^/]+)/locations/([^/]+)/workstationClusters/([^/]+)/workstationConfigs/([^/]+)/workstations/([^/]+) ]]; then
+      meta_project="${BASH_REMATCH[1]}"
+      meta_region="${BASH_REMATCH[2]}"
+      export CLUSTER_NAME="${CLUSTER_NAME:-${BASH_REMATCH[3]}}"
+      export CONFIG_NAME="${CONFIG_NAME:-${BASH_REMATCH[4]}}"
+      export HOSTNAME="${BASH_REMATCH[5]}"
+    fi
+  fi
+
+  for ep in "http://metadata.google.internal" "http://169.254.169.254"; do
+    if curl -s -f -m 3 -H "Metadata-Flavor: Google" "${ep}/computeMetadata/v1/project/project-id" > /tmp/cws_proj 2>/dev/null; then
+      meta_project=$(cat /tmp/cws_proj)
+      rm -f /tmp/cws_proj
+      meta_endpoint="${ep}"
+      break
+    fi
+  done
+  if [[ -n "${meta_endpoint}" ]]; then
+    if curl -s -f -m 3 -H "Metadata-Flavor: Google" "${meta_endpoint}/computeMetadata/v1/instance/zone" > /tmp/cws_zone 2>/dev/null; then
+      meta_region=$(cat /tmp/cws_zone | sed -e 's|.*/zones/||' -e 's|-[a-z]$||')
+      rm -f /tmp/cws_zone
+    fi
+  fi
+
+  export PROJECT_ID="${PROJECT_ID:-${GCP_PROJECT:-${GCP_PROJECT_ID:-${meta_project}}}}"
+  export REGION="${REGION:-${GCP_REGION:-${meta_region}}}"
+  export CLUSTER_NAME="${CLUSTER_NAME:-${WORKSTATION_CLUSTER:-workstations}}"
+  export CONFIG_NAME="${CONFIG_NAME:-${WORKSTATION_CONFIG:-}}"
+
+  # Guacamole presence detection
+  local has_guacamole="false"
+  if [[ -d "/etc/guacamole" || -f "/etc/systemd/system/guacd.service" ]]; then
+    has_guacamole="true"
+  fi
+  export HAS_GUACAMOLE="${HAS_GUACAMOLE:-${has_guacamole}}"
+
+  # SSH port configuration and devcontainer/host separation
+  export SSH_PORT="${SSH_PORT:-22}"
+  local host_ssh_port=""
+  if [[ -f "/opt/devcontainer/intellij/devcontainer.json" || -f "/etc/ssh/sshd_config.d/20-port.conf" ]]; then
+    host_ssh_port="2222"
+  fi
+  export HOST_SSH_PORT="${HOST_SSH_PORT:-${host_ssh_port}}"
+
+  # JetBrains Gateway remote development detection
+  local has_gateway="false"
+  if [[ -d "/opt/ideaIU" || -f "/opt/devcontainer/intellij/devcontainer.json" || "${CONFIG_NAME}" =~ intellij ]]; then
+    has_gateway="true"
+  fi
+  export HAS_JETBRAINS_GATEWAY="${HAS_JETBRAINS_GATEWAY:-${has_gateway}}"
 
   # Dynamic Nginx routing based on startup page presence
   if [[ -f "/var/www/html/startup.html" ]]; then
@@ -135,6 +203,7 @@ $HOSTNAME
 $TIMEOUT_MS
 $ROOT_REDIRECT
 $DEFAULT_REDIRECT_URL
+$AUTO_REDIRECT
 $PROXY_INTERCEPT_ON_OFF
 $ERROR_PAGE_DIRECTIVE
 $ROOT_REDIRECT_BLOCK
@@ -145,6 +214,13 @@ $SSH_HOST
 $SSH_PORT
 $BACKEND_PROXY_URL
 $BACKEND_PROXY_PATH
+$PROJECT_ID
+$REGION
+$CLUSTER_NAME
+$CONFIG_NAME
+$HAS_GUACAMOLE
+$HOST_SSH_PORT
+$HAS_JETBRAINS_GATEWAY
 EOV
   # Convert multi-line to single line for envsubst
   allowed_vars=$(echo "$allowed_vars" | tr '\n' ' ')

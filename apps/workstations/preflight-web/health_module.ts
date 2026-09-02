@@ -24,6 +24,7 @@ import {
 } from "./constants";
 import { logInfo, state, updateState } from "./types";
 import { windowUtils } from "./window_utils";
+import { copyPrimarySshCommand, renderSshReadyCard } from "./ssh_card_module";
 
 /**
  * Executes a single health probe against the workstation backend.
@@ -258,7 +259,24 @@ export function handleHealthSuccess(): void {
   window.updateUIFromConfig?.();
   window.updateDebugInfo?.();
 
-  if (state.config.autoRedirect && !state.currentModal) {
+  window.dispatchEvent(
+    new CustomEvent("workstation-ready", {
+      detail: {
+        protocol: state.config.connectionId,
+        hostname: state.config.hostname,
+        redirectUrl: state.config.redirectUrl,
+      },
+    }),
+  );
+
+  const isSshNonGuac =
+    (state.config.connectionId || "").toUpperCase() === "SSH" &&
+    (!state.config.hasGuacamole ||
+      state.config.redirectUrl === "/startup.html");
+
+  if (isSshNonGuac) {
+    renderSshReadyCard();
+  } else if (state.config.autoRedirect && !state.currentModal) {
     startRedirect();
   }
 }
@@ -336,6 +354,34 @@ export function manualConnect(): void {
     void checkHealth();
     return;
   }
+  const isSshNonGuac =
+    (state.config.connectionId || "").toUpperCase() === "SSH" &&
+    (!state.config.hasGuacamole ||
+      state.config.redirectUrl === "/startup.html");
+
+  if (isSshNonGuac) {
+    copyPrimarySshCommand();
+    window.dispatchEvent(
+      new CustomEvent("workstation-manual-connect", {
+        detail: {
+          protocol: state.config.connectionId,
+          hostname: state.config.hostname,
+        },
+      }),
+    );
+    return;
+  }
+  if (state.config.redirectUrl === "/startup.html") {
+    window.dispatchEvent(
+      new CustomEvent("workstation-manual-connect", {
+        detail: {
+          protocol: state.config.connectionId,
+          hostname: state.config.hostname,
+        },
+      }),
+    );
+    return;
+  }
   startRedirect();
 }
 
@@ -344,6 +390,13 @@ export function manualConnect(): void {
  */
 export function startRedirect(): void {
   const protocol = (state.config.connectionId || "").toUpperCase();
+  if (
+    state.config.redirectUrl === "/startup.html" ||
+    (protocol === "SSH" && !state.config.hasGuacamole)
+  ) {
+    renderSshReadyCard();
+    return;
+  }
   if (isNativeWebProtocol(protocol) || !protocol) {
     const targetUrl = state.config.redirectUrl || "/";
     windowUtils.assign(targetUrl);

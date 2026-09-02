@@ -304,4 +304,56 @@ describe("Config Module", () => {
     const body = bugUrl.searchParams.get("body") || "";
     expect(body).toContain("URL: http://127.0.0.1/");
   });
+
+  test("loadConfig respects CWS_CONFIG.autoRedirect and defaults to false when redirectUrl is /startup.html", () => {
+    window.CWS_CONFIG = {
+      redirectUrl: "/startup.html",
+      connectionId: "SSH",
+    };
+    loadConfig();
+    expect(state.config.autoRedirect).toBe(false);
+
+    window.CWS_CONFIG = {
+      redirectUrl: "/",
+      autoRedirect: false,
+    };
+    loadConfig();
+    expect(state.config.autoRedirect).toBe(false);
+
+    window.CWS_CONFIG = {
+      redirectUrl: "/",
+      autoRedirect: true,
+    };
+    loadConfig();
+    expect(state.config.autoRedirect).toBe(true);
+    delete window.CWS_CONFIG;
+  });
+
+  test("loadConfig extracts workstation and config name from cloudworkstations.dev hostname", () => {
+    vi.spyOn(windowUtils, "hostname", "get").mockReturnValue(
+      "80-codeoss-devcontainer-intellij.cluster-dat5yd4jmffpkuclquwqjo4geu.cloudworkstations.dev",
+    );
+    loadConfig();
+    expect(state.config.hostname).toBe("codeoss-devcontainer-intellij");
+    expect(state.config.configName).toBe("codeoss-devcontainer-intellij");
+    expect(state.config.clusterName).toBe("workstations");
+  });
+
+  test("loadConfig persists and recovers projectId and region to/from localStorage", () => {
+    localStorage.clear();
+    searchSpy.mockReturnValue("?project=param-project&region=param-region");
+    loadConfig();
+    expect(state.config.projectId).toBe("param-project");
+    expect(state.config.region).toBe("param-region");
+    expect(localStorage.getItem("cws_project_id")).toBe("param-project");
+    expect(localStorage.getItem("cws_region")).toBe("param-region");
+
+    // Next load without query params recovers from localStorage
+    searchSpy.mockReturnValue("");
+    state.config.projectId = "";
+    state.config.region = "";
+    loadConfig();
+    expect(state.config.projectId).toBe("param-project");
+    expect(state.config.region).toBe("param-region");
+  });
 });
