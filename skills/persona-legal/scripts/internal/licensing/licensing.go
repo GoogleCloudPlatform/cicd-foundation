@@ -29,13 +29,64 @@ import (
 
 var (
 	// HashStyleExtensions defines extensions that use '#' for comments.
-	HashStyleExtensions = []string{"bash", "bats", "conf", "desktop", "dockerfile", "list", "py", "sh", "yaml", "yml"}
+	HashStyleExtensions = []string{
+		// go/keep-sorted start
+		"bash",
+		"bats",
+		"conf",
+		"desktop",
+		"dockerfile",
+		"env",
+		"hcl",
+		"ini",
+		"list",
+		"makefile",
+		"mk",
+		"py",
+		"rb",
+		"sh",
+		"tf",
+		"tfvars",
+		"toml",
+		"yaml",
+		"yml",
+		// go/keep-sorted end
+	}
 
 	// HTMLStyleExtensions defines extensions that use '<!-- -->' for comments.
-	HTMLStyleExtensions = []string{"html", "md", "xml"}
+	HTMLStyleExtensions = []string{
+		// go/keep-sorted start
+		"html",
+		"md",
+		"svg",
+		"xml",
+		// go/keep-sorted end
+	}
 
 	// CStyleExtensions defines extensions that use '/** */' for comments.
-	CStyleExtensions = []string{"cjs", "css", "go", "js", "jsx", "mjs", "php", "ts", "tsx"}
+	CStyleExtensions = []string{
+		// go/keep-sorted start
+		"c",
+		"cjs",
+		"cpp",
+		"cs",
+		"css",
+		"go",
+		"h",
+		"hpp",
+		"java",
+		"js",
+		"jsx",
+		"kt",
+		"mjs",
+		"php",
+		"rs",
+		"scala",
+		"swift",
+		"ts",
+		"tsx",
+		// go/keep-sorted end
+	}
 
 	//go:embed assets/*.txt
 	licenseAssets embed.FS
@@ -69,6 +120,34 @@ func init() {
 			Licenses[licenseID] = string(content)
 		}
 	}
+}
+
+// DefaultFilter generates the default regular expression to filter files based on the supported extensions.
+func DefaultFilter() string {
+	var allExtensions []string
+	allExtensions = append(allExtensions, HashStyleExtensions...)
+	allExtensions = append(allExtensions, HTMLStyleExtensions...)
+	allExtensions = append(allExtensions, CStyleExtensions...)
+
+	var exts []string
+	var specialFiles []string
+	for _, ext := range allExtensions {
+		if ext == "dockerfile" {
+			specialFiles = append(specialFiles, "^Dockerfile$")
+		} else if ext == "makefile" {
+			specialFiles = append(specialFiles, "^Makefile$")
+		} else {
+			exts = append(exts, ext)
+		}
+	}
+	// 'template' and 'tmpl' are resolved dynamically to their base file type
+	exts = append(exts, "template", "tmpl")
+
+	regex := `\.(` + strings.Join(exts, "|") + `)$`
+	if len(specialFiles) > 0 {
+		regex += `|` + strings.Join(specialFiles, "|")
+	}
+	return regex
 }
 
 // HeaderFormatter formats the license text for different file types.
@@ -166,7 +245,7 @@ func ProcessFileContent(content string, ext string, currentYear int, holder stri
 	licenseText := Licenses[targetLicense]
 	hasLicenseIdentifier := strings.Contains(content, fmt.Sprintf("SPDX-License-Identifier: %s", targetLicense))
 	needsLicense := !hasMetadataLicense
-	
+
 	if format == "spdx" {
 		needsLicense = needsLicense && !hasLicenseIdentifier
 	} else if licenseText != "" {
@@ -180,14 +259,14 @@ func ProcessFileContent(content string, ext string, currentYear int, holder stri
 		if startYear < currentYear {
 			effectiveYear = fmt.Sprintf("%d-%d", startYear, currentYear)
 		}
-		
+
 		var fullHeaderText string
 		if format == "spdx" {
 			fullHeaderText = fmt.Sprintf("SPDX-FileCopyrightText: %s %s\nSPDX-License-Identifier: %s", effectiveYear, holder, targetLicense)
 		} else {
 			fullHeaderText = fmt.Sprintf("Copyright %s %s\n\n%s", effectiveYear, holder, licenseText)
 		}
-		
+
 		formatter := HeaderFormatter{}
 		formattedHeader := formatter.Format(fullHeaderText, ext)
 
@@ -315,8 +394,13 @@ func EnforceFile(path string, currentYear int, holder string, targetLicense stri
 		ext = strings.ToLower(strings.TrimPrefix(filepath.Ext(base), "."))
 	}
 
-	if ext == "" && filepath.Base(path) == "Dockerfile" {
-		ext = "dockerfile"
+	if ext == "" {
+		base := filepath.Base(path)
+		if base == "Dockerfile" {
+			ext = "dockerfile"
+		} else if base == "Makefile" {
+			ext = "makefile"
+		}
 	}
 
 	newContent, res := ProcessFileContent(content, ext, currentYear, holder, targetLicense, format)
