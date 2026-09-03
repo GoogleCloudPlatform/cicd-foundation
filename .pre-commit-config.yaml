@@ -119,15 +119,15 @@ repos:
 
       - id: license-enforcer
         name: License Enforcer (Go)
-        entry: bash -c 'cd skills/persona-legal/scripts && go run cmd/license_enforcer/main.go -f full -- "${@/#/../../../}"' --
-        language: system
+        entry: go run skills/persona-legal/scripts/cmd/license_enforcer/main.go -f full
+        language: golang
         pass_filenames: true
         require_serial: true
 
       - id: markdown-link-checker
         name: Markdown Link Checker (Go)
-        entry: bash -c 'cd skills/persona-swe/scripts && go run cmd/link_checker/main.go -- "${@/#/../../../}"' --
-        language: system
+        entry: go run skills/persona-swe/scripts/cmd/link_checker/main.go
+        language: golang
         files: \.md$
         pass_filenames: true
         require_serial: true

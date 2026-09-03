@@ -24,7 +24,7 @@ source "${SCRIPT_DIR}/../../common.sh"
 main() {
   local sbom_path="${REPO_ROOT}/apps/workstations/preflight-web/public/sbom.json"
   local licenses_dir="${REPO_ROOT}/apps/workstations/preflight-web/public/licenses"
-  local helper="${SCRIPT_DIR}/lib/sbom_helper.py"
+  local helper="${SCRIPT_DIR}/sbom_helper.py"
 
   log "======================================"
   log " 📦 Syncing SBOM License Assets"

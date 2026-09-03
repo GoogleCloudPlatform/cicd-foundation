@@ -272,7 +272,7 @@ license: Apache-2.0
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, res := ProcessFileContent(tt.content, tt.ext, tt.currentYear, tt.holder, tt.targetLicense)
+			got, res := ProcessFileContent(tt.content, tt.ext, tt.currentYear, tt.holder, tt.targetLicense, "full")
 			if res.Modified != tt.wantModified {
 				t.Errorf("ProcessFileContent() modified = %v, want %v", res.Modified, tt.wantModified)
 			}
@@ -343,7 +343,7 @@ func TestEnforceFile(t *testing.T) {
 	}
 	tmpFile.Close()
 
-	res, err := EnforceFile(tmpFile.Name(), 2026, "Google LLC", "Apache-2.0")
+	res, err := EnforceFile(tmpFile.Name(), 2026, "Google LLC", "Apache-2.0", "full")
 	if err != nil {
 		t.Fatalf("EnforceFile() error = %v", err)
 	}
@@ -374,7 +374,7 @@ func TestEnforceFile(t *testing.T) {
 		}
 		binFile.Close()
 
-		res, err := EnforceFile(binFile.Name(), 2026, "Google LLC", "Apache-2.0")
+		res, err := EnforceFile(binFile.Name(), 2026, "Google LLC", "Apache-2.0", "full")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -396,7 +396,7 @@ func TestEnforceFile(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		res, err := EnforceFile(path, 2026, "Google LLC", "Apache-2.0")
+		res, err := EnforceFile(path, 2026, "Google LLC", "Apache-2.0", "full")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -423,7 +423,7 @@ func TestEnforceFile(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		res, err := EnforceFile(path, 2026, "Google LLC", "Apache-2.0")
+		res, err := EnforceFile(path, 2026, "Google LLC", "Apache-2.0", "full")
 		if err != nil {
 			t.Fatal(err)
 		}

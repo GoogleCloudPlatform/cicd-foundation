@@ -23,7 +23,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/GoogleCloudPlatform/cicd-foundation/apps/workstations/preflight/tools/setup-workstation/internal/setup"
+	"github.com/GoogleCloudPlatform/cicd-foundation/apps/workstations/common/tools/setup-workstation/internal/setup"
 )
 
 func main() {

@@ -2,7 +2,7 @@
 name: validate-image-updates
 description: Enforces the mandatory sequential validation workflow when a new workstation image is built or the codebase is modified.
 license: Apache-2.0
-allowed-tools: skills/validate-image-updates/scripts/run_all_tests.sh skills/validate-image-updates/scripts/run_integration_tests.sh skills/validate-image-updates/scripts/run_local_tests.sh
+allowed-tools: skills/validate-image-updates/scripts/run_all_tests.sh skills/validate-image-updates/scripts/run_integration_tests.sh skills/validate-image-updates/scripts/run_local_tests.sh skills/validate-image-updates/tests/test_directory_structure.bats
 metadata:
   author: sce-taid <sce@taid.me>
   resources:

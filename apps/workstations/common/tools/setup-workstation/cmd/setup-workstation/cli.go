@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/GoogleCloudPlatform/cicd-foundation/apps/workstations/preflight/tools/setup-workstation/internal/setup"
+	"github.com/GoogleCloudPlatform/cicd-foundation/apps/workstations/common/tools/setup-workstation/internal/setup"
 )
 
 // parseFlags defines the CLI flags, evaluates environment variable fallbacks,

@@ -15,7 +15,7 @@
 - id: gitseep
   name: GitSeep (amend and auto-approve)
   description: Performs a full history reconstruction, amending uncommitted changes and auto-approving all layers.
-  entry: go run skills/persona-swe/scripts/cmd/gitseep/main.go -y
+  entry: gitseep -y
   language: golang
   pass_filenames: false
   stages: [manual]
@@ -23,14 +23,14 @@
 - id: gitseep-check
   name: Validate GitSeep Stratigraphy
   description: Verifies that the Git history is fully sedimented according to .gitseep.yaml rules without making changes.
-  entry: go run skills/persona-swe/scripts/cmd/gitseep/main.go check
+  entry: gitseep check
   language: golang
   pass_filenames: false
 
 - id: clean-whitespace
   name: Clean Trailing Whitespace
   description: Removes trailing whitespace from text files.
-  entry: go run skills/persona-swe/scripts/cmd/clean_whitespace/main.go
+  entry: clean_whitespace
   language: golang
   pass_filenames: true
   types: [text]
@@ -39,7 +39,7 @@
 - id: verify-locales
   name: Verify i18n Locales
   description: Verifies that i18n locale JSON files are sorted and consistent.
-  entry: go run skills/persona-swe/scripts/cmd/verify_locales/main.go
+  entry: verify_locales
   language: golang
   pass_filenames: true
   files: ".*locale.*\\.json$"
@@ -47,8 +47,7 @@
 - id: license-enforcer
   name: License Enforcer (Go)
   description: Validates and injects SPDX or full license headers into source files.
-  entry: bash -c 'cd skills/persona-legal/scripts && go run cmd/license_enforcer/main.go -- "${@/#/../../../}"' --
-  language: system
+  entry: license_enforcer
+  language: golang
   pass_filenames: true
   require_serial: true
-

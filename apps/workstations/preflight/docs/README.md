@@ -35,7 +35,7 @@ This directory contains the authoritative technical documentation for the **Cust
 
 Documentation for specific standalone CLI tools can be found within their respective source directories:
 
-- **[Setup Workstation CLI](../tools/setup-workstation/README.md)**: The interactive workspace bootstrapping User Guide.
+- **[Setup Workstation CLI](../../common/tools/setup-workstation/README.md)**: The interactive workspace bootstrapping User Guide.
 
 ---
 

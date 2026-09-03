@@ -2,7 +2,7 @@
 name: persona-legal
 description: Adopts the Legal Expert persona. Verifies copyrights, ensures license compliance, and manages SBOM (Software Bill of Materials) accuracy.
 license: Apache-2.0
-allowed-tools: skills/persona-legal/scripts/sync_license_assets.sh
+allowed-tools: skills/persona-legal/scripts/sync_license_assets.sh skills/persona-legal/scripts/cmd/license_enforcer/main.go
 metadata:
   author: sce-taid <sce@taid.me>
   resources:
