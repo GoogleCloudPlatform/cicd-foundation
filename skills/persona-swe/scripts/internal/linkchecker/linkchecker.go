@@ -143,5 +143,3 @@ func CheckFile(path string, repoRoot string) ([]BrokenLink, error) {
 
 	return brokenLinks, nil
 }
-
-

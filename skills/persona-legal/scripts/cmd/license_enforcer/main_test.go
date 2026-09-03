@@ -109,7 +109,7 @@ func TestRun(t *testing.T) {
 	}
 
 	t.Run("basic_run", func(t *testing.T) {
-		err := run("Google LLC", "Apache-2.0", "exclude_me", `\.(ts|py|js)$`, []string{tmpDir})
+		err := run("Google LLC", "Apache-2.0", "exclude_me", `\.(ts|py|js)$`, "full", []string{tmpDir})
 		if err == nil || err.Error() != "files modified" {
 			t.Errorf("expected 'files modified' error, got %v", err)
 		}
@@ -134,7 +134,7 @@ func TestRun(t *testing.T) {
 	})
 
 	t.Run("no_args", func(t *testing.T) {
-		err := run("Google LLC", "Apache-2.0", "", "", nil)
+		err := run("Google LLC", "Apache-2.0", "", "", "full", nil)
 		if err != nil {
 			t.Errorf("expected nil error for no args, got %v", err)
 		}

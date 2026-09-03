@@ -39,16 +39,18 @@ var (
 	holder        = flag.String("holder", "Google LLC", "Copyright holder name.")
 	targetLicense = flag.String("license", "Apache-2.0", "SPDX license identifier to enforce.")
 	exclude       = flag.String("exclude", "node_modules/ dist/ licenses/ check_licenses.py LICENSE COPYING NOTICE", "Space-separated list of strings to exclude.")
-	filter        = flag.String("filter", `\.(ts|js|cjs|mjs|jsx|tsx|css|go|sh|bash|bats|py|desktop|yaml|yml|conf|list|html|md|xml|template|tmpl)$|^Dockerfile$`, "Regex to filter files.")
+	filter        = flag.String("filter", `\.(ts|js|cjs|mjs|jsx|tsx|css|go|sh|bash|bats|py|php|desktop|yaml|yml|conf|list|html|md|xml|template|tmpl)$|^Dockerfile$`, "Regex to filter files.")
+	format        = flag.String("format", "spdx", "Format of the license header: 'full' or 'spdx'.")
 )
 
 func main() {
+	flag.StringVar(format, "f", "spdx", "Shorthand for -format")
 	flag.Usage = func() {
 		fmt.Println(i18n.T("usage_license_enforcer"))
 	}
 	flag.Parse()
 
-	if err := run(*holder, *targetLicense, *exclude, *filter, flag.Args()); err != nil {
+	if err := run(*holder, *targetLicense, *exclude, *filter, *format, flag.Args()); err != nil {
 		if err.Error() != "files modified" {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			os.Exit(1)
@@ -58,7 +60,7 @@ func main() {
 }
 
 // run executes the license enforcement logic.
-func run(holderName, licenseID, excludePaths, filterPat string, args []string) error {
+func run(holderName, licenseID, excludePaths, filterPat, format string, args []string) error {
 	if err := i18n.Init("", "en", locales.Content); err != nil {
 		return fmt.Errorf("failed to initialize i18n: %w", err)
 	}
@@ -144,7 +146,7 @@ func run(holderName, licenseID, excludePaths, filterPat string, args []string) e
 			sem <- struct{}{}
 			defer func() { <-sem }()
 
-			res, err := licensing.EnforceFile(path, currentYear, holderName, licenseID)
+			res, err := licensing.EnforceFile(path, currentYear, holderName, licenseID, format)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "failed to process %s: %v\n", path, err)
 				return

@@ -119,7 +119,7 @@ repos:
 
       - id: license-enforcer
         name: License Enforcer (Go)
-        entry: bash -c 'cd skills/persona-legal/scripts && go run cmd/license_enforcer/main.go -- "${@/#/../../../}"' --
+        entry: bash -c 'cd skills/persona-legal/scripts && go run cmd/license_enforcer/main.go -f full -- "${@/#/../../../}"' --
         language: system
         pass_filenames: true
         require_serial: true

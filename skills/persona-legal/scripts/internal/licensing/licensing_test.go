@@ -29,6 +29,7 @@ func TestProcessFileContent(t *testing.T) {
 		currentYear    int
 		holder         string
 		targetLicense  string
+		format         string
 		wantModified   bool
 		wantAdded      bool
 		wantUpdated    bool
@@ -150,6 +151,47 @@ print('hello')`, "\n"),
 			wantModified:  true,
 			wantAdded:     true,
 			contains:      []string{"#!/usr/bin/env python3", "Copyright 2026 Google LLC"},
+		},
+		{
+			name: "xml_declaration_preservation",
+			content: strings.TrimPrefix(`
+<?xml version="1.0" encoding="UTF-8"?>
+<root></root>`, "\n"),
+			ext:           "xml",
+			currentYear:   2026,
+			holder:        "Google LLC",
+			targetLicense: "Apache-2.0",
+			wantModified:  true,
+			wantAdded:     true,
+			contains:      []string{"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n<!--\nCopyright 2026 Google LLC"},
+		},
+		{
+			name: "php_tag_preservation",
+			content: strings.TrimPrefix(`
+<?php
+echo "Hello";
+?>`, "\n"),
+			ext:           "php",
+			currentYear:   2026,
+			holder:        "Google LLC",
+			targetLicense: "Apache-2.0",
+			wantModified:  true,
+			wantAdded:     true,
+			// Using Hash format for php just as an example since it's not strictly mapped in the extensions by default in the file? Wait, php is not in the list!
+			// If php is not supported, this might fail. I'll add php to the CStyleExtensions.
+		},
+		{
+			name: "html_doctype_preservation",
+			content: strings.TrimPrefix(`
+<!DOCTYPE html>
+<html></html>`, "\n"),
+			ext:           "html",
+			currentYear:   2026,
+			holder:        "Google LLC",
+			targetLicense: "Apache-2.0",
+			wantModified:  true,
+			wantAdded:     true,
+			contains:      []string{"<!DOCTYPE html>\n\n<!--\nCopyright 2026 Google LLC"},
 		},
 		{
 			name:          "supports_go_files",

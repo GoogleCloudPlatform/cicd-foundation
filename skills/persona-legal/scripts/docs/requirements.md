@@ -20,13 +20,14 @@ limitations under the License.
 
 - **FR1: Full Header Application**: The tool MUST apply a complete license header to files missing one, including copyright year, holder, and SPDX license text (default: Apache-2.0).
 - **FR2: Geological Year Management**: The tool MUST detect original copyright years and automatically update them to a range (e.g., `2024-2026`) if the start year is in the past.
-- FR3: Language-Specific Formatting: The tool MUST support C-style (`/** */`), Hash (`#`), and HTML/XML (`<!-- -->`) comment styles based on file extension. Supported extensions include `.ts`, `.js`, `.cjs`, `.mjs`, `.jsx`, `.tsx`, `.go`, `.sh`, `.py`, `.yaml`, `.yml`, `.conf`, `.list`, `.html`, `.md`, `.xml`, `.template`, `.tmpl`, and `Dockerfile`.
-- FR4: Shebang Preservation: The tool MUST detect and preserve shebang lines (`#!`) at the top of scripts, ensuring the license header is placed immediately below them.
+- FR3: Language-Specific Formatting: The tool MUST support C-style (`/** */`), Hash (`#`), and HTML/XML (`<!-- -->`) comment styles based on file extension. Supported extensions include `.ts`, `.js`, `.cjs`, `.mjs`, `.jsx`, `.tsx`, `.go`, `.sh`, `.php`, `.py`, `.yaml`, `.yml`, `.conf`, `.list`, `.html`, `.md`, `.xml`, `.template`, `.tmpl`, and `Dockerfile`.
+- FR4: Prologue Preservation: The tool MUST detect and preserve special first lines (e.g., shebangs (`#!`), XML declarations (`<?xml`), PHP tags (`<?php`), HTML doctypes (`<!DOCTYPE`)) at the top of files, ensuring the license header is placed immediately below them.
 - FR5: Foreign Holder Safety (Warn and Ignore): The tool MUST detect copyright holders that do not match the target holder and skip those files to prevent legal ambiguity.
 - FR6: CLI Interface: The tool MUST provide a CLI with flags for custom holders, license types, excludes, and file filters.
 - FR7: Binary File Detection: The tool MUST detect binary files using a null-byte check and skip them to prevent data corruption.
 - FR8: Template and Alias Resolution: The tool MUST correctly resolve the underlying file extension for `.template` and `.tmpl` files (e.g., `config.sh.tmpl` -> `sh`) to ensure appropriate header formatting.
 - FR9: Header Preservation: The tool MUST NEVER leave a file without a license header if one already existed. It MUST verify that it has a valid formatter for the file's resolved extension before attempting to strip or replace existing headers.
+- FR10: SPDX Short-Form Tags: The tool MUST support inserting compact SPDX-compliant tags (`SPDX-FileCopyrightText` and `SPDX-License-Identifier`) rather than multi-line comprehensive license text headers, governed by a `-f` / `-format` flag that defaults to `spdx`.
 
 ## 2. Non-Functional Requirements (The "How Well")
 

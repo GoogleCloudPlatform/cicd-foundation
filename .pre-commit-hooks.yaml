@@ -43,3 +43,12 @@
   language: golang
   pass_filenames: true
   files: ".*locale.*\\.json$"
+
+- id: license-enforcer
+  name: License Enforcer (Go)
+  description: Validates and injects SPDX or full license headers into source files.
+  entry: bash -c 'cd skills/persona-legal/scripts && go run cmd/license_enforcer/main.go -- "${@/#/../../../}"' --
+  language: system
+  pass_filenames: true
+  require_serial: true
+

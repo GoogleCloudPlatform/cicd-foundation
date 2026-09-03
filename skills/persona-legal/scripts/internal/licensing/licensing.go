@@ -35,7 +35,7 @@ var (
 	HTMLStyleExtensions = []string{"html", "md", "xml"}
 
 	// CStyleExtensions defines extensions that use '/** */' for comments.
-	CStyleExtensions = []string{"cjs", "css", "go", "js", "jsx", "mjs", "ts", "tsx"}
+	CStyleExtensions = []string{"cjs", "css", "go", "js", "jsx", "mjs", "php", "ts", "tsx"}
 
 	//go:embed assets/*.txt
 	licenseAssets embed.FS
@@ -46,11 +46,11 @@ var (
 	reC    = regexp.MustCompile(`(?s)/\*\*\s*\n(?:\s*\*?\s*Copyright.*?\n)+\s*\*/(?:\s*\n)?`)
 	reHTML = regexp.MustCompile(`(?s)<!--\s*\n\s*Copyright.*?\n\s*-->(?:\s*\n)?`)
 
-	reShebang = regexp.MustCompile(`(?m)^(#!.*?\n)\n*(# Copyright)`)
+	rePrologueSpacing = regexp.MustCompile(`(?i)^((?:#!|<\?xml|<\?php|<!doctype).*?\n)\n*(#|<!--|/\*\*)`)
 
 	reFrontmatter = regexp.MustCompile(`(?s)^---\n.*?\n---\n+`)
 
-	holderRegex = regexp.MustCompile(`(?m)^(?:\s*//|\s*#|\s*\*|<!--)\s*Copyright\s+[0-9]{4}(?:-[0-9]{4})?\s+(.*?)(?:\n|$)`)
+	holderRegex = regexp.MustCompile(`(?m)^(?:\s*//|\s*#|\s*\*|<!--)\s*(?:Copyright|SPDX-FileCopyrightText:)\s+([0-9]{4})(?:-[0-9]{4})?\s+(.*?)(?:\n|$)`)
 )
 
 func init() {
@@ -130,7 +130,7 @@ type Result struct {
 }
 
 // ProcessFileContent processes the file content to ensure license compliance.
-func ProcessFileContent(content string, ext string, currentYear int, holder string, targetLicense string) (string, Result) {
+func ProcessFileContent(content string, ext string, currentYear int, holder string, targetLicense string, format string) (string, Result) {
 	res := Result{}
 	originalContent := content
 
@@ -163,19 +163,42 @@ func ProcessFileContent(content string, ext string, currentYear int, holder stri
 	content = StripRedundantHeaders(content)
 
 	// 1. Check for full license string
-	licenseText, ok := Licenses[targetLicense]
-	if ok && !hasMetadataLicense && !strings.Contains(content, strings.Split(licenseText, "\n")[0]) {
+	licenseText := Licenses[targetLicense]
+	hasLicenseIdentifier := strings.Contains(content, fmt.Sprintf("SPDX-License-Identifier: %s", targetLicense))
+	needsLicense := !hasMetadataLicense
+	
+	if format == "spdx" {
+		needsLicense = needsLicense && !hasLicenseIdentifier
+	} else if licenseText != "" {
+		needsLicense = needsLicense && !strings.Contains(content, strings.Split(licenseText, "\n")[0])
+	} else {
+		needsLicense = false
+	}
+
+	if needsLicense {
 		effectiveYear := strconv.Itoa(currentYear)
 		if startYear < currentYear {
 			effectiveYear = fmt.Sprintf("%d-%d", startYear, currentYear)
 		}
-		fullHeaderText := fmt.Sprintf("Copyright %s %s\n\n%s", effectiveYear, holder, licenseText)
+		
+		var fullHeaderText string
+		if format == "spdx" {
+			fullHeaderText = fmt.Sprintf("SPDX-FileCopyrightText: %s %s\nSPDX-License-Identifier: %s", effectiveYear, holder, targetLicense)
+		} else {
+			fullHeaderText = fmt.Sprintf("Copyright %s %s\n\n%s", effectiveYear, holder, licenseText)
+		}
+		
 		formatter := HeaderFormatter{}
 		formattedHeader := formatter.Format(fullHeaderText, ext)
 
 		if formattedHeader != "" {
 			res.LicenseAdded = true
-			if (ext == "sh" || ext == "bash" || ext == "bats" || ext == "py") && strings.HasPrefix(content, "#!") {
+			// Move prologues (shebangs, xml/php tags, html doctypes) above the license header
+			lowerContent := strings.ToLower(content)
+			if strings.HasPrefix(content, "#!") ||
+				strings.HasPrefix(lowerContent, "<?xml") ||
+				strings.HasPrefix(lowerContent, "<?php") ||
+				strings.HasPrefix(lowerContent, "<!doctype") {
 				lines := strings.SplitAfterN(content, "\n", 2)
 				if len(lines) > 1 {
 					content = lines[0] + "\n" + formattedHeader + lines[1]
@@ -190,14 +213,15 @@ func ProcessFileContent(content string, ext string, currentYear int, holder stri
 
 	// 2. Update copyright year to range if in the past
 	quotedHolder := regexp.QuoteMeta(holder)
-	specificYearRegex := regexp.MustCompile(`(?i)Copyright\s+([0-9]{4})(?:-[0-9]{4})?\s+` + quotedHolder)
+	specificYearRegex := regexp.MustCompile(`(?i)(Copyright|SPDX-FileCopyrightText:)\s+([0-9]{4})(?:-[0-9]{4})?\s+` + quotedHolder)
 	content = specificYearRegex.ReplaceAllStringFunc(content, func(match string) string {
 		submatch := specificYearRegex.FindStringSubmatch(match)
-		if len(submatch) > 1 {
-			matchStartYear, _ := strconv.Atoi(submatch[1])
+		if len(submatch) > 2 {
+			prefix := submatch[1]
+			matchStartYear, _ := strconv.Atoi(submatch[2])
 			if matchStartYear < currentYear {
 				res.YearUpdated = true
-				return fmt.Sprintf("Copyright %d-%d %s", matchStartYear, currentYear, holder)
+				return fmt.Sprintf("%s %d-%d %s", prefix, matchStartYear, currentYear, holder)
 			}
 		}
 		return match
@@ -212,13 +236,14 @@ func ProcessFileContent(content string, ext string, currentYear int, holder stri
 		`02110-1301,\s+USA\.`,
 		`DEALINGS\s+IN\s+THE\s+SOFTWARE\.`,
 		`limitations\s+under\s+the\s+License\.`,
+		`SPDX-License-Identifier:.*?`,
 	}
 	// go/keep-sorted end
 	endPattern := `(` + strings.Join(endMarkers, "|") + `)`
 
-	if contains(HashStyleExtensions, ext) {
-		content = reShebang.ReplaceAllString(content, "${1}\n${2}")
+	content = rePrologueSpacing.ReplaceAllString(content, "${1}\n${2}")
 
+	if contains(HashStyleExtensions, ext) {
 		reEnd := regexp.MustCompile(`(?m)(# ` + endPattern + `)\n+`)
 		content = reEnd.ReplaceAllString(content, "${1}\n\n")
 	} else if contains(HTMLStyleExtensions, ext) {
@@ -248,7 +273,7 @@ func StripRedundantHeaders(content string) string {
 
 func getOriginalCopyrightYear(content string, holder string, currentYear int) int {
 	quotedHolder := regexp.QuoteMeta(holder)
-	specificYearRegex := regexp.MustCompile(`(?i)Copyright\s+([0-9]{4})(?:-[0-9]{4})?\s+` + quotedHolder)
+	specificYearRegex := regexp.MustCompile(`(?i)(?:Copyright|SPDX-FileCopyrightText:)\s+([0-9]{4})(?:-[0-9]{4})?\s+` + quotedHolder)
 	match := specificYearRegex.FindStringSubmatch(content)
 	if len(match) > 1 {
 		year, _ := strconv.Atoi(match[1])
@@ -260,8 +285,8 @@ func getOriginalCopyrightYear(content string, holder string, currentYear int) in
 func checkForeignHolders(content string, targetHolder string) string {
 	matches := holderRegex.FindAllStringSubmatch(content, -1)
 	for _, match := range matches {
-		if len(match) > 1 {
-			foundHolder := strings.TrimSpace(match[1])
+		if len(match) > 2 {
+			foundHolder := strings.TrimSpace(match[2])
 			if !strings.Contains(strings.ToLower(foundHolder), strings.ToLower(targetHolder)) {
 				return foundHolder
 			}
@@ -271,7 +296,7 @@ func checkForeignHolders(content string, targetHolder string) string {
 }
 
 // EnforceFile reads a file, applies licensing, and writes it back if changed.
-func EnforceFile(path string, currentYear int, holder string, targetLicense string) (Result, error) {
+func EnforceFile(path string, currentYear int, holder string, targetLicense string, format string) (Result, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return Result{}, err
@@ -294,7 +319,7 @@ func EnforceFile(path string, currentYear int, holder string, targetLicense stri
 		ext = "dockerfile"
 	}
 
-	newContent, res := ProcessFileContent(content, ext, currentYear, holder, targetLicense)
+	newContent, res := ProcessFileContent(content, ext, currentYear, holder, targetLicense, format)
 
 	if res.Modified {
 		err = os.WriteFile(path, []byte(newContent), 0644)
