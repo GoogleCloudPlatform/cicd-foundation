@@ -21,9 +21,9 @@ requires:
 build:
   artifacts:
     - image: common
-      context: ..
+      context: ../../..
       docker:
-        dockerfile: common/Dockerfile
+        dockerfile: apps/workstations/common/Dockerfile
         network: cloudbuild
         buildArgs:
           ALPINE_VERSION: '{{.ALPINE_VERSION | default "3.24"}}'

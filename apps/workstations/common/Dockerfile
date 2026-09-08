@@ -31,11 +31,11 @@ FROM ${PREFLIGHT_IMAGE} AS preflight-provider
 ###############################################################
 FROM golang:${GOLANG_VERSION}-alpine${ALPINE_VERSION} AS setup-builder
 WORKDIR /app
-COPY common/tools/setup-workstation/go.mod common/tools/setup-workstation/go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
-COPY common/tools/setup-workstation/cmd ./cmd
-COPY common/tools/setup-workstation/internal ./internal
-RUN CGO_ENABLED=0 GOOS=linux go build -o /setup-workstation ./cmd/setup-workstation
+COPY apps/workstations/common/tools/setup-workstation/cmd ./apps/workstations/common/tools/setup-workstation/cmd
+COPY apps/workstations/common/tools/setup-workstation/internal ./apps/workstations/common/tools/setup-workstation/internal
+RUN CGO_ENABLED=0 GOOS=linux go build -o /setup-workstation ./apps/workstations/common/tools/setup-workstation/cmd/setup-workstation
 
 ###############################################################
 # Stage: Common Provider
@@ -54,5 +54,5 @@ RUN apk add --no-cache curl tar && \
     apk del curl tar
 
 COPY --from=preflight-provider /export/ /export/
-COPY common/assets/ /export/
+COPY apps/workstations/common/assets/ /export/
 COPY --from=setup-builder /setup-workstation /export/google/bin/setup-workstation
