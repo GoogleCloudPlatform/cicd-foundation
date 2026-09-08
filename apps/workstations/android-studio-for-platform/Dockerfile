@@ -27,7 +27,6 @@ ARG BUILDER_PKGS="\
   equivs \
   git \
   golang"
-ARG LIBTINFO5_VERSION="6.3-2ubuntu0.2_amd64"
 ARG RETRY_ATTEMPTS=3
 ARG RETRY_DELAY=5
 ARG CUTTLEFISH_RETRY_ATTEMPTS=8
@@ -72,7 +71,6 @@ ARG DEBIAN_FRONTEND
 ARG APT_OPTS
 ARG CURL_OPTS
 ARG BUILDER_PKGS
-ARG LIBTINFO5_VERSION
 ARG RETRY_ATTEMPTS
 ARG RETRY_DELAY
 ARG CUTTLEFISH_RETRY_ATTEMPTS
@@ -89,8 +87,9 @@ RUN . /google/scripts/common.sh && \
     export RETRY_DELAY=${RETRY_DELAY} && \
     retry "apt-get update" && \
     retry "apt-get install ${APT_OPTS} ${BUILDER_PKGS}" && \
-    curl ${CURL_OPTS} -O "http://security.ubuntu.com/ubuntu/pool/universe/n/ncurses/libtinfo5_${LIBTINFO5_VERSION}.deb" && \
-    retry "apt-get install ${APT_OPTS} ./libtinfo5_${LIBTINFO5_VERSION}.deb" && \
+    export LIBTINFO5_LATEST_DEB=$(curl -sSL "http://security.ubuntu.com/ubuntu/pool/universe/n/ncurses/" | grep -Eo 'href="libtinfo5_[^"]*_amd64\.deb"' | grep -v '%7e' | cut -d'"' -f2 | sort -V | tail -n1) && \
+    curl ${CURL_OPTS} -O "http://security.ubuntu.com/ubuntu/pool/universe/n/ncurses/${LIBTINFO5_LATEST_DEB}" && \
+    retry "apt-get install ${APT_OPTS} ./${LIBTINFO5_LATEST_DEB}" && \
     retry "${CUTTLEFISH_RETRY_ATTEMPTS}" "${RETRY_DELAY}" "git clone https://github.com/google/android-cuttlefish" && \
     /google/scripts/patch_sources.sh /android-cuttlefish && \
     retry 5 "${RETRY_DELAY}" "/android-cuttlefish/tools/buildutils/build_packages.sh" && \

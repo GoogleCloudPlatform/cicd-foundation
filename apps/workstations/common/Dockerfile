@@ -31,10 +31,10 @@ FROM ${PREFLIGHT_IMAGE} AS preflight-provider
 ###############################################################
 FROM golang:${GOLANG_VERSION}-alpine${ALPINE_VERSION} AS setup-builder
 WORKDIR /app
-COPY common/tools/setup-workstation/go.mod common/tools/setup-workstation/go.sum ./
-RUN go mod download
-COPY common/tools/setup-workstation/cmd ./cmd
-COPY common/tools/setup-workstation/internal ./internal
+COPY tools/setup-workstation/cmd ./cmd
+COPY tools/setup-workstation/internal ./internal
+RUN go mod init github.com/GoogleCloudPlatform/cicd-foundation/apps/workstations/common/tools/setup-workstation && \
+    go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -o /setup-workstation ./cmd/setup-workstation
 
 ###############################################################
@@ -54,5 +54,5 @@ RUN apk add --no-cache curl tar && \
     apk del curl tar
 
 COPY --from=preflight-provider /export/ /export/
-COPY common/assets/ /export/
+COPY assets/ /export/
 COPY --from=setup-builder /setup-workstation /export/google/bin/setup-workstation
