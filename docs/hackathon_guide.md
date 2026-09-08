@@ -56,7 +56,23 @@ The `cicd-foundation` allows you to build your workstation image from different 
 1.  **Public Open-Source (`git_repo`)**: Best for using the latest community updates directly from a public repository.
 2.  **Self-Governed / Private (`ssm_repo`)**: Best for enterprise environments. Host the source code in your own **Secure Source Manager (SSM)** instance. This provides **maximum control and auditability**, allowing your security team to review all build hooks and configurations within your own project boundary.
 
-### Step 3: Complete `terraform.tfvars` Example
+### Step 3: Interactive Configuration with `deploy-workstations`
+
+Instead of manually copying and editing configuration files, you can use the AI agent skill `deploy-workstations` to interactively generate your `terraform.tfvars` and validate the deployment.
+
+If your networking strategy entails a **Shared VPC**, you must proactively coordinate with the Central Networking Team to grant the **Compute Network User** role (`roles/compute.networkUser`) on the host project (or the specific subnets) to the **Cloud Workstations Service Agent**.
+
+To retrieve the Cloud Workstations Service Agent for your project, use the following command (replace `WORKSTATIONS_PROJECT_ID` with the ID of the project where you will create your workstations cluster):
+
+```bash
+gcloud beta services identity create \
+    --service=workstations.googleapis.com \
+    --project=WORKSTATIONS_PROJECT_ID
+```
+
+The Cloud Workstations Service Agent uses the format `service-$WORKSTATIONS_PROJECT_NUMBER@gcp-sa-workstations.iam.gserviceaccount.com`. Ensure this agent is granted the Compute Network User role on the Shared VPC subnet. For more details, refer to the [official Workstations Shared VPC documentation](https://cloud.google.com/workstations/docs/set-up-shared-vpc-access).
+
+### Step 4: Complete `terraform.tfvars` Example (Manual Alternative)
 
 Use this complete example to deploy the entire hackathon infrastructure via the `cicd-foundation`.
 
@@ -124,7 +140,7 @@ cws_configs = {
 }
 ```
 
-### Step 4: Execute the Deployment
+### Step 5: Execute the Deployment
 
 For detailed instructions on running the Terraform commands, monitoring the build, and connecting via SSH, refer to the deployment guide:
 

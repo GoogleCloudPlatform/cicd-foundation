@@ -159,3 +159,7 @@ validate_skill() {
 @test "validate skill: update-preflight" {
   validate_skill "apps/workstations/preflight/skills/update-preflight"
 }
+
+@test "validate skill: deploy-workstations" {
+  validate_skill "skills/deploy-workstations"
+}
