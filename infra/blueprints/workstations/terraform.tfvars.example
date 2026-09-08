@@ -84,6 +84,46 @@ project_id = "YOUR_PROJECT_ID"
 
 # Custom images for Cloud Workstations
 cws_custom_images = {
+  # Custom Cloud Workstation Images with Android Studio for Platform
+  "android-studio-for-platform" : {
+    git_repo = {
+      url    = "https://github.com/GoogleCloudPlatform/cicd-foundation.git"
+      branch = "main"
+    }
+    build = {
+      skaffold_path   = "apps/workstations/android-studio-for-platform"
+      timeout_seconds = 7200
+      machine_type    = "E2_HIGHCPU_32"
+      env = {
+      }
+    }
+    workstation_config = {
+      # paused = true
+    }
+  },
+  # Custom Cloud Workstation Image with Antigravity
+  "antigravity" : {
+    git_repo = {
+      url    = "https://github.com/GoogleCloudPlatform/cicd-foundation.git"
+      branch = "main"
+    }
+    build = {
+      skaffold_path   = "apps/workstations/antigravity"
+      timeout_seconds = 7200
+      machine_type    = "E2_HIGHCPU_32"
+    }
+  },
+  "antigravity2" : {
+    git_repo = {
+      url    = "https://github.com/GoogleCloudPlatform/cicd-foundation.git"
+      branch = "main"
+    }
+    build = {
+      skaffold_path   = "apps/workstations/antigravity2"
+      timeout_seconds = 7200
+      machine_type    = "E2_HIGHCPU_32"
+    }
+  },
   "codeoss-devcontainer-gvisor-terraform" : {
     git_repo = {
       url    = "https://github.com/GoogleCloudPlatform/cicd-foundation.git"
@@ -97,41 +137,14 @@ cws_custom_images = {
       # paused = true
     }
   },
-  # Custom Cloud Workstation Image with Antigravity
-  "antigravity2" : {
+  "intellij" : {
     git_repo = {
       url    = "https://github.com/GoogleCloudPlatform/cicd-foundation.git"
       branch = "main"
     }
     build = {
-      skaffold_path   = "apps/workstations/antigravity2.0"
+      skaffold_path   = "apps/workstations/intellij"
       timeout_seconds = 7200
-      machine_type    = "E2_HIGHCPU_32"
-    }
-  },
-  "antigravity" : {
-    git_repo = {
-      url    = "https://github.com/GoogleCloudPlatform/cicd-foundation.git"
-      branch = "main"
-    }
-    build = {
-      skaffold_path   = "apps/workstations/antigravity"
-      timeout_seconds = 7200
-      machine_type    = "E2_HIGHCPU_32"
-    }
-  },
-  # Custom Cloud Workstation Images with Android Studio for Platform
-  "android-studio-for-platform" : {
-    git_repo = {
-      url    = "https://github.com/GoogleCloudPlatform/cicd-foundation.git"
-      branch = "main"
-    }
-    build = {
-      skaffold_path   = "apps/workstations/android-studio-for-platform"
-      timeout_seconds = 7200
-      machine_type    = "E2_HIGHCPU_32"
-      env = {
-      }
     }
     workstation_config = {
       # paused = true
@@ -158,11 +171,22 @@ cws_clusters = {
 # Cloud Workstations Configs
 cws_configs = {
   "custom" = {
+    boost_configs = [  # Defaults to []
+      {
+        id           = "gpu"
+        machine_type = "n1-standard-96"
+        accelerators = [
+          {
+            type  = "nvidia-tesla-t4"
+            count = 1
+          }
+        ]
+      }
+    ]
     boot_disk_size_gb              = 64
     creators                       = [
     ]
     custom_image_names             = [
-      "antigravity",
       "antigravity2",
       "codeoss-devcontainer-gvisor-terraform",
     ]
@@ -202,9 +226,8 @@ cws_configs = {
     #  "user2@example.com",
     ]
     custom_image_names = [
-      "antigravity",
+      "antigravity2",
       "android-studio-for-platform",
-      "code-oss",
     ]
     cws_cluster = "workstations"
     #disable_public_ip_addresses = true  # Defaults to false
