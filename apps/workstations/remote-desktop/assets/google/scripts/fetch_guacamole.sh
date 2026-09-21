@@ -37,6 +37,13 @@ fetch_extensions() {
 }
 
 main() {
+  # Keep /downloads present so the consuming `COPY --from=fetcher` stays valid.
+  mkdir -p /downloads
+  if [[ "${ENABLE_GUACAMOLE:-${INSTALL_GUACAMOLE:-true}}" == "false" ]]; then
+    echo "Guacamole is disabled, skipping asset fetch."
+    return 0
+  fi
+
   mkdir -p /downloads/opt/images /downloads/etc/guacamole/extensions
   fetch_crane
   fetch_images
