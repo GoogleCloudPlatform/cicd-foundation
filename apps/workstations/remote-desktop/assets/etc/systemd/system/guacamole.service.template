@@ -16,6 +16,7 @@
 Description=Guacamole Client Container
 Wants=docker.service network-online.target guacd.service config-rendering.service ${DESKTOP_SERVICE}
 After=docker.service network-online.target guacd.service config-rendering.service
+ConditionEnvironment=ENABLE_GUACAMOLE=true
 
 [Service]
 Type=simple
