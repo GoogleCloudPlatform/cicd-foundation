@@ -44,8 +44,29 @@ setup_home_dir() {
     usermod -aG docker "${WORKSTATION_USER}" || true
   fi
 
+  # Only chown entries that are actually mis-owned.
+  #
+  # A recursive chown rewrites every inode under /home unconditionally, and
+  # anything ordered after this unit is blocked until it finishes. On a home
+  # directory holding a large source checkout that dominates the boot: on a
+  # workstation with 3.2M inodes under /home, and where nothing is actually
+  # mis-owned, filtering first took user-setup.service from 6min 15.858s to
+  # 3min 53.509s.
+  #
+  # The cost is also paid on every start rather than once. main() guards on
+  # /run/user-setup-done, but /run is tmpfs, so the marker does not survive a
+  # shutdown.
+  #
+  # Filtering preserves the behaviour exactly - this still runs on every boot
+  # and still repairs genuinely wrong ownership (the first mount of a freshly
+  # created disk, a disk seeded from a snapshot built under a different UID, or
+  # an image that renumbers the user) - while only writing when there is
+  # something to repair.
+  #
   # Use -h to avoid dereferencing symlinks
-  chown -R -h "${WORKSTATION_UID}:${WORKSTATION_UID}" "/home/${WORKSTATION_USER}"
+  find "/home/${WORKSTATION_USER}" \
+    \( ! -uid "${WORKSTATION_UID}" -o ! -gid "${WORKSTATION_UID}" \) \
+    -exec chown -h "${WORKSTATION_UID}:${WORKSTATION_UID}" {} +
 }
 
 # Executes any modular user-level hooks (as root, but can use runuser inside).
