@@ -19,17 +19,7 @@ ARG BASE_IMAGE
 ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_OPTS="-y --no-install-recommends"
 ARG CURL_OPTS="-fsSL --retry 3 --connect-timeout 10 --max-time 300"
-ARG BUILDER_PKGS="\
-  config-package-dev \
-  curl \
-  debhelper-compat \
-  devscripts \
-  equivs \
-  git \
-  golang"
-ARG RETRY_ATTEMPTS=3
-ARG RETRY_DELAY=5
-ARG CUTTLEFISH_RETRY_ATTEMPTS=8
+ARG CF_VER=1.57.0
 ARG ASFP_VERSION=canary
 ARG INSTALL_ABFS_CLIENT=false
 ARG AOSP_PKGS="\
@@ -58,46 +48,20 @@ ARG ABFS_PKGS="abfs-client git psmisc rsync unzip zip"
 ARG ASFP_DEB_URL="https://dl.google.com/android/asfp/asfp-${ASFP_VERSION}-current-linux.deb"
 
 ###############################################################
-# Stage: Base Provider (to get common.sh)
-###############################################################
-FROM ${BASE_IMAGE} AS base-provider
-ARG BASE_IMAGE
-
-###############################################################
 # Stage: Cuttlefish Builder
 ###############################################################
 FROM ${GCP_REGION}-docker.pkg.dev/cloud-workstations-images/predefined/code-oss AS cuttlefish-builder
-ARG DEBIAN_FRONTEND
-ARG APT_OPTS
 ARG CURL_OPTS
-ARG BUILDER_PKGS
-ARG RETRY_ATTEMPTS
-ARG RETRY_DELAY
-ARG CUTTLEFISH_RETRY_ATTEMPTS
-ARG GCP_REGION
+ARG CF_VER
 
 SHELL ["/bin/bash", "-c"]
 
-# Use common.sh retry helper from base image
-COPY --from=base-provider /google/scripts/common.sh /google/scripts/common.sh
-COPY --from=base-provider /etc/apt/keyrings/ /etc/apt/keyrings/
-COPY scripts/patch_sources.sh /google/scripts/patch_sources.sh
-RUN . /google/scripts/common.sh && \
-    export RETRY_ATTEMPTS=${RETRY_ATTEMPTS} && \
-    export RETRY_DELAY=${RETRY_DELAY} && \
-    retry "apt-get update" && \
-    retry "apt-get install ${APT_OPTS} ${BUILDER_PKGS}" && \
-    export LIBTINFO5_LATEST_DEB=$(curl -sSL "http://security.ubuntu.com/ubuntu/pool/universe/n/ncurses/" | grep -Eo 'href="libtinfo5_[^"]*_amd64\.deb"' | grep -v '%7e' | cut -d'"' -f2 | sort -V | tail -n1) && \
-    curl ${CURL_OPTS} -O "http://security.ubuntu.com/ubuntu/pool/universe/n/ncurses/${LIBTINFO5_LATEST_DEB}" && \
-    retry "apt-get install ${APT_OPTS} ./${LIBTINFO5_LATEST_DEB}" && \
-    retry "${CUTTLEFISH_RETRY_ATTEMPTS}" "${RETRY_DELAY}" "git clone https://github.com/google/android-cuttlefish" && \
-    /google/scripts/patch_sources.sh /android-cuttlefish && \
-    retry 5 "${RETRY_DELAY}" "/android-cuttlefish/tools/buildutils/build_packages.sh" && \
-    mkdir out && \
-    cp /android-cuttlefish/cuttlefish-base_*_*64.deb /out && \
-    cp /android-cuttlefish/cuttlefish-user_*_*64.deb /out && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /out && \
+    PACKAGES_URL="https://us-apt.pkg.dev/projects/android-cuttlefish-artifacts/dists/android-cuttlefish/main/binary-amd64/Packages" && \
+    BASE_DEB=$(curl ${CURL_OPTS} "${PACKAGES_URL}" | grep -Eo "pool/android-cuttlefish/cuttlefish-base_${CF_VER}_amd64_[^ ]*\.deb" | tail -n1) && \
+    USER_DEB=$(curl ${CURL_OPTS} "${PACKAGES_URL}" | grep -Eo "pool/android-cuttlefish/cuttlefish-user_${CF_VER}_amd64_[^ ]*\.deb" | tail -n1) && \
+    curl ${CURL_OPTS} "https://us-apt.pkg.dev/projects/android-cuttlefish-artifacts/${BASE_DEB}" -o /out/cuttlefish-base_amd64.deb && \
+    curl ${CURL_OPTS} "https://us-apt.pkg.dev/projects/android-cuttlefish-artifacts/${USER_DEB}" -o /out/cuttlefish-user_amd64.deb
 
 ###############################################################
 # Stage: Main System
