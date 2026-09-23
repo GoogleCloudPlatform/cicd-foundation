@@ -26,12 +26,11 @@ limitations under the License.
 
 ## 2. Detailed Design: ASfP-Specific Integration
 
-### Multi-Stage Cuttlefish Build
+### Multi-Stage Cuttlefish Fetch
 
 The ASfP layer includes robust support for the Cuttlefish Android emulator.
 
-- **Design Rationale**: Rather than installing pre-built binaries, Cuttlefish is compiled from source in a dedicated build stage (`cuttlefish-builder`). This guarantees exact kernel module compatibility with the underlying Ubuntu base OS used in the Cloud Workstation.
-- **Source Patching**: To improve build stability, especially in environments with strict network controls or connectivity issues to kernel.org, a script (`patch_sources.sh`) replaces flaky git kernel URLs with GitHub mirrors during the build phase.
+- **Pre-built Packages**: Cuttlefish `.deb` packages (`cuttlefish-base` and `cuttlefish-user`) are fetched from the `android-cuttlefish-artifacts` Artifact Registry in a dedicated build stage (`cuttlefish-builder`) using a pinned `CF_VER` build argument for reproducible builds.
 
 ### Hook System & Runtime Configuration
 
