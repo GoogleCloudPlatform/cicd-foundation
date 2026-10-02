@@ -8,8 +8,16 @@
     "translation": "تم العثور على صاحب حقوق طبع ونشر مختلف ('{{.Holder}}') في {{.Path}}"
   },
   {
+    "id": "license_enforcer_error_no_holder",
+    "translation": "صاحب حقوق الطبع والنشر مطلوب: يرجى تكوين 'git config user.name' أو تحديد --holder"
+  },
+  {
     "id": "license_enforcer_error_stat",
     "translation": "فشل في الحصول على معلومات {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_error_unacceptable_licenses",
+    "translation": "تم العثور على {{.Count}} ملف (ملفات) بتراخيص غير مقبولة"
   },
   {
     "id": "license_enforcer_error_walk",
@@ -28,11 +36,15 @@
     "translation": "تم تطبيق رؤوس الترخيص أو الإصلاحات على {{.Count}} ملفات."
   },
   {
+    "id": "license_enforcer_unacceptable_license",
+    "translation": "تم العثور على ترخيص غير مقبول ('{{.FoundLicense}}') في {{.Path}} (المقبول: {{.AcceptableLicenses}})"
+  },
+  {
     "id": "license_enforcer_updating",
     "translation": "  - تحديث سنة حقوق الطبع والنشر في {{.Path}}"
   },
   {
     "id": "usage_license_enforcer",
-    "translation": "الاستخدام: license_enforcer [options] [filenames...]\n\nالخيارات:\n  --holder string    صاحب حقوق الطبع والنشر (افتراضي \"Google LLC\")\n  --license string   معرف ترخيص SPDX (افتراضي \"Apache-2.0\")\n  --exclude string   قائمة المسارات المراد استثناؤها مفصولة بمسافات\n  --filter string    تعبير نمطي لتصفية الملفات"
+    "translation": "الاستخدام: license_enforcer [options] [filenames...]\n\nالخيارات:\n  --holder string               صاحب حقوق الطبع والنشر (افتراضي: git config user.name)\n  --license string              معرف ترخيص SPDX (افتراضي: من root LICENSE، أو \"Apache-2.0\")\n  --acceptable-licenses string  قائمة بمعرفات تراخيص SPDX المقبولة (مفصولة بفاصلة أو مسافة)\n  --exclude string              قائمة المسارات المراد استثناؤها مفصولة بمسافات\n  --filter string               تعبير نمطي لتصفية الملفات"
   }
 ]

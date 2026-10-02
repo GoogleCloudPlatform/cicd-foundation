@@ -36,34 +36,56 @@ const (
 )
 
 var (
-	holder        = flag.String("holder", "Google LLC", "Copyright holder name.")
-	targetLicense = flag.String("license", "Apache-2.0", "SPDX license identifier to enforce.")
-	exclude       = flag.String("exclude", "node_modules/ dist/ licenses/ check_licenses.py LICENSE COPYING NOTICE", "Space-separated list of strings to exclude.")
-	filter        = flag.String("filter", licensing.DefaultFilter(), "Regex to filter files.")
-	format        = flag.String("format", "spdx", "Format of the license header: 'full' or 'spdx'.")
+	holder             = flag.String("holder", defaultHolder(), "Copyright holder name (defaults to git config user.name).")
+	targetLicense      = flag.String("license", licensing.DiscoverDefaultLicense(), "SPDX license identifier to enforce.")
+	acceptableLicenses = flag.String("acceptable-licenses", "", "List of acceptable SPDX license identifiers (comma/space-separated).")
+	exclude            = flag.String("exclude", "node_modules/ dist/ licenses/ check_licenses.py LICENSE COPYING NOTICE", "Space-separated list of strings to exclude.")
+	filter             = flag.String("filter", licensing.DefaultFilter(), "Regex to filter files.")
+	format             = flag.String("format", "spdx", "Format of the license header: 'full' or 'spdx'.")
 )
 
+// defaultHolder resolves the author from git config user.name, returning empty if unset.
+func defaultHolder() string {
+	name, _ := licensing.ResolveDefaultHolder()
+	return name
+}
+
 func main() {
+	if err := i18n.Init("", "en", locales.Content); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to initialize i18n: %v\n", err)
+		os.Exit(1)
+	}
+
 	flag.StringVar(format, "f", "spdx", "Shorthand for -format")
 	flag.Usage = func() {
 		fmt.Println(i18n.T("usage_license_enforcer"))
 	}
 	flag.Parse()
 
-	if err := run(*holder, *targetLicense, *exclude, *filter, *format, flag.Args()); err != nil {
-		if err.Error() != "files modified" {
+	if strings.TrimSpace(*holder) == "" {
+		fmt.Fprintf(os.Stderr, "error: %s\n", i18n.T("license_enforcer_error_no_holder"))
+		os.Exit(1)
+	}
+
+	if err := run(*holder, *targetLicense, *acceptableLicenses, *exclude, *filter, *format, flag.Args()); err != nil {
+		if err.Error() != "files modified" && !strings.HasPrefix(err.Error(), "unacceptable licenses") {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
-			os.Exit(1)
 		}
 		os.Exit(1)
 	}
 }
 
 // run executes the license enforcement logic.
-func run(holderName, licenseID, excludePaths, filterPat, format string, args []string) error {
+func run(holderName, licenseID, acceptableLicensesStr, excludePaths, filterPat, format string, args []string) error {
 	if err := i18n.Init("", "en", locales.Content); err != nil {
 		return fmt.Errorf("failed to initialize i18n: %w", err)
 	}
+
+	if strings.TrimSpace(holderName) == "" {
+		return fmt.Errorf("%s", i18n.T("license_enforcer_error_no_holder"))
+	}
+
+	acceptableList := licensing.ParseLicenseList(acceptableLicensesStr)
 
 	excludeList := strings.Fields(excludePaths)
 	filterRegex, err := regexp.Compile(filterPat)
@@ -137,6 +159,7 @@ func run(holderName, licenseID, excludePaths, filterPat, format string, args []s
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	modifiedCount := 0
+	unacceptableCount := 0
 	sem := make(chan struct{}, concurrencyLimit)
 
 	for _, p := range paths {
@@ -146,9 +169,21 @@ func run(holderName, licenseID, excludePaths, filterPat, format string, args []s
 			sem <- struct{}{}
 			defer func() { <-sem }()
 
-			res, err := licensing.EnforceFile(path, currentYear, holderName, licenseID, format)
+			res, err := licensing.EnforceFile(path, currentYear, holderName, licenseID, format, acceptableList...)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "failed to process %s: %v\n", path, err)
+				return
+			}
+
+			if res.UnacceptableLicense != "" {
+				mu.Lock()
+				unacceptableCount++
+				fmt.Println(i18n.TF("license_enforcer_unacceptable_license", map[string]interface{}{
+					"Path":               path,
+					"FoundLicense":       res.UnacceptableLicense,
+					"AcceptableLicenses": strings.Join(append([]string{licenseID}, acceptableList...), ", "),
+				}))
+				mu.Unlock()
 				return
 			}
 
@@ -174,6 +209,14 @@ func run(holderName, licenseID, excludePaths, filterPat, format string, args []s
 	}
 
 	wg.Wait()
+
+	if unacceptableCount > 0 {
+		fmt.Println(i18n.TF("license_enforcer_error_unacceptable_licenses", map[string]interface{}{
+			"Count":              unacceptableCount,
+			"AcceptableLicenses": strings.Join(append([]string{licenseID}, acceptableList...), ", "),
+		}))
+		return fmt.Errorf("unacceptable licenses found in %d file(s)", unacceptableCount)
+	}
 
 	if modifiedCount > 0 {
 		fmt.Println(i18n.TF("license_enforcer_summary", map[string]interface{}{"Count": modifiedCount}))

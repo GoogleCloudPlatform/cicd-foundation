@@ -25,6 +25,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 var (
@@ -63,7 +64,7 @@ var (
 		// go/keep-sorted end
 	}
 
-	// CStyleExtensions defines extensions that use '/** */' for comments.
+	// CStyleExtensions defines extensions that use '/** */' or '//' for comments.
 	CStyleExtensions = []string{
 		// go/keep-sorted start
 		"c",
@@ -97,9 +98,14 @@ var (
 	reC    = regexp.MustCompile(`(?s)/\*\*\s*\n(?:\s*\*?\s*Copyright.*?\n)+\s*\*/(?:\s*\n)?`)
 	reHTML = regexp.MustCompile(`(?s)<!--\s*\n\s*Copyright.*?\n\s*-->(?:\s*\n)?`)
 
-	rePrologueSpacing = regexp.MustCompile(`(?i)^((?:#!|<\?xml|<\?php|<!doctype).*?\n)\n*(#|<!--|/\*\*)`)
+	reCBlockHeader = regexp.MustCompile(`(?s)/\*\*\s*\n(?:\s*\*?\s*(?:SPDX-FileCopyrightText:|SPDX-License-Identifier:|Copyright|Licensed under).*?\n)+\s*\*/(?:\s*\n)?`)
 
-	reFrontmatter = regexp.MustCompile(`(?s)^---\n.*?\n---\n+`)
+	rePrologueSpacing = regexp.MustCompile(`(?i)^((?:#!|<\?xml|<\?php|<!doctype).*?\n)\n*(#|<!--|/\*\*|//)`)
+
+	reFrontmatter        = regexp.MustCompile(`(?s)^---\n.*?\n---\n+`)
+	reFrontmatterLicense = regexp.MustCompile(`(?m)^license:\s*([A-Za-z0-9.-]+)`)
+
+	reSPDXTag = regexp.MustCompile(`(?i)SPDX-License-Identifier:\s*([A-Za-z0-9.-]+)`)
 
 	holderRegex = regexp.MustCompile(`(?m)^(?:\s*//|\s*#|\s*\*|<!--)\s*(?:Copyright|SPDX-FileCopyrightText:)\s+([0-9]{4})(?:-[0-9]{4})?\s+(.*?)(?:\n|$)`)
 )
@@ -150,11 +156,117 @@ func DefaultFilter() string {
 	return regex
 }
 
+// ParseLicenseList parses a comma- or space-separated string of SPDX identifiers.
+func ParseLicenseList(input string) []string {
+	fields := strings.FieldsFunc(input, func(r rune) bool {
+		return r == ',' || unicode.IsSpace(r)
+	})
+	var result []string
+	for _, f := range fields {
+		trimmed := strings.TrimSpace(f)
+		if trimmed != "" {
+			result = append(result, trimmed)
+		}
+	}
+	return result
+}
+
+// IsLicenseAcceptable checks whether a detected license matches the target license or any acceptable license.
+func IsLicenseAcceptable(detected string, primary string, acceptable []string) bool {
+	if strings.EqualFold(detected, primary) {
+		return true
+	}
+	for _, acc := range acceptable {
+		if strings.EqualFold(detected, acc) {
+			return true
+		}
+	}
+	return false
+}
+
+// extractLeadingHeader extracts the comment block at the top of the file before any code.
+func extractLeadingHeader(content string) string {
+	lower := strings.ToLower(content)
+	if strings.HasPrefix(content, "#!") ||
+		strings.HasPrefix(lower, "<?xml") ||
+		strings.HasPrefix(lower, "<?php") ||
+		strings.HasPrefix(lower, "<!doctype") {
+		parts := strings.SplitAfterN(content, "\n", 2)
+		if len(parts) > 1 {
+			content = parts[1]
+		}
+	}
+
+	content = strings.TrimLeft(content, " \t\r\n")
+
+	// Block comments: /* ... */ or /** ... */
+	if strings.HasPrefix(content, "/*") {
+		endIdx := strings.Index(content, "*/")
+		if endIdx != -1 {
+			return content[:endIdx+2]
+		}
+	}
+
+	// HTML comments: <!-- ... -->
+	if strings.HasPrefix(content, "<!--") {
+		endIdx := strings.Index(content, "-->")
+		if endIdx != -1 {
+			return content[:endIdx+3]
+		}
+	}
+
+	// Line comments: // or #
+	lines := strings.Split(content, "\n")
+	var headerLines []string
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" {
+			headerLines = append(headerLines, line)
+			continue
+		}
+		if strings.HasPrefix(trimmed, "//") || strings.HasPrefix(trimmed, "#") {
+			headerLines = append(headerLines, line)
+			continue
+		}
+		break
+	}
+
+	return strings.Join(headerLines, "\n")
+}
+
+// DetectExistingLicense inspects content to identify an existing license identifier in the file header.
+func DetectExistingLicense(content string) string {
+	if strings.HasPrefix(content, "---") {
+		if match := reFrontmatter.FindString(content); match != "" {
+			if licMatch := reFrontmatterLicense.FindStringSubmatch(match); len(licMatch) > 1 {
+				return licMatch[1]
+			}
+		}
+	}
+
+	header := extractLeadingHeader(content)
+	if match := reSPDXTag.FindStringSubmatch(header); len(match) > 1 {
+		return match[1]
+	}
+	for licID, text := range Licenses {
+		lines := strings.Split(text, "\n")
+		if len(lines) > 0 && lines[0] != "" && strings.Contains(header, lines[0]) {
+			return licID
+		}
+	}
+	return ""
+}
+
 // HeaderFormatter formats the license text for different file types.
 type HeaderFormatter struct{}
 
-// Format wraps text in comment markers based on file extension.
+// Format wraps text in comment markers based on file extension using full formatting by default.
 func (f HeaderFormatter) Format(text string, ext string) string {
+	return f.FormatWithStyle(text, ext, "full")
+}
+
+// FormatWithStyle wraps text in comment markers based on file extension and format style ("spdx" or "full").
+func (f HeaderFormatter) FormatWithStyle(text string, ext string, formatStyle string) string {
 	text = strings.TrimSpace(text)
 	lines := strings.Split(text, "\n")
 
@@ -175,6 +287,18 @@ func (f HeaderFormatter) Format(text string, ext string) string {
 	}
 
 	if contains(CStyleExtensions, ext) {
+		if formatStyle == "spdx" && ext != "css" {
+			var formatted []string
+			for _, line := range lines {
+				if line == "" {
+					formatted = append(formatted, "//")
+				} else {
+					formatted = append(formatted, "// "+line)
+				}
+			}
+			return strings.Join(formatted, "\n") + "\n\n"
+		}
+
 		var formatted []string
 		formatted = append(formatted, "/**")
 		for _, line := range lines {
@@ -202,14 +326,47 @@ func contains(slice []string, s string) bool {
 
 // Result represents the outcome of processing a file.
 type Result struct {
-	Modified        bool
-	LicenseAdded    bool
-	YearUpdated     bool
-	DifferentHolder string
+	Modified            bool
+	LicenseAdded        bool
+	YearUpdated         bool
+	DifferentHolder     string
+	UnacceptableLicense string
+}
+
+// convertCBlockToSlashSlash converts a /** */ comment block to // line comments.
+func convertCBlockToSlashSlash(content string) (string, bool) {
+	match := reCBlockHeader.FindString(content)
+	if match == "" {
+		return content, false
+	}
+
+	lines := strings.Split(match, "\n")
+	var convertedLines []string
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "/**" || trimmed == "*/" || trimmed == "" {
+			continue
+		}
+		trimmed = strings.TrimPrefix(trimmed, "*")
+		trimmed = strings.TrimSpace(trimmed)
+		if trimmed == "" {
+			convertedLines = append(convertedLines, "//")
+		} else {
+			convertedLines = append(convertedLines, "// "+trimmed)
+		}
+	}
+
+	if len(convertedLines) == 0 {
+		return content, false
+	}
+
+	replacement := strings.Join(convertedLines, "\n") + "\n\n"
+	newContent := strings.Replace(content, match, replacement, 1)
+	return newContent, newContent != content
 }
 
 // ProcessFileContent processes the file content to ensure license compliance.
-func ProcessFileContent(content string, ext string, currentYear int, holder string, targetLicense string, format string) (string, Result) {
+func ProcessFileContent(content string, ext string, currentYear int, holder string, targetLicense string, format string, acceptableLicenses ...string) (string, Result) {
 	res := Result{}
 	originalContent := content
 
@@ -220,28 +377,48 @@ func ProcessFileContent(content string, ext string, currentYear int, holder stri
 		if match := reFrontmatter.FindString(content); match != "" {
 			frontmatter = match
 			content = content[len(frontmatter):]
-			// Check for license: key in the frontmatter block
 			if strings.Contains(frontmatter, "\nlicense:") {
 				hasMetadataLicense = true
 			}
 		}
 	}
 
-	// New Requirement: An existing header must never be removed.
-	// We only proceed if we actually know how to format a header for this extension.
-	if formatter := (HeaderFormatter{}); formatter.Format("test", ext) == "" {
+	// Verify we know how to format a header for this extension.
+	if formatter := (HeaderFormatter{}); formatter.FormatWithStyle("test", ext, format) == "" {
 		return originalContent, res
 	}
 
+	// 1. License Check Gate: verify existing license against acceptable set
+	detectedLic := DetectExistingLicense(originalContent)
+	if detectedLic != "" {
+		if !IsLicenseAcceptable(detectedLic, targetLicense, acceptableLicenses) {
+			res.UnacceptableLicense = detectedLic
+			return originalContent, res
+		}
+		// Acceptable license from another vendor/project: do not alter or overwrite
+		if !strings.EqualFold(detectedLic, targetLicense) {
+			return originalContent, res
+		}
+	}
+
+	// 2. Foreign copyright holder check
 	res.DifferentHolder = checkForeignHolders(content, holder)
 	if res.DifferentHolder != "" {
 		return originalContent, res
 	}
 
+	// 3. Idempotent conversion of /** */ to // for CStyleExtensions in SPDX mode
+	if format == "spdx" && contains(CStyleExtensions, ext) && ext != "css" {
+		if converted, changed := convertCBlockToSlashSlash(content); changed {
+			content = converted
+			res.Modified = true
+		}
+	}
+
 	startYear := getOriginalCopyrightYear(content, holder, currentYear)
 	content = StripRedundantHeaders(content)
 
-	// 1. Check for full license string
+	// 4. Check for full license string or SPDX identifier
 	licenseText := Licenses[targetLicense]
 	hasLicenseIdentifier := strings.Contains(content, fmt.Sprintf("SPDX-License-Identifier: %s", targetLicense))
 	needsLicense := !hasMetadataLicense
@@ -268,7 +445,7 @@ func ProcessFileContent(content string, ext string, currentYear int, holder stri
 		}
 
 		formatter := HeaderFormatter{}
-		formattedHeader := formatter.Format(fullHeaderText, ext)
+		formattedHeader := formatter.FormatWithStyle(fullHeaderText, ext, format)
 
 		if formattedHeader != "" {
 			res.LicenseAdded = true
@@ -290,7 +467,7 @@ func ProcessFileContent(content string, ext string, currentYear int, holder stri
 		}
 	}
 
-	// 2. Update copyright year to range if in the past
+	// 5. Update copyright year to range if in the past
 	quotedHolder := regexp.QuoteMeta(holder)
 	specificYearRegex := regexp.MustCompile(`(?i)(Copyright|SPDX-FileCopyrightText:)\s+([0-9]{4})(?:-[0-9]{4})?\s+` + quotedHolder)
 	content = specificYearRegex.ReplaceAllStringFunc(content, func(match string) string {
@@ -306,10 +483,9 @@ func ProcessFileContent(content string, ext string, currentYear int, holder stri
 		return match
 	})
 
-	// 3. Final cleanup and spacing
+	// 6. Spacing logic
 	content = strings.TrimLeft(content, "\n")
 
-	// Spacing logic (simplified version of the Python regexes)
 	// go/keep-sorted start
 	endMarkers := []string{
 		`02110-1301,\s+USA\.`,
@@ -329,8 +505,13 @@ func ProcessFileContent(content string, ext string, currentYear int, holder stri
 		reEnd := regexp.MustCompile(`(?m)(` + endPattern + `\n-->)\n+`)
 		content = reEnd.ReplaceAllString(content, "${1}\n\n")
 	} else if contains(CStyleExtensions, ext) {
-		reEnd := regexp.MustCompile(`(?m)(` + endPattern + `\n\s*\*/)\n+`)
-		content = reEnd.ReplaceAllString(content, "${1}\n\n")
+		if format == "spdx" && ext != "css" {
+			reEnd := regexp.MustCompile(`(?m)(// ` + endPattern + `)\n+`)
+			content = reEnd.ReplaceAllString(content, "${1}\n\n")
+		} else {
+			reEnd := regexp.MustCompile(`(?m)(` + endPattern + `\n\s*\*/)\n+`)
+			content = reEnd.ReplaceAllString(content, "${1}\n\n")
+		}
 	}
 
 	content = strings.TrimRight(content, " \n\r\t")
@@ -339,7 +520,7 @@ func ProcessFileContent(content string, ext string, currentYear int, holder stri
 	}
 
 	content = frontmatter + content
-	res.Modified = content != originalContent
+	res.Modified = res.Modified || (content != originalContent)
 	return content, res
 }
 
@@ -375,7 +556,7 @@ func checkForeignHolders(content string, targetHolder string) string {
 }
 
 // EnforceFile reads a file, applies licensing, and writes it back if changed.
-func EnforceFile(path string, currentYear int, holder string, targetLicense string, format string) (Result, error) {
+func EnforceFile(path string, currentYear int, holder string, targetLicense string, format string, acceptableLicenses ...string) (Result, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return Result{}, err
@@ -403,7 +584,7 @@ func EnforceFile(path string, currentYear int, holder string, targetLicense stri
 		}
 	}
 
-	newContent, res := ProcessFileContent(content, ext, currentYear, holder, targetLicense, format)
+	newContent, res := ProcessFileContent(content, ext, currentYear, holder, targetLicense, format, acceptableLicenses...)
 
 	if res.Modified {
 		err = os.WriteFile(path, []byte(newContent), 0644)

@@ -27,7 +27,12 @@ limitations under the License.
 - FR7: Binary File Detection: The tool MUST detect binary files using a null-byte check and skip them to prevent data corruption.
 - FR8: Template and Alias Resolution: The tool MUST correctly resolve the underlying file extension for `.template` and `.tmpl` files (e.g., `config.sh.tmpl` -> `sh`) to ensure appropriate header formatting.
 - FR9: Header Preservation: The tool MUST NEVER leave a file without a license header if one already existed. It MUST verify that it has a valid formatter for the file's resolved extension before attempting to strip or replace existing headers.
-- FR10: SPDX Short-Form Tags: The tool MUST support inserting compact SPDX-compliant tags (`SPDX-FileCopyrightText` and `SPDX-License-Identifier`) rather than multi-line comprehensive license text headers, governed by a `-f` / `-format` flag that defaults to `spdx`.
+- **FR10: SPDX Short-Form Tags**: The tool MUST support inserting compact SPDX-compliant tags (`SPDX-FileCopyrightText` and `SPDX-License-Identifier`) rather than multi-line comprehensive license text headers, governed by a `-f` / `-format` flag that defaults to `spdx`.
+- **FR11: Git Config Author Default Holder**: The tool MUST dynamically use `git config user.name` as the default copyright holder. If `git config user.name` is empty or unset, and no `--holder` flag is provided, the tool MUST return an actionable error and fail. There MUST be no hardcoded fallback.
+- **FR12: Root Repository License Discovery**: The tool MUST automatically discover any `LICENSE` (or `LICENSE.txt`, `LICENSE.md`) file at the root of the repository and determine its SPDX license identifier using a multi-tiered strategy (SPDX tags, normalized hash matching, structural clause fingerprinting) as the default target license.
+- **FR13: C-Style Language Comment Preference**: When running in SPDX mode (`-f spdx`), the tool MUST prefer `//` single-line comments over `/** */` block comments for all C-style extensions supporting `//` (retaining `/* */` comments for CSS).
+- **FR14: Idempotent Header Normalization**: When running in SPDX mode, any existing `/** */` license headers in files supporting `//` MUST be converted into `//` comment style. Re-running the tool on already normalized files MUST produce zero modifications.
+- **FR15: License Check Gate & Acceptable Licenses**: The tool MUST act as a license compliance gate. If a file contains a license other than the target license, and that license is not present in the `--acceptable-licenses` list, the tool MUST fail (exit non-zero) and MUST NOT modify the file. Permitted foreign licenses MUST be preserved without modification.
 
 ## 2. Non-Functional Requirements (The "How Well")
 

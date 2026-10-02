@@ -437,3 +437,106 @@ func TestEnforceFile(t *testing.T) {
 		}
 	})
 }
+
+func TestCStyleSlashSlashFormatting(t *testing.T) {
+	f := HeaderFormatter{}
+	text := "SPDX-FileCopyrightText: 2026 Author\nSPDX-License-Identifier: Apache-2.0"
+
+	t.Run("ts_prefers_double_slash_for_spdx", func(t *testing.T) {
+		got := f.FormatWithStyle(text, "ts", "spdx")
+		want := "// SPDX-FileCopyrightText: 2026 Author\n// SPDX-License-Identifier: Apache-2.0\n\n"
+		if got != want {
+			t.Errorf("FormatWithStyle() = %q, want %q", got, want)
+		}
+	})
+
+	t.Run("css_retains_block_for_spdx", func(t *testing.T) {
+		got := f.FormatWithStyle(text, "css", "spdx")
+		if !strings.HasPrefix(got, "/**") || !strings.HasSuffix(got, "*/\n\n") {
+			t.Errorf("FormatWithStyle(css) should use block comments, got %q", got)
+		}
+	})
+
+	t.Run("ts_uses_block_for_full", func(t *testing.T) {
+		got := f.FormatWithStyle(text, "ts", "full")
+		if !strings.HasPrefix(got, "/**") {
+			t.Errorf("FormatWithStyle(ts, full) should use block comments, got %q", got)
+		}
+	})
+}
+
+func TestIdempotentCBlockConversion(t *testing.T) {
+	content := "/**\n * SPDX-FileCopyrightText: 2026 Author\n * SPDX-License-Identifier: Apache-2.0\n */\n\nfunction test() {}\n"
+
+	// Pass 1: Converts /** */ to //
+	got1, res1 := ProcessFileContent(content, "ts", 2026, "Author", "Apache-2.0", "spdx")
+	if !res1.Modified {
+		t.Errorf("Pass 1: expected Modified = true, got false")
+	}
+	expectedHeader := "// SPDX-FileCopyrightText: 2026 Author\n// SPDX-License-Identifier: Apache-2.0\n\nfunction test() {}\n"
+	if got1 != expectedHeader {
+		t.Errorf("Pass 1: got %q, want %q", got1, expectedHeader)
+	}
+
+	// Pass 2: Running again on got1 must result in zero modifications (idempotent)
+	got2, res2 := ProcessFileContent(got1, "ts", 2026, "Author", "Apache-2.0", "spdx")
+	if res2.Modified {
+		t.Errorf("Pass 2: expected Modified = false for idempotent execution, got true")
+	}
+	if got2 != got1 {
+		t.Errorf("Pass 2: content changed between idempotent passes")
+	}
+}
+
+func TestAcceptableLicenses(t *testing.T) {
+	mitContent := "// SPDX-FileCopyrightText: 2026 ThirdParty\n// SPDX-License-Identifier: MIT\n\nfunction helper() {}"
+
+	t.Run("fails_and_does_not_modify_when_license_unacceptable", func(t *testing.T) {
+		got, res := ProcessFileContent(mitContent, "ts", 2026, "Author", "Apache-2.0", "spdx")
+		if res.UnacceptableLicense != "MIT" {
+			t.Errorf("expected UnacceptableLicense = 'MIT', got %q", res.UnacceptableLicense)
+		}
+		if res.Modified {
+			t.Error("file with unacceptable license should NOT be modified")
+		}
+		if got != mitContent {
+			t.Error("content was altered despite unacceptable license")
+		}
+	})
+
+	t.Run("passes_and_does_not_modify_when_license_is_acceptable", func(t *testing.T) {
+		got, res := ProcessFileContent(mitContent, "ts", 2026, "Author", "Apache-2.0", "spdx", "MIT", "BSD-3-Clause")
+		if res.UnacceptableLicense != "" {
+			t.Errorf("expected empty UnacceptableLicense, got %q", res.UnacceptableLicense)
+		}
+		if res.Modified {
+			t.Error("file with acceptable foreign license should NOT be overwritten")
+		}
+		if got != mitContent {
+			t.Error("content was altered despite being an acceptable license")
+		}
+	})
+}
+
+func TestParseLicenseList(t *testing.T) {
+	tests := []struct {
+		input string
+		want  []string
+	}{
+		{"MIT, BSD-3-Clause, Apache-2.0", []string{"MIT", "BSD-3-Clause", "Apache-2.0"}},
+		{"MIT BSD-2-Clause   GPL-2.0-only", []string{"MIT", "BSD-2-Clause", "GPL-2.0-only"}},
+		{"", nil},
+	}
+
+	for _, tt := range tests {
+		got := ParseLicenseList(tt.input)
+		if len(got) != len(tt.want) {
+			t.Fatalf("ParseLicenseList(%q) len = %d, want %d", tt.input, len(got), len(tt.want))
+		}
+		for i := range got {
+			if got[i] != tt.want[i] {
+				t.Errorf("got[%d] = %q, want %q", i, got[i], tt.want[i])
+			}
+		}
+	}
+}

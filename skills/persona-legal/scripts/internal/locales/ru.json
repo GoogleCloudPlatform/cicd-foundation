@@ -8,8 +8,16 @@
     "translation": "В {{.Path}} найден другой правообладатель ('{{.Holder}}')"
   },
   {
+    "id": "license_enforcer_error_no_holder",
+    "translation": "требуется правообладатель: настройте 'git config user.name' или укажите --holder"
+  },
+  {
     "id": "license_enforcer_error_stat",
     "translation": "не удалось получить информацию о {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_error_unacceptable_licenses",
+    "translation": "найдено файлов с недопустимыми лицензиями: {{.Count}}"
   },
   {
     "id": "license_enforcer_error_walk",
@@ -28,11 +36,15 @@
     "translation": "Заголовки лицензий или исправления применены к {{.Count}} файлам."
   },
   {
+    "id": "license_enforcer_unacceptable_license",
+    "translation": "В {{.Path}} обнаружена недопустимая лицензия ('{{.FoundLicense}}') (допустимые: {{.AcceptableLicenses}})"
+  },
+  {
     "id": "license_enforcer_updating",
     "translation": "  - Обновление года авторских прав в {{.Path}}"
   },
   {
     "id": "usage_license_enforcer",
-    "translation": "Использование: license_enforcer [опции] [имена_файлов...]\n\nОпции:\n  --holder string    Правообладатель (по умолчанию \"Google LLC\")\n  --license string   Идентификатор лицензии SPDX (по умолчанию \"Apache-2.0\")\n  --exclude string   Список путей для исключения, разделенных пробелами\n  --filter string    Регулярное выражение для фильтрации файлов"
+    "translation": "Использование: license_enforcer [опции] [имена_файлов...]\n\nОпции:\n  --holder string               Правообладатель (по умолчанию: git config user.name)\n  --license string              Идентификатор лицензии SPDX (по умолчанию: из root LICENSE, или \"Apache-2.0\")\n  --acceptable-licenses string  Список допустимых идентификаторов лицензий SPDX (через запятую/пробел)\n  --exclude string              Список путей для исключения, разделенных пробелами\n  --filter string               Регулярное выражение для фильтрации файлов"
   }
 ]

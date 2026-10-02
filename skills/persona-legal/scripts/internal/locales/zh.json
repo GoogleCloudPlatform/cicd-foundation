@@ -8,8 +8,16 @@
     "translation": "在 {{.Path}} 中发现不同的版权所有者 ('{{.Holder}}')"
   },
   {
+    "id": "license_enforcer_error_no_holder",
+    "translation": "版权所有者是必需的: 请配置 'git config user.name' 或指定 --holder"
+  },
+  {
     "id": "license_enforcer_error_stat",
     "translation": "无法获取 {{.Path}} 的信息: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_error_unacceptable_licenses",
+    "translation": "发现 {{.Count}} 个包含不可接受许可证的文件"
   },
   {
     "id": "license_enforcer_error_walk",
@@ -28,11 +36,15 @@
     "translation": "已为 {{.Count}} 个文件应用许可证头或修复。"
   },
   {
+    "id": "license_enforcer_unacceptable_license",
+    "translation": "在 {{.Path}} 中发现不可接受的许可证 ('{{.FoundLicense}}') (可接受的: {{.AcceptableLicenses}})"
+  },
+  {
     "id": "license_enforcer_updating",
     "translation": "  - 正在更新 {{.Path}} 中的版权年份"
   },
   {
     "id": "usage_license_enforcer",
-    "translation": "用法: license_enforcer [选项] [文件名...]\n\n选项:\n  --holder string    版权所有者 (默认为 \"Google LLC\")\n  --license string   SPDX 许可证标识符 (默认为 \"Apache-2.0\")\n  --exclude string   以空格分隔的排除路径列表\n  --filter string    用于过滤文件的正则表达式"
+    "translation": "用法: license_enforcer [选项] [文件名...]\n\n选项:\n  --holder string               版权所有者 (默认为: git config user.name)\n  --license string              SPDX 许可证标识符 (默认为: 来自根目录 LICENSE，或 \"Apache-2.0\")\n  --acceptable-licenses string  可接受的 SPDX 许可证标识符列表 (以逗号或空格分隔)\n  --exclude string              以空格分隔的排除路径列表\n  --filter string               用于过滤文件的正则表达式"
   }
 ]

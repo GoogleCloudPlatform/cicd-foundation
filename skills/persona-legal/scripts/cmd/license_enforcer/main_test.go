@@ -34,29 +34,26 @@ func TestMainSmokeTest(t *testing.T) {
 	cmd.Env = append(os.Environ(), "BE_CRASHER=1")
 	err := cmd.Run()
 	if err != nil {
-		// main() with no args exits with 0 (displays usage), which is expected.
-		// If it exited with non-zero, cmd.Run() would return an error.
 		t.Fatalf("main() exited with error: %v", err)
 	}
 }
 
-// TestMainWithArgs verify that main can handle file arguments.
+// TestMainWithArgs verifies that main can handle file arguments and adds license headers.
 func TestMainWithArgs(t *testing.T) {
-	// Create a temp file to process
 	tmpFile, err := os.CreateTemp("", "test_enforcer_*.ts")
 	if err != nil {
 		t.Fatalf("failed to create temp file: %v", err)
 	}
 	defer os.Remove(tmpFile.Name())
 
-	content := "/**\n * Copyright 2026 Google LLC\n */\n\nfunction test() {}"
+	content := "function test() {}"
 	if _, err := tmpFile.WriteString(content); err != nil {
 		t.Fatalf("failed to write to temp file: %v", err)
 	}
 	tmpFile.Close()
 
 	if os.Getenv("BE_CRASHER_ARGS") == "1" {
-		os.Args = []string{"license_enforcer", os.Getenv("TEST_FILE")}
+		os.Args = []string{"license_enforcer", "--holder", "Test Author", os.Getenv("TEST_FILE")}
 		main()
 		return
 	}
@@ -76,6 +73,80 @@ func TestMainWithArgs(t *testing.T) {
 		}
 	} else {
 		t.Fatalf("cmd.Run() failed with non-exit error: %v", err)
+	}
+}
+
+func TestMainUnacceptableLicenseGate(t *testing.T) {
+	tmpFile, err := os.CreateTemp("", "test_gate_*.ts")
+	if err != nil {
+		t.Fatalf("failed to create temp file: %v", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	content := "// SPDX-FileCopyrightText: 2026 Vendor\n// SPDX-License-Identifier: GPL-3.0-only\n\nfunction vendor() {}"
+	if _, err := tmpFile.WriteString(content); err != nil {
+		t.Fatalf("failed to write to temp file: %v", err)
+	}
+	tmpFile.Close()
+
+	if os.Getenv("BE_CRASHER_GATE") == "1" {
+		os.Args = []string{"license_enforcer", "--holder", "Test Author", "--license", "Apache-2.0", os.Getenv("TEST_FILE")}
+		main()
+		return
+	}
+
+	cmd := exec.Command(os.Args[0], "-test.run=TestMainUnacceptableLicenseGate")
+	cmd.Env = append(os.Environ(), "BE_CRASHER_GATE=1", "TEST_FILE="+tmpFile.Name())
+
+	err = cmd.Run()
+	if err == nil {
+		t.Fatal("expected main() to fail on unacceptable license, but it exited with 0")
+	}
+
+	// Verify file was NOT modified
+	data, _ := os.ReadFile(tmpFile.Name())
+	if string(data) != content {
+		t.Error("file was modified despite unacceptable license gate")
+	}
+}
+
+func TestMainAcceptableLicensePermitted(t *testing.T) {
+	tmpFile, err := os.CreateTemp("", "test_acceptable_*.ts")
+	if err != nil {
+		t.Fatalf("failed to create temp file: %v", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	content := "// SPDX-FileCopyrightText: 2026 Vendor\n// SPDX-License-Identifier: MIT\n\nfunction vendor() {}"
+	if _, err := tmpFile.WriteString(content); err != nil {
+		t.Fatalf("failed to write to temp file: %v", err)
+	}
+	tmpFile.Close()
+
+	if os.Getenv("BE_CRASHER_ACCEPTABLE") == "1" {
+		os.Args = []string{
+			"license_enforcer",
+			"--holder", "Test Author",
+			"--license", "Apache-2.0",
+			"--acceptable-licenses", "MIT, BSD-3-Clause",
+			os.Getenv("TEST_FILE"),
+		}
+		main()
+		return
+	}
+
+	cmd := exec.Command(os.Args[0], "-test.run=TestMainAcceptableLicensePermitted")
+	cmd.Env = append(os.Environ(), "BE_CRASHER_ACCEPTABLE=1", "TEST_FILE="+tmpFile.Name())
+
+	err = cmd.Run()
+	if err != nil {
+		t.Fatalf("expected main() to succeed when license is acceptable, got error: %v", err)
+	}
+
+	// Verify file was NOT modified
+	data, _ := os.ReadFile(tmpFile.Name())
+	if string(data) != content {
+		t.Error("file was modified despite being an acceptable license")
 	}
 }
 
@@ -109,7 +180,7 @@ func TestRun(t *testing.T) {
 	}
 
 	t.Run("basic_run", func(t *testing.T) {
-		err := run("Google LLC", "Apache-2.0", "exclude_me", `\.(ts|py|js)$`, "full", []string{tmpDir})
+		err := run("Test Author", "Apache-2.0", "", "exclude_me", `\.(ts|py|js)$`, "full", []string{tmpDir})
 		if err == nil || err.Error() != "files modified" {
 			t.Errorf("expected 'files modified' error, got %v", err)
 		}
@@ -134,9 +205,16 @@ func TestRun(t *testing.T) {
 	})
 
 	t.Run("no_args", func(t *testing.T) {
-		err := run("Google LLC", "Apache-2.0", "", "", "full", nil)
+		err := run("Test Author", "Apache-2.0", "", "", "", "full", nil)
 		if err != nil {
 			t.Errorf("expected nil error for no args, got %v", err)
+		}
+	})
+
+	t.Run("empty_holder_error", func(t *testing.T) {
+		err := run("", "Apache-2.0", "", "", "", "full", []string{tmpDir})
+		if err == nil {
+			t.Errorf("expected error for empty holder, got nil")
 		}
 	})
 }
