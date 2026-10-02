@@ -8,8 +8,16 @@
     "translation": "Different copyright holder ('{{.Holder}}') found in {{.Path}}"
   },
   {
+    "id": "license_enforcer_error_no_holder",
+    "translation": "copyright holder is required: please configure 'git config user.name' or specify --holder"
+  },
+  {
     "id": "license_enforcer_error_stat",
     "translation": "failed to stat {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "license_enforcer_error_unacceptable_licenses",
+    "translation": "found {{.Count}} file(s) with unacceptable licenses"
   },
   {
     "id": "license_enforcer_error_walk",
@@ -28,11 +36,15 @@
     "translation": "Applied license headers or fixes to {{.Count}} files."
   },
   {
+    "id": "license_enforcer_unacceptable_license",
+    "translation": "Unacceptable license ('{{.FoundLicense}}') found in {{.Path}} (acceptable: {{.AcceptableLicenses}})"
+  },
+  {
     "id": "license_enforcer_updating",
     "translation": "  - Updating copyright year in {{.Path}}"
   },
   {
     "id": "usage_license_enforcer",
-    "translation": "Usage: license_enforcer [options] [filenames...]\n\nOptions:\n  --holder string    Copyright holder (default \"Google LLC\")\n  --license string   SPDX license identifier (default \"Apache-2.0\")\n  --exclude string   Space-separated list of paths to exclude\n  --filter string    Regex to filter files"
+    "translation": "Usage: license_enforcer [options] [filenames...]\n\nOptions:\n  --holder string               Copyright holder (default: git config user.name)\n  --license string              SPDX license identifier (default: from root LICENSE, or \"Apache-2.0\")\n  --acceptable-licenses string  List of acceptable SPDX license identifiers (comma/space-separated)\n  --exclude string              Space-separated list of paths to exclude\n  --filter string               Regex to filter files"
   }
 ]

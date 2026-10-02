@@ -53,4 +53,7 @@ To handle large repositories efficiently, the tool utilizes a worker pool with a
 
 - **Read-Only by Default**: The tool only modifies files if there is a substantive change required.
 - **Foreign Holder Protection**: Files owned by entities other than the primary holder are never modified automatically.
+- **License Check Gate**: Files with foreign or unapproved licenses are never overwritten or altered. The tool exits with a non-zero code to block CI/pre-commit.
+- **Acceptable Licenses List**: Supports specifying approved third-party licenses via `--acceptable-licenses` so legitimate external files are preserved.
 - **Deterministic Formatting**: Uses standard Go patterns to ensure consistent output across different environments.
+- **Idempotent Header Normalization**: C-style block headers converted to `//` line comments are strictly idempotent across multiple runs.

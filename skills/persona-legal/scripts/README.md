@@ -27,8 +27,12 @@ A command-line utility to automate the enforcement of license headers across a m
   - Skips files with foreign copyright holders to prevent legal ambiguity.
   - **Header Preservation**: Guaranteed to never leave a file without a header if one already existed.
 - **Metadata-Driven Licensing**: Supports the `agentskills.io` specification by recognizing a `license` field in YAML frontmatter as a valid substitute for physical comment headers (currently enabled for `.md` files).
+- **License Check Gate**: Detects foreign or unapproved licenses, prevents unauthorized modification, and fails CI validation.
+- **Configurable Acceptable Licenses**: Supports allowing approved third-party licenses (e.g., MIT, BSD) while enforcing the project default on proprietary/internal code.
+- **C-Style `//` Comments**: Prefers `//` line comments for TypeScript, JavaScript, Go, C/C++, Rust, and other C-style files in SPDX mode.
+- **Idempotent Header Normalization**: Automatically converts `/** */` headers to `//` format in SPDX mode without causing repeated diffs.
 - **Template Resolution**: Intelligently resolves underlying extensions for `.template` and `.tmpl` files.
-- **Internationalization**: Full i18n support for user-facing strings.
+- **Internationalization**: Full i18n support for user-facing strings across all 6 UN languages.
 - **Concurrent Processing**: High-performance execution using a worker pool.
 
 ## Usage
@@ -39,10 +43,12 @@ go run skills/persona-legal/scripts/cmd/license_enforcer/main.go [flags] [paths.
 
 ### Flags
 
-- `-holder`: The copyright holder name (default: "Google LLC").
-- `-license`: The SPDX license identifier (default: "Apache-2.0").
+- `-holder`: The copyright holder name (default: `git config user.name`).
+- `-license`: The SPDX license identifier (default: auto-detected from root `LICENSE`, or `"Apache-2.0"`).
+- `-acceptable-licenses`: Comma- or space-separated list of acceptable SPDX license identifiers for compliance check.
 - `-exclude`: Space-separated list of paths to ignore.
 - `-filter`: Regex pattern for files to include.
+- `-f`, `-format`: Format of the license header: `spdx` (default) or `full`.
 
 ## Development
 
