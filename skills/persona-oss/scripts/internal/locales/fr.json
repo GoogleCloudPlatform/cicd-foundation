@@ -1,0 +1,50 @@
+[
+  {
+    "id": "error_artifact_not_found",
+    "translation": "artefact {{.Filename}} introuvable dans les métadonnées du registre public pour {{.Package}}@{{.Version}}"
+  },
+  {
+    "id": "error_check_mode_failed",
+    "translation": "des urls de registres non publics ont été détectées dans {{.Count}} fichier(s) de verrouillage"
+  },
+  {
+    "id": "error_hash_mismatch",
+    "translation": "non-concordance de l'empreinte sha256 pour {{.Package}}@{{.Version}} ({{.Filename}}) : le fichier de verrouillage contient {{.Expected}}, le registre public contient {{.Actual}}"
+  },
+  {
+    "id": "error_read_lockfile",
+    "translation": "échec de la lecture du fichier de verrouillage {{.Path}} : {{.Error}}"
+  },
+  {
+    "id": "error_resolve_metadata",
+    "translation": "échec de la résolution des métadonnées publiques pour {{.Package}}@{{.Version}} : {{.Error}}"
+  },
+  {
+    "id": "error_unexpected_cdn_url",
+    "translation": "les métadonnées publiques ont renvoyé une url de distribution non canonique {{.URL}} pour {{.Package}}@{{.Version}}"
+  },
+  {
+    "id": "error_write_lockfile",
+    "translation": "échec de l'écriture du fichier de verrouillage {{.Path}} : {{.Error}}"
+  },
+  {
+    "id": "usage_uv_lock_scrubber",
+    "translation": "Utilisation : uv_lock_scrubber [options] [--] [uv.lock...]\n\nOptions :\n  --api-base string   URL de base de l'API JSON PyPI (par défaut \"https://pypi.org/pypi\")\n  --check             Vérifier que les fichiers de verrouillage ne contiennent que des URL publiques PyPI sans les modifier"
+  },
+  {
+    "id": "uv_lock_scrubber_clean",
+    "translation": "Tous les fichiers uv.lock vérifiés utilisent déjà des URL publiques canoniques de PyPI."
+  },
+  {
+    "id": "uv_lock_scrubber_needs_scrub",
+    "translation": "  - {{.Path}} : {{.Count}} URL de registre non public détectée(s)"
+  },
+  {
+    "id": "uv_lock_scrubber_rewritten",
+    "translation": "  - {{.Count}} URL de registre non public réécrite(s) dans {{.Path}}"
+  },
+  {
+    "id": "uv_lock_scrubber_summary",
+    "translation": "URL de registres non publics nettoyées dans {{.Count}} fichier(s) uv.lock."
+  }
+]

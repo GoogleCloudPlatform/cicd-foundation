@@ -46,10 +46,10 @@ if [[ -f "${REPO_ROOT}/.env" ]]; then
 fi
 
 # 3. Set fallback regions
-# BUILD_REGION falls back to REGION
-export BUILD_REGION="${BUILD_REGION:-${REGION:-}}"
-# ARTIFACT_REGION falls back to BUILD_REGION, then REGION
-export ARTIFACT_REGION="${ARTIFACT_REGION:-${BUILD_REGION:-${REGION:-}}}"
+# BUILD_REGION falls back to CWS_REGION
+export BUILD_REGION="${BUILD_REGION:-${CWS_REGION:-}}"
+# ARTIFACT_REGION falls back to BUILD_REGION, then CWS_REGION
+export ARTIFACT_REGION="${ARTIFACT_REGION:-${BUILD_REGION:-${CWS_REGION:-}}}"
 
 # 4. Helper Functions
 log() {

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "error_artifact_not_found",
+    "translation": "在 {{.Package}}@{{.Version}} 的上游公共仓库元数据中未找到构件 {{.Filename}}"
+  },
+  {
+    "id": "error_check_mode_failed",
+    "translation": "在 {{.Count}} 个锁文件中发现非公共仓库 url"
+  },
+  {
+    "id": "error_hash_mismatch",
+    "translation": "{{.Package}}@{{.Version}} ({{.Filename}}) 的 sha256 摘要不匹配：锁文件为 {{.Expected}}，上游为 {{.Actual}}"
+  },
+  {
+    "id": "error_read_lockfile",
+    "translation": "无法读取锁文件 {{.Path}}：{{.Error}}"
+  },
+  {
+    "id": "error_resolve_metadata",
+    "translation": "无法解析 {{.Package}}@{{.Version}} 的上游元数据：{{.Error}}"
+  },
+  {
+    "id": "error_unexpected_cdn_url",
+    "translation": "上游元数据为 {{.Package}}@{{.Version}} 返回了非规范分发 url {{.URL}}"
+  },
+  {
+    "id": "error_write_lockfile",
+    "translation": "无法写入锁文件 {{.Path}}：{{.Error}}"
+  },
+  {
+    "id": "usage_uv_lock_scrubber",
+    "translation": "用法: uv_lock_scrubber [选项] [--] [uv.lock...]\n\n选项:\n  --api-base string   上游 PyPI JSON API 基础 URL（默认 \"https://pypi.org/pypi\"）\n  --check             仅验证锁文件是否全部使用公共 PyPI URL 而不修改文件"
+  },
+  {
+    "id": "uv_lock_scrubber_clean",
+    "translation": "所有已检查的 uv.lock 文件均已使用规范的公共 PyPI URL。"
+  },
+  {
+    "id": "uv_lock_scrubber_needs_scrub",
+    "translation": "  - {{.Path}}：检测到 {{.Count}} 个非公共仓库 URL"
+  },
+  {
+    "id": "uv_lock_scrubber_rewritten",
+    "translation": "  - 已重写 {{.Path}} 中的 {{.Count}} 个非公共仓库 URL"
+  },
+  {
+    "id": "uv_lock_scrubber_summary",
+    "translation": "已清理 {{.Count}} 个 uv.lock 文件中的非公共仓库 URL。"
+  }
+]

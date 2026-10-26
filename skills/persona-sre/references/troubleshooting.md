@@ -30,7 +30,7 @@ Ensure your connection details are configured. The tests require an active Works
 
 ```bash
 cp .env.example .env
-# Edit .env to include your PROJECT, CLUSTER, CONFIG, REGION, and WORKSTATION names.
+# Edit .env to include your GOOGLE_CLOUD_PROJECT, CWS_CLUSTER, CWS_CONFIG, CWS_REGION, and CWS_NAME values.
 ```
 
 ### 2. Execute the Suite

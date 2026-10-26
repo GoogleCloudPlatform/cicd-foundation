@@ -50,10 +50,10 @@ main() {
         image_name=$(basename "${layer_dir}")
 
         # Logic: Always run gnome (foundation).
-        # For others, only run if listed in EXTRA_BINARIES or if it matches the current CONFIG flavor.
+        # For others, only run if listed in EXTRA_BINARIES or if it matches the current CWS_CONFIG flavor.
         if [[ "${image_name}" == "gnome" ]] || \
            [[ "${EXTRA_BINARIES:-}" == *"${image_name}"* ]] || \
-           [[ "${CONFIG:-}" == *"${image_name}"* ]]; then
+           [[ "${CWS_CONFIG:-}" == *"${image_name}"* ]]; then
           log "Testing Layer: ${image_name}"
           bats "${layer_dir}/tests/integration/"
         else

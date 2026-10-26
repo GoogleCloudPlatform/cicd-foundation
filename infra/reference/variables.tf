@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Google LLC
+# Copyright 2023-2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -736,7 +736,7 @@ variable "apps" {
 variable "github_owner" {
   description = "Owner of the GitHub repo."
   type        = string
-  default     = "GoogleCloudPlaform"
+  default     = "GoogleCloudPlatform"
 }
 
 variable "github_repo" {

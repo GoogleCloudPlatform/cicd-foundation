@@ -1,0 +1,50 @@
+[
+  {
+    "id": "error_artifact_not_found",
+    "translation": "no se encontró el artefacto {{.Filename}} en los metadatos del registro público para {{.Package}}@{{.Version}}"
+  },
+  {
+    "id": "error_check_mode_failed",
+    "translation": "se encontraron urls de registros no públicos en {{.Count}} archivo(s) de bloqueo"
+  },
+  {
+    "id": "error_hash_mismatch",
+    "translation": "discrepancia de resumen sha256 para {{.Package}}@{{.Version}} ({{.Filename}}): el archivo de bloqueo tiene {{.Expected}}, el registro público tiene {{.Actual}}"
+  },
+  {
+    "id": "error_read_lockfile",
+    "translation": "error al leer el archivo de bloqueo {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "error_resolve_metadata",
+    "translation": "error al resolver los metadatos públicos para {{.Package}}@{{.Version}}: {{.Error}}"
+  },
+  {
+    "id": "error_unexpected_cdn_url",
+    "translation": "los metadatos públicos devolvieron una url de distribución no canónica {{.URL}} para {{.Package}}@{{.Version}}"
+  },
+  {
+    "id": "error_write_lockfile",
+    "translation": "error al escribir el archivo de bloqueo {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "usage_uv_lock_scrubber",
+    "translation": "Uso: uv_lock_scrubber [opciones] [--] [uv.lock...]\n\nOpciones:\n  --api-base string   URL base de la API JSON de PyPI (predeterminado \"https://pypi.org/pypi\")\n  --check             Verificar que los archivos de bloqueo solo contengan URLs públicas de PyPI sin modificarlos"
+  },
+  {
+    "id": "uv_lock_scrubber_clean",
+    "translation": "Todos los archivos uv.lock verificados ya utilizan URLs públicas canónicas de PyPI."
+  },
+  {
+    "id": "uv_lock_scrubber_needs_scrub",
+    "translation": "  - {{.Path}}: se detectaron {{.Count}} URL(s) de registro no público"
+  },
+  {
+    "id": "uv_lock_scrubber_rewritten",
+    "translation": "  - Se reescribieron {{.Count}} URL(s) de registro no público en {{.Path}}"
+  },
+  {
+    "id": "uv_lock_scrubber_summary",
+    "translation": "Se limpiaron las URLs de registros no públicos en {{.Count}} archivo(s) uv.lock."
+  }
+]

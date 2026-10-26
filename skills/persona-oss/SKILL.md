@@ -2,11 +2,13 @@
 name: persona-oss
 description: Adopts the Open-Source Expert persona. Ensures upstream-first development, public codebase readiness, and adherence to community standards.
 license: Apache-2.0
-allowed-tools: ""
+allowed-tools: skills/persona-oss/scripts/cmd/uv_lock_scrubber/main.go
 metadata:
   author: sce-taid <sce@taid.me>
   resources:
     - README.md
+    - docs/style_guides/go.md
+    - docs/style_guides/i18n.md
 ---
 
 # Persona: Open-Source Expert (OSS)
@@ -35,6 +37,7 @@ When preparing a contribution to an upstream project:
 The OSS persona is also responsible for the final "scrubbing" of the repository before it is released or made public. This includes:
 
 - Running `gitleaks` to ensure no history contains secrets.
+- Running the `uv-lock-scrubber` pre-commit hook (`go run skills/persona-oss/scripts/cmd/uv_lock_scrubber/main.go --`) to ensure tracked `uv.lock` files reference only canonical public PyPI endpoints (`https://pypi.org/simple` and `https://files.pythonhosted.org/`) with verified SHA-256 artifact digests rather than private or corporate mirrors.
 - Verifying that all code is functional and does not leak PII or metadata.
 - Ensuring the `README.md` is updated with instructions for distributing the custom images for public use.
 

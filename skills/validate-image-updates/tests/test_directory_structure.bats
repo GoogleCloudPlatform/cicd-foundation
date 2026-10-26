@@ -28,13 +28,13 @@ load test_helper.bash
   # Find all directories containing a Dockerfile under apps/workstations/
   # and ensure they also have a README.md (next test).
   # This avoids failing on category directories.
-  find "${REPO_ROOT}/apps/workstations" -type f -name "Dockerfile" -exec dirname {} \; | while read -r img_dir; do
+  find "${REPO_ROOT}/apps/workstations" -not -path "*/.*" -type f -name "Dockerfile" -exec dirname {} \; | while read -r img_dir; do
     [ -f "${img_dir}/Dockerfile" ]
   done
 }
 
 @test "Every image in apps/workstations/ must have a README.md" {
-  find "${REPO_ROOT}/apps/workstations" -type f -name "Dockerfile" -exec dirname {} \; | while read -r img_dir; do
+  find "${REPO_ROOT}/apps/workstations" -not -path "*/.*" -type f -name "Dockerfile" -exec dirname {} \; | while read -r img_dir; do
     [ -f "${img_dir}/README.md" ]
   done
 }

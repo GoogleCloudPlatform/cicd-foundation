@@ -44,6 +44,7 @@ While we aim for maximum compliance with the Google Style Guide, this project im
 ### 2. BATS Helper Extensions (`.bash`)
 
 - **Exception**: Files intended to be `load`-ed by the **Bats-core** framework (test helpers) use the `.bash` extension.
+- **Shebang**: Use `#!/bin/bash` (consistent with the Google Bash Style Guide and `.sh` scripts) so `shellcheck` and editors identify the dialect reliably; Bats `load` sources `.bash` libraries directly and does not require `#!/usr/bin/env bash`.
 - **Rationale**: Adheres to the established [standard BATS community pattern](https://bats-core.readthedocs.io/en/stable/writing-tests.html#loading-libraries) to distinguish helpers from executable scripts (`.sh`) and test files (`.bats`).
 - **Exemption**: **Files with the `.bash` extension are NOT subject to the Google Style Guide.** They do not require a `main()` function or other guide-specific structures, as they are libraries intended for sourcing by Bats.
 
@@ -66,7 +67,7 @@ While we aim for maximum compliance with the Google Style Guide, this project im
   - **Environment Loading**: Automatically loads `.env` files.
   - **Path Management**: Exports a stable `REPO_ROOT` variable.
   - **Standardized Logging**: Provides `log`, `warn`, and `error` functions.
-  - **Fallback Logic**: Sets consistent defaults for `REGION`, `PROJECT`, etc.
+  - **Fallback Logic**: Sets consistent defaults for `BUILD_REGION` and `ARTIFACT_REGION` from `CWS_REGION`.
 - **Bootstrap Pattern**:
 
   ```bash

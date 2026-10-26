@@ -130,6 +130,7 @@ Before modifying the repository or onboarding workloads, please consult the rele
   - [AI Agentic SDLC & Skill Registry Guide](docs/agentic_sdlc/user_guide.md) — Enforcing code quality, styling, and security via Antigravity SDK and Agent Platform.
   - [Deployment Guide](docs/iac/admin_guide.md) — How to provision sandboxed single-project environments.
 - **System Architecture**:
+  - [Architectural Blueprint (EGM)](EGM.md) — Elephant & Goldfish Model (EGM) contract hierarchy (`Interface`, `Invariants`, and `Side Effects`) across all repository modules.
   - [Technical System Overview & Design](docs/workstations/design.md) — Technical stack details and software rendering design of the workstation layers.
   - [Test Plan](docs/workstations/test_plan.md) — Testing philosophy and bats testing orchestration.
 - **Event Orchestration (Hackathons)**:

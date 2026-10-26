@@ -103,6 +103,7 @@ EOV
 
   # Technical metadata for the preflight page
   export HOSTNAME="$(hostname)"
+  export CLIENT_IP="${CLIENT_IP:-0.0.0.0}"
   export TIMEOUT_MS="${DEFAULT_TIMEOUT_MS:-200000}"
 
   # Attempt to detect Cloud Workstations instance metadata from GCP metadata server or resource name
@@ -200,6 +201,7 @@ $DEFAULT_CLIENT_PROTOCOL
 $SUPPORTED_PROTOCOLS
 $VNC_XML_BLOCK
 $HOSTNAME
+$CLIENT_IP
 $TIMEOUT_MS
 $ROOT_REDIRECT
 $DEFAULT_REDIRECT_URL

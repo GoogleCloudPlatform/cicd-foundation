@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Google LLC
+# Copyright 2023-2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,18 @@ resource "google_secure_source_manager_instance" "source" {
   project     = module.project_hub_supplychain.id
   location    = var.ssm_region
   instance_id = var.ssm_instance_name
+}
+
+resource "google_secure_source_manager_repository" "repo" {
+  project       = module.project_hub_supplychain.id
+  location      = var.ssm_region
+  instance      = google_secure_source_manager_instance.source.name
+  repository_id = var.github_repo
+
+  description = "Terraform-managed."
+  initial_config {
+    default_branch = var.git_branch_trigger
+  }
 }
 
 resource "random_id" "random" {

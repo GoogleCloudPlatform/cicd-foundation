@@ -1,0 +1,50 @@
+[
+  {
+    "id": "error_artifact_not_found",
+    "translation": "لم يتم العثور على الحزمة {{.Filename}} في بيانات السجل العام للإصدار {{.Package}}@{{.Version}}"
+  },
+  {
+    "id": "error_check_mode_failed",
+    "translation": "تم العثور على عناوين سجلات غير عامة في {{.Count}} ملف(ملفات) قفل"
+  },
+  {
+    "id": "error_hash_mismatch",
+    "translation": "عدم تطابق تجزئة sha256 للحزمة {{.Package}}@{{.Version}} ({{.Filename}}): ملف القفل يحتوي على {{.Expected}} والسجل العام يحتوي على {{.Actual}}"
+  },
+  {
+    "id": "error_read_lockfile",
+    "translation": "فشل في قراءة ملف القفل {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "error_resolve_metadata",
+    "translation": "فشل في جلب بيانات السجل العام للحزمة {{.Package}}@{{.Version}}: {{.Error}}"
+  },
+  {
+    "id": "error_unexpected_cdn_url",
+    "translation": "أعاد السجل العام عنوان توزيع غير قياسي {{.URL}} للحزمة {{.Package}}@{{.Version}}"
+  },
+  {
+    "id": "error_write_lockfile",
+    "translation": "فشل في كتابة ملف القفل {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "usage_uv_lock_scrubber",
+    "translation": "الاستخدام: uv_lock_scrubber [options] [--] [uv.lock...]\n\nالخيارات:\n  --api-base string   عنوان واجهة PyPI JSON الأساسية (الافتراضي \"https://pypi.org/pypi\")\n  --check             التحقق من احتواء ملفات القفل على عناوين PyPI العامة فقط دون تعديلها"
+  },
+  {
+    "id": "uv_lock_scrubber_clean",
+    "translation": "جميع ملفات uv.lock المفحوصة تستخدم بالفعل عناوين PyPI العامة القياسية."
+  },
+  {
+    "id": "uv_lock_scrubber_needs_scrub",
+    "translation": "  - {{.Path}}: تم اكتشاف {{.Count}} عنوان(عناوين) سجل غير عام"
+  },
+  {
+    "id": "uv_lock_scrubber_rewritten",
+    "translation": "  - تمت إعادة كتابة {{.Count}} عنوان(عناوين) سجل غير عام في {{.Path}}"
+  },
+  {
+    "id": "uv_lock_scrubber_summary",
+    "translation": "تم تنظيف عناوين السجلات غير العامة في {{.Count}} ملف(ملفات) uv.lock."
+  }
+]

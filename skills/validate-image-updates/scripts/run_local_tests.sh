@@ -30,6 +30,7 @@ main() {
 
   # Define the core unit test hooks to execute
   local test_hooks=(
+    "bats-bin"
     "bats-skills"
     "pytest-skills"
     "pytest-pipelines"

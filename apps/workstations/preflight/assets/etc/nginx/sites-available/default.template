@@ -68,7 +68,7 @@ server {
         root /run/readiness;
         add_header Cache-Control $cache_control_no_cache always;
         add_header Content-Type text/plain always;
-        add_header App-Status "READY" always;
+        add_header X-App-Status "READY" always;
 
         try_files /$readiness_proto /all @not_ready;
     }
@@ -76,7 +76,7 @@ server {
     location @not_ready {
         add_header Cache-Control $cache_control_no_cache always;
         add_header Content-Type text/plain always;
-        add_header App-Status "STARTING" always;
+        add_header X-App-Status "STARTING" always;
         return 503 "Starting";
     }
 

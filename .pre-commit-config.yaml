@@ -47,14 +47,14 @@ repos:
 
       - id: ruff
         name: Ruff Linting & Autocorrect
-        entry: uv run ruff check --fix --extend-ignore E402
+        entry: uv run --frozen ruff check --fix --extend-ignore E402
         language: system
         types: [python]
         require_serial: true
 
       - id: ruff-format
         name: Ruff Code Formatting
-        entry: uv run ruff format
+        entry: uv run --frozen ruff format
         language: system
         types: [python]
         require_serial: true
@@ -119,7 +119,7 @@ repos:
 
       - id: license-enforcer
         name: License Enforcer (Go)
-        entry: go run skills/persona-legal/scripts/cmd/license_enforcer/main.go -f full
+        entry: go run skills/persona-legal/scripts/cmd/license_enforcer/main.go -f full -holder "Google LLC" --
         language: golang
         pass_filenames: true
         require_serial: true
@@ -131,6 +131,21 @@ repos:
         files: \.md$
         pass_filenames: true
         require_serial: true
+
+      - id: uv-lock-scrubber
+        name: Scrub Private Registry URLs from uv.lock (Go)
+        entry: go run skills/persona-oss/scripts/cmd/uv_lock_scrubber/main.go --
+        language: golang
+        files: (^|/)uv\.lock$
+        pass_filenames: true
+        require_serial: true
+
+      - id: bats-bin
+        name: CLI Scripts Unit Tests (Bats)
+        entry: bats -r bin/tests/
+        language: system
+        files: ^bin/
+        pass_filenames: false
 
       # --- SECTION: Skills & Personas ---
 
@@ -197,14 +212,14 @@ repos:
 
       - id: pytest-skills
         name: Skills Unit Tests (Pytest)
-        entry: uv run --group dev pytest skills/
+        entry: uv run --frozen --group dev pytest skills/
         language: system
         files: ^skills/
         pass_filenames: false
 
       - id: pytest-pipelines
         name: Pipelines Unit Tests (Pytest)
-        entry: uv run --group dev pytest infra/modules/cicd_pipelines/tests/
+        entry: uv run --frozen --group dev pytest infra/modules/cicd_pipelines/tests/
         language: system
         files: ^infra/modules/cicd_pipelines/(scripts|tests)/
         pass_filenames: false

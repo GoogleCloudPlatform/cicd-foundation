@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # Copyright 2023-2026 Google LLC
 #
@@ -6,7 +6,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,17 +15,26 @@
 # limitations under the License.
 
 usage() {
-  echo "Usage: $0"
+  echo "Usage: $0 [options]"
+  echo "Options:"
+  echo "  -a, --app <app>        Set the app variable"
+  echo "  -d, --directory <dir>  Set the directory variable"
+  echo "  -h, --help             Show this help text"
 }
 
-test() {
-    ARTIFACTS_FILE=$(mktemp --suffix=.json)
-    skaffold build -f $SKAFFOLD_FILE --file-output=$ARTIFACTS_FILE
-    skaffold test -f $SKAFFOLD_FILE --build-artifacts=$ARTIFACTS_FILE
+runTests() {
+  ARTIFACTS_FILE=$(mktemp --suffix=.json)
+  trap 'rm -f "$ARTIFACTS_FILE"' EXIT
+  skaffold build -f "$SKAFFOLD_FILE" --file-output="$ARTIFACTS_FILE"
+  skaffold test -f "$SKAFFOLD_FILE" --build-artifacts="$ARTIFACTS_FILE"
 }
 
-. $(dirname $0)/common.sh
+. "$(dirname "$0")/common.sh"
+
+getOpts "$@"
+shift "$OPT_SHIFT"
+
 checkDependencies skaffold
 getRootDir
 
-test
+runTests

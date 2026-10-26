@@ -35,7 +35,7 @@ REPO_ROOT="$(find_repo_root "${SCRIPT_DIR}")"
 source "${REPO_ROOT}/skills/common.sh"
 
 # This script builds the preflight frontend and syncs it to the live workstation.
-# Usage: ./hotpatch_frontend.sh [--wipe] [PROJECT] [REGION]
+# Usage: ./hotpatch_frontend.sh [--wipe] [GOOGLE_CLOUD_PROJECT] [CWS_REGION]
 
 main() {
   local wipe_flag=false
@@ -45,11 +45,11 @@ main() {
   fi
 
   # Support explicit overrides or fall back to env/common.sh defaults
-  PROJECT="${1:-${PROJECT}}"
-  REGION="${2:-${REGION}}"
+  GOOGLE_CLOUD_PROJECT="${1:-${GOOGLE_CLOUD_PROJECT}}"
+  CWS_REGION="${2:-${CWS_REGION}}"
 
-  if [[ -z "${WORKSTATION:-}" ]]; then
-    error "WORKSTATION environment variable not set. Please load your .env file."
+  if [[ -z "${CWS_NAME:-}" ]]; then
+    error "CWS_NAME environment variable not set. Please load your .env file."
   fi
 
   log "🔨 Building frontend assets via Vite..."
@@ -57,9 +57,9 @@ main() {
   preflight_dir="$(cd "${REPO_ROOT}/apps/workstations/preflight-web" && pwd)"
   npm run build --prefix "${preflight_dir}"
 
-  log "🚀 Hot-patching live workstation (${WORKSTATION}) in ${REGION} (Project: ${PROJECT})..."
+  log "🚀 Hot-patching live workstation (${CWS_NAME}) in ${CWS_REGION} (Project: ${GOOGLE_CLOUD_PROJECT})..."
 
-  local remote_cmd="sudo tar -xzf - -C /var/www/html/ && sudo chown -R root:root /var/www/html/ && sudo find /var/www/html/ -type d -exec chmod 755 {} + && sudo find /var/www/html/ -type f -exec chmod 644 {} + && sudo rm -f /run/config-rendered && sudo PROJECT_ID='${PROJECT}' REGION='${REGION}' CLUSTER_NAME='${CLUSTER}' CONFIG_NAME='${CONFIG}' /google/scripts/config_rendering.sh"
+  local remote_cmd="sudo tar -xzf - -C /var/www/html/ && sudo chown -R root:root /var/www/html/ && sudo find /var/www/html/ -type d -exec chmod 755 {} + && sudo find /var/www/html/ -type f -exec chmod 644 {} + && sudo rm -f /run/config-rendered && sudo PROJECT_ID='${GOOGLE_CLOUD_PROJECT}' REGION='${CWS_REGION}' CLUSTER_NAME='${CWS_CLUSTER}' CONFIG_NAME='${CWS_CONFIG}' /google/scripts/config_rendering.sh"
 
   if [ "$wipe_flag" = true ]; then
     log "🧹 Wipe option enabled. Clearing /var/www/html/ before patch..."
@@ -67,11 +67,11 @@ main() {
   fi
 
   cd "${preflight_dir}/dist"
-  tar -czf - . | gcloud workstations ssh "${WORKSTATION}" \
-    --project="${PROJECT}" \
-    --cluster="${CLUSTER}" \
-    --config="${CONFIG}" \
-    --region="${REGION}" \
+  tar -czf - . | gcloud workstations ssh "${CWS_NAME}" \
+    --project="${GOOGLE_CLOUD_PROJECT}" \
+    --cluster="${CWS_CLUSTER}" \
+    --config="${CWS_CONFIG}" \
+    --region="${CWS_REGION}" \
     --command="${remote_cmd}"
 
   log "✅ Hot-patch complete! Refresh the browser to see changes."

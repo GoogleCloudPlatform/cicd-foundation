@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # Copyright 2023-2026 Google LLC
 #
@@ -19,13 +19,14 @@
 # environmet variables (envs/*/.env)
 # execute before git commit and push for CI/CD pipelines
 
-. $(dirname $0)/common.sh
+. "$(dirname "$0")/common.sh"
 checkDependencies envsubst
 
 usage() {
   echo "Usage: $0 [options]"
   echo "Options:"
-  echo "  -a                     Generate for all applications"
+  echo "  -a, --all              Generate for all applications"
+  echo "  -h, --help             Show this help text"
 }
 
 apply() {
@@ -33,13 +34,20 @@ apply() {
   generate
 }
 
-if [ "$1" == "-a" ]
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]
 then
-  for APP in $(ls -d $(dirname $(dirname $0))/apps/*)
+  usage
+  exit 0
+elif [ "${1:-}" = "-a" ] || [ "${1:-}" = "--all" ]
+then
+  resolveRepoRoot
+  for APP_DIR in "$REPO_ROOT"/apps/*
   do
-    cd $APP
-    apply
-    cd -
+    [ -f "$APP_DIR/skaffold.yaml" ] || continue
+    (
+      cd "$APP_DIR" || exit 1
+      apply
+    )
   done
 else
   apply

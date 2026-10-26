@@ -16,10 +16,23 @@
 
 set -euo pipefail
 
-# Sourced root logic
+# Sourced root logic (with standalone fallback when downloaded outside a cloned repository)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck disable=SC1091
-source "${SCRIPT_DIR}/../../common.sh"
+if [[ -f "${SCRIPT_DIR}/../../common.sh" ]]; then
+  # shellcheck disable=SC1091
+  source "${SCRIPT_DIR}/../../common.sh"
+else
+  log() {
+    echo -e "[\033[0;34m$(date +%T)\033[0m] $*"
+  }
+  warn() {
+    echo -e "[\033[0;33mWARN\033[0m] $*"
+  }
+  error() {
+    echo -e "[\033[0;31mERROR\033[0m] $*" >&2
+    exit 1
+  }
+fi
 
 usage() {
   echo "Usage: $0 [start|stop|restart|status|wait|ssh|tunnel] [WORKSTATION] [flags/args]"
@@ -45,12 +58,12 @@ usage() {
   echo "  --remote-port  Remote port on the workstation (default: 22)."
   echo "  --user         Username for SSH (default: user)."
   echo "  --browser      Open URL in browser. Optional value sets browser (default: google-chrome)."
-  echo "  --no-ssh-config Skip updating ~/.ssh/config for the 'ws' host."
+  echo "  --no-ssh-config Skip updating ~/.ssh/config for the 'cws' host."
   exit 1
 }
 
 # Helper: Retrieve the workstation hostname
-get_ws_host() {
+get_cws_host() {
   local workstation="$1"
   local project="$2"
   local cluster="$3"
@@ -85,20 +98,20 @@ open_browser_url() {
 }
 
 # Wait for a workstation to reach a specific state with a timeout.
-wait_for_ws_state() {
-    local ws_name="$1"
+wait_for_cws_state() {
+    local cws_name="$1"
     local target_state="$2"
-    local project="${3:-${PROJECT:-}}"
-    local cluster="${4:-${CLUSTER:-}}"
-    local config="${5:-${CONFIG:-}}"
-    local region="${6:-${REGION:-}}"
+    local project="${3:-${GOOGLE_CLOUD_PROJECT:-}}"
+    local cluster="${4:-${CWS_CLUSTER:-}}"
+    local config="${5:-${CWS_CONFIG:-}}"
+    local region="${6:-${CWS_REGION:-}}"
     local timeout_seconds="${7:-600}"
 
-    if [[ -z "${ws_name}" || -z "${project}" || -z "${cluster}" || -z "${config}" || -z "${region}" ]]; then
-        error "wait_for_ws_state: Missing required parameters (WS, Project, Cluster, Config, Region)."
+    if [[ -z "${cws_name}" || -z "${project}" || -z "${cluster}" || -z "${config}" || -z "${region}" ]]; then
+        error "wait_for_cws_state: Missing required parameters (CWS, Project, Cluster, Config, Region)."
     fi
 
-    log "Waiting for ${ws_name} to reach ${target_state} (timeout: ${timeout_seconds}s)..."
+    log "Waiting for ${cws_name} to reach ${target_state} (timeout: ${timeout_seconds}s)..."
 
     local start_time
     start_time=$(date +%s)
@@ -110,23 +123,23 @@ wait_for_ws_state() {
         local elapsed=$((current_time - start_time))
 
         if [[ ${elapsed} -ge ${timeout_seconds} ]]; then
-            error "Timeout reached (${timeout_seconds}s) waiting for ${ws_name} to reach ${target_state}."
+            error "Timeout reached (${timeout_seconds}s) waiting for ${cws_name} to reach ${target_state}."
         fi
 
         local state
-        if ! state=$(gcloud workstations describe "${ws_name}" \
+        if ! state=$(gcloud workstations describe "${cws_name}" \
             --project="${project}" --cluster="${cluster}" \
             --config="${config}" --region="${region}" \
             --format="value(state)" 2>/dev/null); then
-            warn "Failed to fetch state for ${ws_name}. (Gcloud error, retrying...)"
+            warn "Failed to fetch state for ${cws_name}. (Gcloud error, retrying...)"
         else
             if [[ "${state}" == "${target_state}" ]]; then
-                log "✅ Workstation ${ws_name} reached ${state}."
+                log "✅ Workstation ${cws_name} reached ${state}."
                 return 0
             fi
 
             if [[ "${state}" != "${last_logged_state}" ]]; then
-                log "Workstation ${ws_name} is currently ${state:-UNKNOWN}..."
+                log "Workstation ${cws_name} is currently ${state:-UNKNOWN}..."
                 last_logged_state="${state}"
             fi
         fi
@@ -135,7 +148,7 @@ wait_for_ws_state() {
     done
 }
 
-start_ws() {
+start_cws() {
   local workstation="$1"
   local project="$2"
   local cluster="$3"
@@ -157,24 +170,24 @@ start_ws() {
       --project="${project}" --cluster="${cluster}" \
       --config="${config}" --region="${region}"
 
-    wait_for_ws_state "${workstation}" "STATE_RUNNING" "${project}" "${cluster}" "${config}" "${region}" "${timeout}"
+    wait_for_cws_state "${workstation}" "STATE_RUNNING" "${project}" "${cluster}" "${config}" "${region}" "${timeout}"
   else
     log "Workstation ${workstation} is already running."
   fi
 
   # Optionally open browser
   if [[ -n "${browser}" ]]; then
-    local ws_host
-    ws_host=$(get_ws_host "${workstation}" "${project}" "${cluster}" "${config}" "${region}")
-    if [[ -n "${ws_host}" ]]; then
-      open_browser_url "https://${ws_host}" "${browser}"
+    local cws_host
+    cws_host=$(get_cws_host "${workstation}" "${project}" "${cluster}" "${config}" "${region}")
+    if [[ -n "${cws_host}" ]]; then
+      open_browser_url "https://${cws_host}" "${browser}"
     else
       warn "Unable to lookup hostname for ${workstation}. Skipping browser open."
     fi
   fi
 }
 
-stop_ws() {
+stop_cws() {
   local workstation="$1"
   local project="$2"
   local cluster="$3"
@@ -187,10 +200,10 @@ stop_ws() {
     --project="${project}" --cluster="${cluster}" \
     --config="${config}" --region="${region}"
 
-  wait_for_ws_state "${workstation}" "STATE_STOPPED" "${project}" "${cluster}" "${config}" "${region}" "${timeout}"
+  wait_for_cws_state "${workstation}" "STATE_STOPPED" "${project}" "${cluster}" "${config}" "${region}" "${timeout}"
 }
 
-status_ws() {
+status_cws() {
   local workstation="$1"
   local project="$2"
   local cluster="$3"
@@ -206,7 +219,7 @@ status_ws() {
   echo "${state}"
 }
 
-tunnel_ws() {
+tunnel_cws() {
   local workstation="$1"
   local project="$2"
   local cluster="$3"
@@ -220,7 +233,7 @@ tunnel_ws() {
   local user="${11}"
 
   # 1. Ensure Running and handle browser
-  start_ws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}" "${browser}"
+  start_cws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}" "${browser}"
 
   # 2. Manage SSH Config
   if [[ "${manage_ssh_config}" == "true" ]]; then
@@ -228,11 +241,11 @@ tunnel_ws() {
     mkdir -p "$HOME/.ssh"
     touch "${ssh_config}"
 
-    if ! grep -q "^Host ws$" "${ssh_config}"; then
-      log "Creating 'ws' host entry in ${ssh_config}..."
+    if ! grep -q "^Host cws$" "${ssh_config}"; then
+      log "Creating 'cws' host entry in ${ssh_config}..."
       cat >> "${ssh_config}" <<EOF
 
-Host ws
+Host cws
   HostName 127.0.0.1
   Port ${local_port}
   User ${user}
@@ -240,15 +253,15 @@ Host ws
   UserKnownHostsFile /dev/null
   LogLevel ERROR
 EOF
-      log "✅ Added 'ws' entry to SSH config."
+      log "✅ Added 'cws' entry to SSH config."
     else
-      log "SSH config already contains 'ws' entry. Skipping."
+      log "SSH config already contains 'cws' entry. Skipping."
     fi
   fi
 
   # 3. Establish Tunnel
   log "Starting SSH tunnel on local port ${local_port} -> remote port ${remote_port}..."
-  log "You can ssh into your workstation with 'ssh ws' (if using default config)."
+  log "You can ssh into your workstation with 'ssh cws' (if using default config)."
 
   # Note: start-tcp-tunnel is the command for the current gcloud version
   gcloud workstations start-tcp-tunnel "${workstation}" "${remote_port}" \
@@ -257,7 +270,7 @@ EOF
     --config="${config}" --region="${region}"
 }
 
-ssh_ws() {
+ssh_cws() {
   local workstation="$1"
   local project="$2"
   local cluster="$3"
@@ -268,7 +281,7 @@ ssh_ws() {
   local user="$8"
 
   # 1. Ensure Running
-  start_ws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}" ""
+  start_cws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}" ""
 
   # 2. Connect via SSH
   log "SSHing into workstation ${workstation}..."
@@ -287,8 +300,8 @@ main() {
   local action="$1"
   shift || true
 
-  # Defaults
-  local workstation="${WORKSTATION:-}"
+  # Defaults from CWS_* and GOOGLE_CLOUD_PROJECT environment variables (via .env or shell)
+  local workstation="${CWS_NAME:-}"
   # If the next argument is NOT a flag, it is the workstation name
   if [[ -n "${1:-}" && "${1:-}" != --* ]]; then
     workstation="$1"
@@ -296,12 +309,12 @@ main() {
   fi
 
   local target_state="STATE_RUNNING"
-  local project="${PROJECT:-}"
-  local cluster="${CLUSTER:-}"
-  local config="${CONFIG:-}"
-  local region="${REGION:-}"
+  local project="${GOOGLE_CLOUD_PROJECT:-}"
+  local cluster="${CWS_CLUSTER:-}"
+  local config="${CWS_CONFIG:-}"
+  local region="${CWS_REGION:-}"
   local timeout="600"
-  local local_port="2222"
+  local local_port="${CWS_LOCAL_PORT:-2222}"
   local remote_port="22"
   local user="user"
   local browser=""
@@ -324,7 +337,7 @@ main() {
           browser="$2"
           shift 2
         else
-          browser="google-chrome"
+          browser="${BROWSER:-google-chrome}"
           shift 1
         fi
         ;;
@@ -333,39 +346,49 @@ main() {
     esac
   done
 
+  if [[ ! "${action}" =~ ^(start|stop|restart|status|wait|ssh|tunnel)$ ]]; then
+    usage
+  fi
+
+  if ! command -v gcloud >/dev/null 2>&1; then
+    error "gcloud CLI not found. Please install it: https://cloud.google.com/sdk/docs/install"
+  fi
+
   # Final assignment to ensure they are available in functions that don't take them as args
-  # We export them so that gcloud and other tools pick them up as defaults if needed.
-  export PROJECT="${project}"
-  export CLUSTER="${cluster}"
-  export CONFIG="${config}"
-  export REGION="${region}"
+  export GOOGLE_CLOUD_PROJECT="${project}"
+  export CWS_CLUSTER="${cluster}"
+  export CWS_CONFIG="${config}"
+  export CWS_REGION="${region}"
 
   if [[ -z "${workstation}" ]]; then
-    error "Workstation name is required."
+    error "Workstation name is required (pass [WORKSTATION] or set CWS_NAME)."
+  fi
+  if [[ -z "${project}" || -z "${cluster}" || -z "${config}" || -z "${region}" ]]; then
+    error "Missing required workstation parameters (--project/GOOGLE_CLOUD_PROJECT, --cluster/CWS_CLUSTER, --config/CWS_CONFIG, --region/CWS_REGION)."
   fi
 
   case "${action}" in
     start)
-      start_ws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}" "${browser}"
+      start_cws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}" "${browser}"
       ;;
     stop)
-      stop_ws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}"
+      stop_cws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}"
       ;;
     restart)
-      stop_ws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}"
-      start_ws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}" "${browser}"
+      stop_cws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}"
+      start_cws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}" "${browser}"
       ;;
     status)
-      status_ws "${workstation}" "${project}" "${cluster}" "${config}" "${region}"
+      status_cws "${workstation}" "${project}" "${cluster}" "${config}" "${region}"
       ;;
     wait)
-      wait_for_ws_state "${workstation}" "${target_state}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}"
+      wait_for_cws_state "${workstation}" "${target_state}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}"
       ;;
     ssh)
-      ssh_ws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}" "${remote_port}" "${user}"
+      ssh_cws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}" "${remote_port}" "${user}"
       ;;
     tunnel)
-      tunnel_ws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}" "${local_port}" "${remote_port}" "${browser}" "${manage_ssh_config}" "${user}"
+      tunnel_cws "${workstation}" "${project}" "${cluster}" "${config}" "${region}" "${timeout}" "${local_port}" "${remote_port}" "${browser}" "${manage_ssh_config}" "${user}"
       ;;
     *)
       usage
@@ -373,4 +396,6 @@ main() {
   esac
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  main "$@"
+fi

@@ -1,4 +1,4 @@
-# Copyright 2024-2025 Google LLC
+# Copyright 2024-2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -494,6 +494,7 @@ variable "apps" {
     agents = optional(map(map(object({
       enabled       = optional(bool, false)
       model         = optional(string)
+      location      = optional(string)
       personas      = optional(list(string))
       instructions  = optional(string)
       prompt        = optional(string)
@@ -533,4 +534,3 @@ variable "default_agentic_prompt" {
   description = "The default prompt passed to each persona reviewer."
   default     = "Analyze the modified files in the workspace. Audit the code against your persona's mandates and guidelines, highlighting any issues or improvements needed."
 }
-

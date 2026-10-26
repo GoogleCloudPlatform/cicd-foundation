@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 # Copyright 2023-2026 Google LLC
 #
@@ -14,8 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-$(dirname $0)/format-sources.sh
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
-$(dirname $0)/generate-docs.sh
+"$SCRIPT_DIR/format-sources.sh"
 
-tflint --recursive --chdir $(dirname $0)/../infra/ 2>&1
+"$SCRIPT_DIR/generate-docs.sh"
+
+tflint --recursive --chdir "$SCRIPT_DIR/../infra/" 2>&1

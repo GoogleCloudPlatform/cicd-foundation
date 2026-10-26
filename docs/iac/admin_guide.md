@@ -53,26 +53,28 @@ You can use the `gcloud` CLI to list and verify your resources:
 gcloud builds list
 
 # List Artifact Registry images
-gcloud artifacts docker images list $WS_REGION-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/$REPOSITORY/$IMAGE_NAME
+gcloud artifacts docker images list $CWS_REGION-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/$REPOSITORY/$IMAGE_NAME
 
 # List Cloud Workstation clusters
-gcloud workstations clusters list --region=$WS_REGION
+gcloud workstations clusters list --region=$CWS_REGION
 
 # List Cloud Workstation configurations
-gcloud workstations configs list --cluster=$WS_CLUSTER --region=$WS_REGION
+gcloud workstations configs list --cluster=$CWS_CLUSTER --region=$CWS_REGION
 ```
 
 ## Connecting via SSH
 
-For developers who prefer connecting to their workstation via a secure SSH tunnel (e.g., for local IDE integration), we recommend using the [`ws.sh`](https://github.com/GoogleCloudPlatform/cicd-foundation/blob/main/bin/ws.sh) script from the CICD-Foundation repository.
+For developers who prefer connecting to their workstation via a secure SSH tunnel (e.g., for local IDE integration), use [`skills/persona-sre/scripts/manage_workstation.sh`](../../skills/persona-sre/scripts/manage_workstation.sh) directly from a cloned repository or download it standalone:
 
 ```bash
-# Download the script
-curl -O https://raw.githubusercontent.com/GoogleCloudPlatform/cicd-foundation/main/bin/ws.sh
-chmod +x ws.sh
+# Optional: download standalone if working outside a cloned repository
+curl -O https://raw.githubusercontent.com/GoogleCloudPlatform/cicd-foundation/main/skills/persona-sre/scripts/manage_workstation.sh
+chmod +x manage_workstation.sh
 
-export WS_REGION="YOUR_REGION"
-export WS_CLUSTER="YOUR_CLUSTER"
-export WS_CONFIG="YOUR_CONFIG"
-./ws.sh
+export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT"
+export CWS_REGION="YOUR_REGION"
+export CWS_CLUSTER="YOUR_CLUSTER"
+export CWS_CONFIG="YOUR_CONFIG"
+export CWS_NAME="YOUR_WORKSTATION"
+./manage_workstation.sh tunnel --browser
 ```

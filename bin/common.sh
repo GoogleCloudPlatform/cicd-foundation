@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # Copyright 2023-2026 Google LLC
 #
@@ -17,32 +17,64 @@
 # some common functions used by scripts
 
 getOpts() {
-  while getopts "hd:a:" FLAG
+  OPT_SHIFT=0
+  while [ $# -gt 0 ]
   do
-    case $FLAG in
-      a | app)
-          APP="$OPTARG"
+    case "$1" in
+      -a | --app)
+          if [ $# -lt 2 ]
+          then
+            usage
+            exit 1
+          fi
+          APP="$2"
+          shift 2
+          OPT_SHIFT=$((OPT_SHIFT + 2))
           ;;
-      d | directory)
-          ROOT_DIR="$OPTARG"
+      --app=*)
+          APP="${1#*=}"
+          shift
+          OPT_SHIFT=$((OPT_SHIFT + 1))
           ;;
-      h | help)
+      -d | --directory)
+          if [ $# -lt 2 ]
+          then
+            usage
+            exit 1
+          fi
+          ROOT_DIR="$2"
+          shift 2
+          OPT_SHIFT=$((OPT_SHIFT + 2))
+          ;;
+      --directory=*)
+          ROOT_DIR="${1#*=}"
+          shift
+          OPT_SHIFT=$((OPT_SHIFT + 1))
+          ;;
+      -h | --help)
           usage
           exit 0
           ;;
-      *)
+      --)
+          shift
+          OPT_SHIFT=$((OPT_SHIFT + 1))
+          break
+          ;;
+      -*)
           usage
           exit 1
           ;;
+      *)
+          break
+          ;;
     esac
   done
-  shift $(($OPTIND - 1))
 }
 
 checkDependencies() {
-  for DEPENDENCY in $*
+  for DEPENDENCY in "$@"
   do
-    if ! command -v $DEPENDENCY &> /dev/null
+    if ! command -v "$DEPENDENCY" >/dev/null 2>&1
     then
       echo "$DEPENDENCY required but not found!" >&2
       exit 1
@@ -50,12 +82,23 @@ checkDependencies() {
   done
 }
 
+resolveRepoRoot() {
+  if [ -n "${BASH_VERSION:-}" ] && [ -n "${BASH_SOURCE[0]:-}" ]
+  then
+    COMMON_SCRIPT="${BASH_SOURCE[0]}"
+  else
+    COMMON_SCRIPT="$0"
+  fi
+  COMMON_DIR=$(dirname "$COMMON_SCRIPT")
+  REPO_ROOT=$(cd "$COMMON_DIR/.." && pwd)
+}
+
 getRootDir() {
   if [ -z "$ROOT_DIR" ]
   then
     if [ -f "skaffold.yaml" ]
     then
-      ROOT_DIR="$(pwd)"
+      ROOT_DIR=$(pwd)
     else
       if [ -z "$APP" ]
       then
@@ -65,8 +108,12 @@ getRootDir() {
         usage
         exit 3
       fi
-      ROOT_DIR="$(dirname$(dirname $0))/apps/$APP"
+      resolveRepoRoot
+      ROOT_DIR="$REPO_ROOT/apps/$APP"
     fi
+  elif [ -d "$ROOT_DIR" ]
+  then
+    ROOT_DIR=$(cd "$ROOT_DIR" && pwd)
   fi
   SKAFFOLD_FILE=$ROOT_DIR/skaffold.yaml
 }
@@ -76,7 +123,7 @@ readEnv() {
   then
     echo "reading environment file $1"
     set -a
-    . $1
+    . "$1"
     set +a
   else
     echo "Warning: no environment file found: $1" >&2
@@ -84,27 +131,28 @@ readEnv() {
 }
 
 readEnvs() {
-  readEnv "$(dirname $ROOT_DIR)/.env"
-  for ENV in base $*
+  readEnv "$(dirname "$ROOT_DIR")/.env"
+  for ENV in base "$@"
   do
     readEnv "$ROOT_DIR/envs/$ENV/.env"
   done
 }
 
 generateEnvManifests() {
-  for TEMPLATE_FILE in $(ls $ROOT_DIR/envs/base/*.tmpl 2>/dev/null)
+  for TEMPLATE_FILE in "$ROOT_DIR"/envs/base/*.tmpl
   do
-    TEMPLATE_FILENAME=$(basename ${TEMPLATE_FILE%.tmpl})
-    ENV_DIRS="$*"
-    if [ -z "$ENV_DIRS" ]
+    [ -e "$TEMPLATE_FILE" ] || continue
+    TEMPLATE_FILENAME=$(basename "${TEMPLATE_FILE%.tmpl}")
+    ENVS="$*"
+    if [ -z "$ENVS" ]
     then
-      ENVS=$(ls -I base $ROOT_DIR/envs/)
+      ENVS=$(ls -I base "$ROOT_DIR/envs/")
     fi
     for ENV in $ENVS
     do
-      readEnvs $ENV
+      readEnvs "$ENV"
       set -a
-      ENV=$ENV
+      export ENV
       if [ -n "$TEAM" ]
       then
         TEAM_PREFIX="${TEAM}-"
@@ -112,29 +160,32 @@ generateEnvManifests() {
       set +a
       GENERATED_FILE=$ROOT_DIR/envs/$ENV/$TEMPLATE_FILENAME
       echo "generating $GENERATED_FILE"
-      envsubst < $TEMPLATE_FILE > $GENERATED_FILE
+      envsubst < "$TEMPLATE_FILE" > "$GENERATED_FILE"
     done
   done
 }
 
 generateRequirementsTxt() {
-  for PYPROJECT in $(ls $ROOT_DIR/src/*/pyproject.toml 2>/dev/null)
+  for PYPROJECT in "$ROOT_DIR"/src/*/pyproject.toml
   do
-    if grep -q "build-backend = \"poetry.core" $PYPROJECT
+    [ -e "$PYPROJECT" ] || continue
+    if grep -q "build-backend = \"poetry.core" "$PYPROJECT"
     then
-      cd $(dirname $PYPROJECT)
-      poetry export -f requirements.txt --output requirements.txt
-      cd -
-    elif [ -f "$(dirname $PYPROJECT)/uv.lock" ] || grep -q "hatchling.build" $PYPROJECT
+      (
+        cd "$(dirname "$PYPROJECT")" || exit
+        poetry export -f requirements.txt --output requirements.txt
+      )
+    elif [ -f "$(dirname "$PYPROJECT")/uv.lock" ] || grep -q "hatchling.build" "$PYPROJECT"
     then
-      cd $(dirname $PYPROJECT)
-      uv export --format requirements-txt -o requirements.txt
-      cd -
+      (
+        cd "$(dirname "$PYPROJECT")" || exit
+        uv export --format requirements-txt -o requirements.txt
+      )
     fi
   done
 }
 
 generate() {
-  generateEnvManifests $*
-  generateRequirementsTxt $*
+  generateEnvManifests "$@"
+  generateRequirementsTxt "$@"
 }

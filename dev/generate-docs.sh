@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 # Copyright 2023-2026 Google LLC
 #
@@ -14,23 +14,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+DEFAULT_MODULES_DIR="$(dirname "$SCRIPT_DIR")/infra/modules"
+
 usage() {
   echo "Usage: $(basename "$0") [--help] [--path-to-modules <path>]"
   echo "  --help: Show this help message."
   echo "  --path-to-modules: Specify the path to the directory containing Terraform modules."
-  echo "                     Defaults to $(dirname "$(cd "$(dirname "$0")" && pwd)")/infra/modules"
+  echo "                     Defaults to $DEFAULT_MODULES_DIR"
 }
 
-MODULES_DIR="$(dirname "$(cd "$(dirname "$0")" && pwd)")/infra/modules"
+MODULES_DIR="$DEFAULT_MODULES_DIR"
 
-while [[ "$#" -gt 0 ]]; do
+while [ "$#" -gt 0 ]; do
   case "$1" in
     --help)
       usage
       exit 0
       ;;
     --path-to-modules)
-      if [[ -n "$2" ]]; then
+      if [ -n "${2:-}" ]; then
         MODULES_DIR="$2"
         shift
       else
@@ -56,16 +59,15 @@ OUTPUT_TEMPLATE=$(cat <<'EOF'
 EOF
 )
 
-for MODULE in $(find "$MODULES_DIR" -maxdepth 1 -type d -o -type l | grep -v "$MODULES_DIR$")
+for MODULE in $(find "$MODULES_DIR" -maxdepth 1 \( -type d -o -type l \) | grep -v "$MODULES_DIR$")
 do
-  cd $MODULE \
-  && \
-  terraform-docs markdown \
-      --output-template "${OUTPUT_TEMPLATE}" \
-      --show inputs \
-      --show outputs \
-      --output-file=README.md \
-      . \
-  && \
-  cd - > /dev/null
+  (
+    cd "$MODULE" || exit 1
+    terraform-docs markdown \
+        --output-template "${OUTPUT_TEMPLATE}" \
+        --show inputs \
+        --show outputs \
+        --output-file=README.md \
+        .
+  )
 done

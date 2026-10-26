@@ -49,9 +49,7 @@ def error(msg: str) -> None:
     sys.exit(1)
 
 
-def run_command(
-    cmd: List[str], capture_output: bool = True
-) -> subprocess.CompletedProcess:
+def run_command(cmd: List[str], capture_output: bool = True) -> subprocess.CompletedProcess:
     """Runs a shell command and returns the completed process."""
     try:
         return subprocess.run(cmd, check=True, capture_output=capture_output, text=True)
@@ -90,7 +88,8 @@ def get_env_vars() -> Dict[str, str]:
         # go/keep-sorted start
         "ARTIFACT_REGION",
         "BUILD_REGION",
-        "PROJECT",
+        "CWS_REGION",
+        "GOOGLE_CLOUD_PROJECT",
         # go/keep-sorted end
     ]
     for key in keys:
@@ -148,18 +147,14 @@ def filter_substitutions(substitutions: Dict[str, str], build_config: Dict[str, 
 
 def main():
     """Main entry point for the trigger script."""
-    parser = argparse.ArgumentParser(
-        description="Trigger a manual Cloud Build using production trigger logic."
-    )
+    parser = argparse.ArgumentParser(description="Trigger a manual Cloud Build using production trigger logic.")
     parser.add_argument(
         "image_path",
         nargs="?",
         default="apps/workstations/gnome",
         help="Path to the image directory.",
     )
-    parser.add_argument(
-        "--service-account", help="Override the service account for the build."
-    )
+    parser.add_argument("--service-account", help="Override the service account for the build.")
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -176,12 +171,12 @@ def main():
         error(f"image directory must contain a dockerfile: {args.image_path}")
 
     env = get_env_vars()
-    project = env.get("PROJECT")
-    region = env.get("BUILD_REGION")
+    project = env.get("GOOGLE_CLOUD_PROJECT")
+    region = env.get("BUILD_REGION") or env.get("CWS_REGION")
     artifact_repo = env.get("ARTIFACT_REGION")
 
     if not project or not region:
-        error("PROJECT and BUILD_REGION must be set in .env or environment")
+        error("GOOGLE_CLOUD_PROJECT and BUILD_REGION (or CWS_REGION) must be set in .env or environment")
 
     image_name = image_path.name
     repo_root = Path(__file__).resolve().parents[3]
@@ -229,9 +224,7 @@ def main():
                 service_account = service_account.split("/")[-1]
 
     except subprocess.CalledProcessError:
-        warn(
-            f"Trigger '{image_name}' not found. Falling back to minimal configuration."
-        )
+        warn(f"Trigger '{image_name}' not found. Falling back to minimal configuration.")
         build_config = {
             "options": {
                 "logging": "CLOUD_LOGGING_ONLY",
@@ -258,9 +251,7 @@ def main():
             ],
         }
         fallback_repo = artifact_repo or region
-        substitutions["_SKAFFOLD_DEFAULT_REPO"] = (
-            f"{fallback_repo}-docker.pkg.dev/{project}/cicd-foundation"
-        )
+        substitutions["_SKAFFOLD_DEFAULT_REPO"] = f"{fallback_repo}-docker.pkg.dev/{project}/cicd-foundation"
 
     # Apply critical overrides for local context
     substitutions["_SKAFFOLD_PATH"] = args.image_path
@@ -285,7 +276,7 @@ def main():
     subst_str = ",".join([f"{k}={v}" for k, v in filtered_subs.items()])
 
     # Write adapted config to a temp file
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_config:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as temp_config:
         json.dump(build_config, temp_config, indent=2)
         temp_config_path = temp_config.name
 

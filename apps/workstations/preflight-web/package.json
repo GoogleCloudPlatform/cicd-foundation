@@ -11,20 +11,20 @@
     "lint": "oxlint"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.2.2",
-    "@tailwindcss/vite": "^4.2.2",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@tailwindcss/vite": "^4.3.3",
     "jsdom": "^29.1.1",
-    "marked": "^18.0.5",
-    "oxlint": "^1.80.0",
-    "tailwindcss": "^4.2.2",
+    "marked": "^18.1.1",
+    "oxlint": "^1.89.0",
+    "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
-    "vite": "^8.0.16",
+    "vite": "^8.3.5",
     "vite-plugin-sri": "^0.0.2",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.12"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
     "@fontsource/space-grotesk": "^5.2.10",
-    "material-symbols": "^0.45.1"
+    "material-symbols": "^0.48.1"
   }
 }

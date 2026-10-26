@@ -17,9 +17,13 @@
 
 /** @fileoverview Handles UI interactions, themes, and overlays. */
 
-import { marked } from 'marked';
-import {Themes, THEME_FLASH_DURATION_MS, getHelpMarkdown} from './constants.js';
-import { t } from './i18n.js';
+import { marked } from "marked";
+import {
+  Themes,
+  THEME_FLASH_DURATION_MS,
+  getHelpMarkdown,
+} from "./constants.js";
+import { t } from "./i18n.js";
 
 /**
  * Updates the footer with current progress and controls.
@@ -31,39 +35,48 @@ import { t } from './i18n.js';
 export function updateFooter(footer, current, total) {
   if (!footer) return;
 
-  const slideProgress = t('slide_progress', { Current: current + 1, Total: total });
-  footer.innerHTML = `${slideProgress} • ` +
-      `<span class="footer-btn" data-action="theme"><b>[t]</b> ${t('theme')}</span> • ` +
-      `<span class="footer-btn" data-action="help"><b>[h]</b> ${t('help')}</span> • ` +
-      `<span class="footer-btn" data-action="quit"><b>[q]</b> ${t('quit')}</span>`;
+  const slideProgress = t("slide_progress", {
+    Current: current + 1,
+    Total: total,
+  });
+  footer.innerHTML =
+    `${slideProgress} • ` +
+    `<span class="footer-btn" data-action="theme"><b>[t]</b> ${t(
+      "theme",
+    )}</span> • ` +
+    `<span class="footer-btn" data-action="help"><b>[h]</b> ${t(
+      "help",
+    )}</span> • ` +
+    `<span class="footer-btn" data-action="quit"><b>[q]</b> ${t(
+      "quit",
+    )}</span>`;
 
   // Append terminal-style blinking cursor.
-  const cursor = document.createElement('span');
-  cursor.id = 'cursor';
+  const cursor = document.createElement("span");
+  cursor.id = "cursor";
   footer.appendChild(cursor);
 }
 
 /**
  * Toggles the shortcuts help overlay.
  * @param {HTMLElement} overlay The overlay element to toggle.
- * @param {boolean=} show Explicitly show or hide the overlay.
  * @param {number} current Current slide index.
  * @param {number} total Total number of slides.
  */
 export function renderHelp(overlay, current, total) {
   if (!overlay) return;
-  const content = overlay.querySelector('.shortcuts-content');
-  const container = overlay.querySelector('.help-container') || overlay;
+  const content = overlay.querySelector(".shortcuts-content");
+  const container = overlay.querySelector(".help-container") || overlay;
 
   if (content) {
     content.innerHTML = /** @type {string} */ (marked.parse(getHelpMarkdown()));
-    content.className = 'shortcuts-content';
+    content.className = "shortcuts-content";
 
     // Ensure footer is present and pushed to bottom of the help-container
-    let helpFooter = container.querySelector('.help-footer');
+    let helpFooter = container.querySelector(".help-footer");
     if (!helpFooter) {
-      helpFooter = document.createElement('footer');
-      helpFooter.className = 'help-footer';
+      helpFooter = document.createElement("footer");
+      helpFooter.className = "help-footer";
       container.appendChild(helpFooter);
     }
     updateFooter(/** @type {HTMLElement} */ (helpFooter), current, total);
@@ -79,11 +92,12 @@ export function renderHelp(overlay, current, total) {
 export function toggleHelp(overlay, show) {
   if (!overlay) return false;
 
-  const isActive = (show !== undefined) ? show : !overlay.classList.contains('active');
+  const isActive =
+    show !== undefined ? show : !overlay.classList.contains("active");
   if (isActive) {
-    overlay.classList.add('active');
+    overlay.classList.add("active");
   } else {
-    overlay.classList.remove('active');
+    overlay.classList.remove("active");
   }
   return isActive;
 }
