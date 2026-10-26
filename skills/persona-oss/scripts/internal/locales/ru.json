@@ -1,0 +1,50 @@
+[
+  {
+    "id": "error_artifact_not_found",
+    "translation": "артефакт {{.Filename}} не найден в метаданных публичного реестра для {{.Package}}@{{.Version}}"
+  },
+  {
+    "id": "error_check_mode_failed",
+    "translation": "обнаружены непубличные url реестра в {{.Count}} lock-файлах"
+  },
+  {
+    "id": "error_hash_mismatch",
+    "translation": "несовпадение хеша sha256 для {{.Package}}@{{.Version}} ({{.Filename}}): в lock-файле {{.Expected}}, в публичном реестре {{.Actual}}"
+  },
+  {
+    "id": "error_read_lockfile",
+    "translation": "не удалось прочитать lock-файл {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "error_resolve_metadata",
+    "translation": "не удалось получить метаданные публичного реестра для {{.Package}}@{{.Version}}: {{.Error}}"
+  },
+  {
+    "id": "error_unexpected_cdn_url",
+    "translation": "метаданные публичного реестра вернули неканонический url дистрибутива {{.URL}} для {{.Package}}@{{.Version}}"
+  },
+  {
+    "id": "error_write_lockfile",
+    "translation": "не удалось записать lock-файл {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "usage_uv_lock_scrubber",
+    "translation": "Использование: uv_lock_scrubber [параметры] [--] [uv.lock...]\n\nПараметры:\n  --api-base string   Базовый URL JSON API PyPI (по умолчанию \"https://pypi.org/pypi\")\n  --check             Проверить, что lock-файлы содержат только публичные URL PyPI, без изменения файлов"
+  },
+  {
+    "id": "uv_lock_scrubber_clean",
+    "translation": "Все проверенные файлы uv.lock уже используют канонические публичные URL PyPI."
+  },
+  {
+    "id": "uv_lock_scrubber_needs_scrub",
+    "translation": "  - {{.Path}}: обнаружено непубличных URL реестра: {{.Count}}"
+  },
+  {
+    "id": "uv_lock_scrubber_rewritten",
+    "translation": "  - Перезаписано непубличных URL реестра ({{.Count}}) в {{.Path}}"
+  },
+  {
+    "id": "uv_lock_scrubber_summary",
+    "translation": "Очищены непубличные URL реестра в файлах uv.lock ({{.Count}})."
+  }
+]

@@ -47,6 +47,7 @@ You may use `git` exclusively for **read-only analysis** (`git status`, `git dif
 - **Path-Trie Optimization**: All file-to-bedrock matching must use the optimized `PathTrie` in `GeologicalMatcher` to ensure $O(K)$ lookup performance on large strata.
 - **Sequential Discovery**: History scanning must be performed sequentially in `Discover` to maintain deterministic stability with the non-thread-safe `go-git` object resolution, using a central `repoMu` mutex for safety.
 - **Shell Dependency Injection**: All system command executions (e.g., `pre-commit`, `worktree`) must be performed via the `ShellService` interface to enable deterministic testing and mock-based validation.
+- **EGM Architecture Contracts (`EGM.md`)**: Every code and configuration directory maintains an Elephant & Goldfish Model (EGM) contract in its `EGM.md` (`target_filename="EGM.md"`, comprising `Peanuts` leaf contracts and `Hay` roll-up blueprints defining `Overview`, `Interface`, `Invariants`, and `Side Effects`) alongside human-facing `README.md` guides. Agents MUST consult local `EGM.md` contracts during context discovery and update `EGM.md` (as well as `README.md` where present) synchronously whenever exported interfaces, invariants, or side effects change.
 
 ## 4. Agent Validation Lifecycle
 
@@ -104,4 +105,4 @@ Technical health is enforced by the `skills/persona-agent-manager/tests/validate
 
 ---
 
-👉 **[Full Documentation Index](README.md)**
+👉 **[Full Documentation Index](README.md)** | 👉 **[Architectural Blueprint (EGM)](EGM.md)**

@@ -74,3 +74,15 @@ setup() {
   [[ "$output" == *"Loading cached container image: ${mock_dir}/img1.tar"* ]]
   [[ "$output" == *"Loading cached container image: ${mock_dir}/img2.tar"* ]]
 }
+
+@test "log_event defaults severity to INFO when third argument is KEY=VALUE" {
+  run log_event SERVICE_READY "Service initialized" SERVICE=test-svc
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"[INFO] SERVICE_READY: Service initialized SERVICE=test-svc"* ]]
+}
+
+@test "log_event respects explicit severity before KEY=VALUE metadata" {
+  run log_event SERVICE_WARN "Service degraded" WARN SERVICE=test-svc
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"[WARN] SERVICE_WARN: Service degraded SERVICE=test-svc"* ]]
+}

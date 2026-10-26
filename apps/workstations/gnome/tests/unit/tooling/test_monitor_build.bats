@@ -20,19 +20,22 @@ setup() {
   export MONITOR_TRIGGER_SLEEP=0.1
   export MONITOR_POLL_INTERVAL=0.1
   export MONITOR_TRIGGER_TIMEOUT=1
-  export WORKSTATION="mock-ws"
-  export CLUSTER="mock-cluster"
+  export CWS_NAME="mock-cws"
+  export CWS_CLUSTER="mock-cluster"
+  export CWS_CONFIG="mock-config"
+  export CWS_REGION="mock-region"
 
   # Use BATS's managed temporary directory for the mock script
-  export MANAGE_WS_SCRIPT="${BATS_FILE_TMPDIR}/manage_workstation.sh"
+  export MANAGE_CWS_SCRIPT="${BATS_FILE_TMPDIR}/manage_workstation.sh"
 
-  cat <<EOF > "${MANAGE_WS_SCRIPT}"
+  cat <<EOF > "${MANAGE_CWS_SCRIPT}"
 #!/bin/bash
-echo "WS_ACTION: \$1"
+echo "CWS_ACTION: \$1"
 EOF
-  chmod +x "${MANAGE_WS_SCRIPT}"
+  chmod +x "${MANAGE_CWS_SCRIPT}"
 
-  # Mock gcloud
+  # Mock gcloud (exported via export -f for child script processes)
+  # shellcheck disable=SC2329
   gcloud() {
     case "$*" in
       *"builds list"*) echo "mock-build-id-123" ;;

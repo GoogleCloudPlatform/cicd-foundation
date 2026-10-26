@@ -23,10 +23,10 @@ If you are interested on how to create a workstation, you can have a look at bel
 
 <details>
 <summary>Create your Cloud Workstation</summary>
-If your Google Identity has been granted the [roles/workstations.workstationCreator](https://cloud.google.com/iam/docs/understanding-roles#workstations.workstationCreator) role in the project, you can create your workstation and use the provisioned [Workstation Cluster](../../../infra/simplified/hub/workstations.tf#L15) and [Workstation Config](../../../infra/simplified/hub/workstations.tf#L24).  
+If your Google Identity has been granted the [roles/workstations.workstationCreator](https://cloud.google.com/iam/docs/understanding-roles#workstations.workstationCreator) role in the project, you can create your workstation and use the provisioned [Workstation Cluster](../../../infra/simplified/hub/workstations.tf#L15) and [Workstation Config](../../../infra/simplified/hub/workstations.tf#L24).
 
 <br/>
-Create your workstation with either of the methods below (gcloud, Terraform, Google Cloud Console):  
+Create your workstation with either of the methods below (gcloud, Terraform, Google Cloud Console):
 
 ### gcloud
 
@@ -62,48 +62,63 @@ In [Google Cloud Console](https://console.cloud.google.com/workstations/list):
 
 ### Using a Script
 
-👉 [Download the `ws.sh` shell script](https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/bin/ws.sh), make it executable, and place it in your PATH.
+👉 [Download the `manage_workstation.sh` shell script](https://github.com/GoogleCloudPlatform/cicd-foundation/blob/main/skills/persona-sre/scripts/manage_workstation.sh), make it executable, and place it in your PATH.
 
 <details>
 <summary>Linux</summary>
 
 ```sh
 mkdir -p ~/bin
-curl -o ~/bin/ws.sh https://github.com/GoogleCloudPlatform/cicd-foundation/tree/main/bin/ws.sh
-chmod a+x ~/bin/ws.sh
+curl -o ~/bin/manage_workstation.sh https://raw.githubusercontent.com/GoogleCloudPlatform/cicd-foundation/main/skills/persona-sre/scripts/manage_workstation.sh
+chmod a+x ~/bin/manage_workstation.sh
 ```
+
 </details><br/>
 
-👉 Export the following environment variables in your shell:
-- `GOOGLE_CLOUD_PROJECT`: the name of the Google Cloud **project** to use
-- `WS_REGION`: the name of the Google Cloud **region** to use
-- `WS_CLUSTER`: the name of the Cloud Workstation **cluster**
-- `WS_CONFIG`: the name of the Cloud Workstation **config**
-- `WS_NAME`: the name of the Cloud Workstation **instance**
+👉 Export the following required environment variables in your shell (or pass `--project`, `--region`, `--cluster`, `--config`, and `[WORKSTATION]` as CLI flags):
 
-One example:
+- `GOOGLE_CLOUD_PROJECT`: the ID of the Google Cloud **project** hosting the workstation
+- `CWS_REGION`: the name of the Google Cloud **region** to use
+- `CWS_CLUSTER`: the name of the Cloud Workstation **cluster**
+- `CWS_CONFIG`: the name of the Cloud Workstation **config**
+- `CWS_NAME`: the name of the Cloud Workstation **instance**
+
+Optional environment variables:
+
+- `CWS_LOCAL_PORT`: local SSH forwarding port (default: `2222`, or `--local-port`)
+- `BROWSER`: browser binary launched when `--browser` is passed (default: `google-chrome`)
+
+Example:
+
 ```sh
-export WS_REGION=europe-north1
+export GOOGLE_CLOUD_PROJECT="my-gcp-project"
+export CWS_REGION="europe-north1"
+export CWS_CLUSTER="cicd-foundation"
+export CWS_CONFIG="cicd-foundation"
+export CWS_NAME="my-workstation"
 ```
 
- 💡 Tip: add these to your shell profile (cf. [Bash Guide](https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_03_01.html)).
-
+💡 Tip: add these to your shell profile (cf. [Bash Guide](https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_03_01.html)).
 
 👉 Executing the (downloaded) shell script
+
 ```sh
-ws.sh
+manage_workstation.sh tunnel --browser
 ```
-will (by default):
-1. start the Cloud Workstation after authentication
-1. open the Cloud Workstation in a web browser 
+
+will:
+
+1. start the Cloud Workstation (if not already running) and wait until it reaches `STATE_RUNNING`
+1. open the Cloud Workstation in a web browser
 1. add below entry in `~/.ssh/config` if not found
 1. establish a secure tunnel with port forwarding for SSH (see below)
 
 #### `~/.ssh/config`
 
 This entry will be added to your ssh config file if not found:
+
 ```
-Host ws
+Host cws
   HostName 127.0.0.1
   Port 2222
   User user
@@ -111,25 +126,29 @@ Host ws
   UserKnownHostsFile /dev/null
   LogLevel ERROR
 ```
-- `StrictHostKeyChecking` is disabled as the instance will not have a persistent SSH key; apart, also the IP is not fixed.  
+
+- `StrictHostKeyChecking` is disabled as the instance will not have a persistent SSH key; apart, also the IP is not fixed.
 - For thes reasons also the `UserKnownHostsFile` is irrelevant.
 
 ### Secure Shell (SSH)
 
-👉 Establish (if not done already) a secure tunnel to your Cloud Workstation by executing the `ws.sh` script (and keep the terminal open).  
+👉 Establish (if not done already) a secure tunnel to your Cloud Workstation by executing `manage_workstation.sh tunnel --browser` (and keep the terminal open).  
 👉 SSH into your Cloud Workstation by (simply) executing (in another terminal):
+
 ```sh
-ssh ws
+ssh cws
 ```
 
 #### Transfer data
 
 to copy a file or directory execute something like:
+
 ```sh
-scp -r ws:$REMOTE_DIR/ $LOCAL_DIR/
+scp -r cws:$REMOTE_DIR/ $LOCAL_DIR/
 ```
 
 If you need / prefer to use `rsync` for transfer, install the package in your Workstation - or make sure the container image (see below link for customizing the container images) contains the package:
+
 ```sh
 sudo apt-get install -y rsync
 ```
@@ -146,9 +165,9 @@ In your local VSCode, install the [Remote Development](https://marketplace.visua
 
 👉 If you have not yet establish a secure tunnel via SSH (see above) do so now.
 
-👉 Press `Control`+`Shift`+`P`, enter "Remote-SSH: Connect to Host...", and select `ws`
+👉 Press `Control`+`Shift`+`P`, enter "Remote-SSH: Connect to Host...", and select `cws`
 
-After successful connection you will see `SSH: ws` in a green box in the bottom left corner of VSCode.
+After successful connection you will see `SSH: cws` in a green box in the bottom left corner of VSCode.
 Now you can work with your Cloud Workstation from your local VSCode application!
 
 ### References 🔗

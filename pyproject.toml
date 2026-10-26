@@ -19,14 +19,16 @@ description = "Secure developer workstations and agentic CI/CD pipelines"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "google-antigravity>=0.1.0",
+    "google-antigravity>=0.1.22",
 ]
 
 [dependency-groups]
 dev = [
-    "pytest-cov>=5.0.0",
-    "pytest>=9.0.0",
-    "ruff>=0.9.0",
+    # go/keep-sorted start
+    "pytest-cov>=7.1.0",
+    "pytest>=9.1.1",
+    "ruff>=0.17.1",
+    # go/keep-sorted end
 ]
 
 [tool.ruff]

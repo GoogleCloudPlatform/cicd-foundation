@@ -1,0 +1,50 @@
+[
+  {
+    "id": "error_artifact_not_found",
+    "translation": "artifact {{.Filename}} not found in upstream registry metadata for {{.Package}}@{{.Version}}"
+  },
+  {
+    "id": "error_check_mode_failed",
+    "translation": "found non-public registry urls in {{.Count}} lockfile(s)"
+  },
+  {
+    "id": "error_hash_mismatch",
+    "translation": "sha256 digest mismatch for {{.Package}}@{{.Version}} ({{.Filename}}): lockfile has {{.Expected}}, upstream has {{.Actual}}"
+  },
+  {
+    "id": "error_read_lockfile",
+    "translation": "failed to read lockfile {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "error_resolve_metadata",
+    "translation": "failed to resolve upstream metadata for {{.Package}}@{{.Version}}: {{.Error}}"
+  },
+  {
+    "id": "error_unexpected_cdn_url",
+    "translation": "upstream metadata returned non-canonical distribution url {{.URL}} for {{.Package}}@{{.Version}}"
+  },
+  {
+    "id": "error_write_lockfile",
+    "translation": "failed to write lockfile {{.Path}}: {{.Error}}"
+  },
+  {
+    "id": "usage_uv_lock_scrubber",
+    "translation": "Usage: uv_lock_scrubber [options] [--] [uv.lock...]\n\nOptions:\n  --api-base string   Upstream PyPI JSON API base URL (default \"https://pypi.org/pypi\")\n  --check             Verify lockfiles contain only public PyPI URLs without modifying files"
+  },
+  {
+    "id": "uv_lock_scrubber_clean",
+    "translation": "All checked uv.lock file(s) already use canonical public PyPI URLs."
+  },
+  {
+    "id": "uv_lock_scrubber_needs_scrub",
+    "translation": "  - {{.Path}}: {{.Count}} non-public registry URL(s) detected"
+  },
+  {
+    "id": "uv_lock_scrubber_rewritten",
+    "translation": "  - Rewrote {{.Count}} non-public registry URL(s) in {{.Path}}"
+  },
+  {
+    "id": "uv_lock_scrubber_summary",
+    "translation": "Scrubbed non-public registry URLs in {{.Count}} uv.lock file(s)."
+  }
+]

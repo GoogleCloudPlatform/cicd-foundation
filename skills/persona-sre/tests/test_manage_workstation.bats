@@ -17,7 +17,8 @@
 load test_helper.bash
 
 setup() {
-  # Mock gcloud
+  # Mock gcloud (exported via export -f for child script processes)
+  # shellcheck disable=SC2329
   gcloud() {
     echo "MOCK_GCLOUD_ARGS: $*" >&2
     case "$*" in
@@ -26,7 +27,7 @@ setup() {
         echo "STATE_RUNNING"
         ;;
       *"workstations describe"*value\(host\)*)
-        echo "mock-ws-host.workstations.google"
+        echo "mock-cws-host.workstations.google"
         ;;
       *)
         # Default to success for other commands (start/stop)
@@ -36,36 +37,38 @@ setup() {
   }
   export -f gcloud
 
-  # Mock browser
+  # Mock browser (exported via export -f for child script processes)
+  # shellcheck disable=SC2329
   google-chrome() {
     echo "MOCK_BROWSER: $*"
   }
   export -f google-chrome
 
-  # Use a temporary home for SSH config tests
+  # Use a temporary home for SSH config tests and isolate optional CWS_* env vars
+  unset BROWSER CWS_LOCAL_PORT CWS_NAME CWS_CLUSTER CWS_CONFIG CWS_REGION GOOGLE_CLOUD_PROJECT
   export HOME="${BATS_FILE_TMPDIR}/mock-home"
   mkdir -p "${HOME}/.ssh"
 }
 
 @test "manage_workstation.sh start ensures workstation is running" {
-  run bash "${SCRIPTS_DIR}/manage_workstation.sh" start mock-ws --project mock-proj --cluster mock-cluster --config mock-config --region mock-region --timeout 1
+  run bash "${SCRIPTS_DIR}/manage_workstation.sh" start mock-cws --project mock-proj --cluster mock-cluster --config mock-config --region mock-region --timeout 1
   [ "$status" -eq 0 ]
   # Since it's already running in the mock, it should just log it
-  [[ "$output" =~ "Workstation mock-ws is already running" ]]
+  [[ "$output" =~ "Workstation mock-cws is already running" ]]
 }
 
-@test "manage_workstation.sh correctly uses WORKSTATION from env when first arg is a flag" {
-  export WORKSTATION="env-ws"
+@test "manage_workstation.sh correctly uses CWS_NAME from env when first arg is a flag" {
+  export CWS_NAME="env-cws"
   run bash "${SCRIPTS_DIR}/manage_workstation.sh" start --browser --project mock-proj --cluster mock-cluster --config mock-config --region mock-region --timeout 1
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "Workstation env-ws is already running" ]]
+  [[ "$output" =~ "Workstation env-cws is already running" ]]
 }
 
 @test "manage_workstation.sh start with browser opens URL" {
-  run bash "${SCRIPTS_DIR}/manage_workstation.sh" start mock-ws --browser --project mock-proj --cluster mock-cluster --config mock-config --region mock-region --timeout 1
+  run bash "${SCRIPTS_DIR}/manage_workstation.sh" start mock-cws --browser --project mock-proj --cluster mock-cluster --config mock-config --region mock-region --timeout 1
   [ "$status" -eq 0 ]
-  [[ "$output" == *'Opening https://mock-ws-host.workstations.google'* ]]
-  [[ "$output" == *'MOCK_BROWSER: https://mock-ws-host.workstations.google'* ]]
+  [[ "$output" == *'Opening https://mock-cws-host.workstations.google'* ]]
+  [[ "$output" == *'MOCK_BROWSER: https://mock-cws-host.workstations.google'* ]]
 }
 
 @test "manage_workstation.sh stop stops the workstation" {
@@ -79,41 +82,59 @@ setup() {
   }
   export -f gcloud
 
-  run bash "${SCRIPTS_DIR}/manage_workstation.sh" stop mock-ws --project mock-proj --cluster mock-cluster --config mock-config --region mock-region --timeout 1
+  run bash "${SCRIPTS_DIR}/manage_workstation.sh" stop mock-cws --project mock-proj --cluster mock-cluster --config mock-config --region mock-region --timeout 1
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "Stopping Workstation: mock-ws" ]]
+  [[ "$output" =~ "Stopping Workstation: mock-cws" ]]
 }
 
 @test "manage_workstation.sh wait polls until target state" {
-  run bash "${SCRIPTS_DIR}/manage_workstation.sh" wait mock-ws --target-state STATE_RUNNING --project mock-proj --cluster mock-cluster --config mock-config --region mock-region --timeout 1
+  run bash "${SCRIPTS_DIR}/manage_workstation.sh" wait mock-cws --target-state STATE_RUNNING --project mock-proj --cluster mock-cluster --config mock-config --region mock-region --timeout 1
   [ "$status" -eq 0 ]
   [[ "$output" =~ "reached STATE_RUNNING" ]]
 }
 
-@test "manage_workstation.sh correctly uses REGION from env" {
-  export REGION="env-region"
+@test "manage_workstation.sh correctly uses CWS_REGION from env" {
+  export CWS_REGION="env-region"
   # We test that the script correctly defaults its region variable to the env var
-  run bash "${SCRIPTS_DIR}/manage_workstation.sh" wait mock-ws --target-state STATE_RUNNING --project mock-proj --cluster mock-cluster --config mock-config --timeout 1
+  run bash "${SCRIPTS_DIR}/manage_workstation.sh" wait mock-cws --target-state STATE_RUNNING --project mock-proj --cluster mock-cluster --config mock-config --timeout 1
   [ "$status" -eq 0 ]
-  # Since we've confirmed gcloud mock is working, we can trust the logic if the script finishes successfully.
-  # Let's verify the script actually saw the region.
 }
 
-@test "manage_workstation.sh tunnel establishes SSH tunnel and config" {
-  run bash "${SCRIPTS_DIR}/manage_workstation.sh" tunnel mock-ws --project mock-proj --cluster mock-cluster --config mock-config --region mock-region --timeout 1 --local-port 2222
+@test "manage_workstation.sh tunnel establishes SSH tunnel and cws SSH config" {
+  run bash "${SCRIPTS_DIR}/manage_workstation.sh" tunnel mock-cws --project mock-proj --cluster mock-cluster --config mock-config --region mock-region --timeout 1 --local-port 2222
   [ "$status" -eq 0 ]
   [[ "$output" =~ "Starting SSH tunnel on local port 2222" ]]
   # Accept either new addition or already exists
-  [[ "$output" =~ "Added 'ws' entry to SSH config" || "$output" =~ "SSH config already contains 'ws' entry" ]]
+  [[ "$output" =~ "Added 'cws' entry to SSH config" || "$output" =~ "SSH config already contains 'cws' entry" ]]
   # Check if gcloud was called with correct command (mocked to stderr)
   [[ "$output" =~ "start-tcp-tunnel" ]]
   [ -f "${HOME}/.ssh/config" ]
-  grep -q "Host ws" "${HOME}/.ssh/config"
+  grep -q "Host cws" "${HOME}/.ssh/config"
   grep -q "Port 2222" "${HOME}/.ssh/config"
 }
 
 @test "manage_workstation.sh status outputs the workstation state" {
-  run bash "${SCRIPTS_DIR}/manage_workstation.sh" status mock-ws --project mock-proj --cluster mock-cluster --config mock-config --region mock-region
+  run bash "${SCRIPTS_DIR}/manage_workstation.sh" status mock-cws --project mock-proj --cluster mock-cluster --config mock-config --region mock-region
   [ "$status" -eq 0 ]
   [[ "$output" == *"STATE_RUNNING"* ]]
+}
+
+@test "manage_workstation.sh runs standalone without ../../common.sh using CWS_* env vars" {
+  local standalone_dir="${BATS_TEST_TMPDIR}/standalone"
+  mkdir -p "${standalone_dir}"
+  cp "${SCRIPTS_DIR}/manage_workstation.sh" "${standalone_dir}/manage_workstation.sh"
+
+  export CWS_NAME="standalone-cws"
+  export GOOGLE_CLOUD_PROJECT="standalone-proj"
+  export CWS_CLUSTER="standalone-cluster"
+  export CWS_CONFIG="standalone-config"
+  export CWS_REGION="standalone-region"
+  export CWS_LOCAL_PORT="2223"
+
+  run bash "${standalone_dir}/manage_workstation.sh" tunnel --browser
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ "Workstation standalone-cws is already running" ]]
+  [[ "$output" =~ "Starting SSH tunnel on local port 2223" ]]
+  grep -q "Host cws" "${HOME}/.ssh/config"
+  grep -q "Port 2223" "${HOME}/.ssh/config"
 }

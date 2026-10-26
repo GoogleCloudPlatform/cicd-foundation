@@ -23,7 +23,7 @@
 .history/
 .idea/
 .vscode/
-antigravity
+/antigravity
 # go/keep-sorted end
 
 # ==========================================

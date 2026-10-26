@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Google LLC
+# Copyright 2023-2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ module "workstations" {
 
   project_id                             = data.google_project.project.project_id
   enable_apis                            = var.enable_apis
+  labels                                 = local.common_labels
   cws_clusters                           = var.cws_clusters
   cws_configs                            = local.cws_configs_hydrated
   cws_scopes                             = var.cws_scopes

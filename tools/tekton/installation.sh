@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 # Copyright 2023-2026 Google LLC
 #
@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+
 # https://tekton.dev/docs/installation/pipelines/
 kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
 # https://tekton.dev/docs/installation/triggers/
@@ -23,5 +25,5 @@ kubectl apply -f https://storage.googleapis.com/tekton-releases/triggers/latest/
 # https://hub.tekton.dev/tekton/task/git-clone
 kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-clone/0.9/git-clone.yaml
 
-kubectl apply -f $(dirname $0)/task/*.yaml
-kubectl apply -f $(dirname $0)/pipeline/*.yaml
+kubectl apply -f "$SCRIPT_DIR"/task/*.yaml
+kubectl apply -f "$SCRIPT_DIR"/pipeline/*.yaml

@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 # Copyright 2023-2026 Google LLC
 #
@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-TERRAFORM_DIR="$(dirname $(dirname $0))/infra/"
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+TERRAFORM_DIR="$(dirname "$SCRIPT_DIR")/infra/"
 
-terraform fmt -recursive $TERRAFORM_DIR
+terraform fmt -recursive "$TERRAFORM_DIR"

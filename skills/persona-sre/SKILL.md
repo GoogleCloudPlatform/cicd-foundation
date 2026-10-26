@@ -51,10 +51,10 @@ The `tunnel` action automates the process of starting the workstation, opening t
 
 ```bash
 # Connect directly via SSH (ensures workstation is running)
-./scripts/manage_workstation.sh ssh $WORKSTATION
+./scripts/manage_workstation.sh ssh $CWS_NAME
 
 # Start workstation and establish a tunnel (default local port 2222)
-./scripts/manage_workstation.sh tunnel $WORKSTATION
+./scripts/manage_workstation.sh tunnel $CWS_NAME
 ```
 
 ### Hot-Patching
@@ -68,7 +68,7 @@ The `tunnel` action automates the process of starting the workstation, opening t
 Use the provided script to poll the workstation's state:
 
 ```bash
-./scripts/manage_workstation.sh wait $WORKSTATION --target-state STATE_RUNNING
+./scripts/manage_workstation.sh wait $CWS_NAME --target-state STATE_RUNNING
 ```
 
 #### Cloud Build State Monitoring

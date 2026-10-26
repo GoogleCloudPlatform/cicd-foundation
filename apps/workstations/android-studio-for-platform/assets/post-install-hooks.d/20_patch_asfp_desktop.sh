@@ -33,8 +33,12 @@ patch_asfp_desktop() {
     fi
 
     # Ensure the WM class matches the IDE for correct task grouping and dock mapping
-    if ! grep -q "StartupWMClass=jetbrains-studio" "${DESKTOP_FILE}"; then
-      sed -i 's|^StartupWMClass=.*|StartupWMClass=jetbrains-studio|' "${DESKTOP_FILE}"
+    if ! grep -q "^StartupWMClass=jetbrains-studio$" "${DESKTOP_FILE}"; then
+      if grep -q "^StartupWMClass=" "${DESKTOP_FILE}"; then
+        sed -i 's|^StartupWMClass=.*|StartupWMClass=jetbrains-studio|' "${DESKTOP_FILE}"
+      else
+        echo "StartupWMClass=jetbrains-studio" >> "${DESKTOP_FILE}"
+      fi
     fi
 
     log_event BUILD_HOOK_COMPLETED "Successfully patched ASfP desktop entry"

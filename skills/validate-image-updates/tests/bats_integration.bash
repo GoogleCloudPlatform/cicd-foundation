@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Copyright 2026 Google LLC
 #
@@ -17,29 +17,29 @@
 # bats_integration.bash: Workstation-specific integration test helpers.
 
 setup_env() {
-  export PROJECT="${PROJECT:-YOUR_PROJECT_ID}"
-  export CLUSTER="${CLUSTER:-YOUR_CLUSTER_NAME}"
-  export CONFIG="${CONFIG:-YOUR_CONFIG_NAME}"
-  export REGION="${REGION:-YOUR_REGION}"
-  export WORKSTATION="${WORKSTATION:-YOUR_WORKSTATION_NAME}"
+  export GOOGLE_CLOUD_PROJECT="${GOOGLE_CLOUD_PROJECT:-YOUR_PROJECT_ID}"
+  export CWS_CLUSTER="${CWS_CLUSTER:-YOUR_CLUSTER_NAME}"
+  export CWS_CONFIG="${CWS_CONFIG:-YOUR_CONFIG_NAME}"
+  export CWS_REGION="${CWS_REGION:-YOUR_REGION}"
+  export CWS_NAME="${CWS_NAME:-YOUR_WORKSTATION_NAME}"
   export EXTRA_BINARIES="${EXTRA_BINARIES:-}"
 
-  if [[ "${PROJECT}" == "YOUR_PROJECT_ID" ]]; then
+  if [[ "${GOOGLE_CLOUD_PROJECT}" == "YOUR_PROJECT_ID" ]]; then
     skip "Missing integration test configuration. Please set variables or provide a .env file."
   fi
 
   # Check if workstation is running
   local state
   state=$(gcloud workstations describe \
-    --project="${PROJECT}" \
-    --cluster="${CLUSTER}" \
-    --config="${CONFIG}" \
-    --region="${REGION}" \
-    "${WORKSTATION}" \
+    --project="${GOOGLE_CLOUD_PROJECT}" \
+    --cluster="${CWS_CLUSTER}" \
+    --config="${CWS_CONFIG}" \
+    --region="${CWS_REGION}" \
+    "${CWS_NAME}" \
     --format="value(state)" 2>/dev/null || echo "UNKNOWN")
 
   if [[ "${state}" != "STATE_RUNNING" ]]; then
-    skip "Workstation ${WORKSTATION} is not running (Current state: ${state}). Skipping integration tests."
+    skip "Workstation ${CWS_NAME} is not running (Current state: ${state}). Skipping integration tests."
   fi
 }
 
@@ -48,11 +48,11 @@ run_ssh() {
   local output
 
   output=$(gcloud workstations ssh \
-    --project="${PROJECT}" \
-    --cluster="${CLUSTER}" \
-    --config="${CONFIG}" \
-    --region="${REGION}" \
-    "${WORKSTATION}" \
+    --project="${GOOGLE_CLOUD_PROJECT}" \
+    --cluster="${CWS_CLUSTER}" \
+    --config="${CWS_CONFIG}" \
+    --region="${CWS_REGION}" \
+    "${CWS_NAME}" \
     --command="${cmd} && echo _CWS_CMD_SUCCESS_" 2>&1)
 
   echo "$output"

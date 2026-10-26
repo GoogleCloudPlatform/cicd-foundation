@@ -61,7 +61,7 @@ export function renderAllSlides(container, slideNames, slideContents) {
     const article = document.createElement("article");
     const slideId = slideNames[index].replace(".md", "");
     article.className = `slide-content slide-${slideId}`;
-    article.setAttribute("data-index", index);
+    article.setAttribute("data-index", String(index));
 
     // Slide body
     const bodyDiv = document.createElement("div");
@@ -141,6 +141,6 @@ export function updateAllFooters(container, totalSlides) {
   if (!container) return;
   const footers = container.querySelectorAll(".slide-footer");
   footers.forEach((footer, index) => {
-    updateFooter(footer, index, totalSlides);
+    updateFooter(/** @type {HTMLElement} */ (footer), index, totalSlides);
   });
 }

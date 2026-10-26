@@ -153,9 +153,13 @@ run_hooks() {
 log_event() {
   local event="${1}"
   local message="${2}"
-  local severity="${3:-INFO}"
-  # Shift past the first 3 positional arguments to get the metadata KEY=VALUE pairs.
-  shift 3 || true
+  local severity="INFO"
+  if [[ $# -ge 3 && "${3}" != *=* ]]; then
+    severity="${3:-INFO}"
+    shift 3 || true
+  else
+    shift 2 || true
+  fi
 
   # Centralized template path
   local template="/google/templates/log.json.template"
@@ -177,6 +181,9 @@ log_event() {
   for kv in "$@"; do
     local key="${kv%%=*}"
     local value="${kv#*=}"
+    if [[ "${key}" == "SERVICE" && "${SVC}" == "unknown" ]]; then
+      export SVC="${value}"
+    fi
     meta_items+=("\"${key}\": \"${value}\"")
   done
 

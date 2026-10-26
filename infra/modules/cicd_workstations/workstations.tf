@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Google LLC
+# Copyright 2023-2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ locals {
         for instance in config_value.instances : {
           resource_key = "${config_key}-${instance.name}"
           ws_name      = instance.name
-          display_name = coalesce(config_value.display_name, instance.name)
+          display_name = coalesce(instance.display_name, config_value.display_name, instance.name)
           config_key   = config_key
           users        = instance.users
         }

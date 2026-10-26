@@ -37,19 +37,20 @@ usage() {
 }
 
 # Helper to manage workstation lifecycle
-manage_ws() {
+manage_cws() {
   local action="$1"
-  local project="${2:-${PROJECT:-}}"
+  local project="${2:-${GOOGLE_CLOUD_PROJECT:-}}"
+  local region="${3:-${CWS_REGION:-}}"
 
-  if [[ -z "${WORKSTATION:-}" || -z "${CLUSTER:-}" ]]; then
+  if [[ -z "${CWS_NAME:-}" || -z "${CWS_CLUSTER:-}" || -z "${CWS_CONFIG:-}" ]]; then
     return 0
   fi
 
-  "${SCRIPT_DIR}/manage_workstation.sh" "${action}" "${WORKSTATION}" \
+  "${SCRIPT_DIR}/manage_workstation.sh" "${action}" "${CWS_NAME}" \
     --project "${project}" \
-    --cluster "${CLUSTER}" \
-    --config "${CONFIG:-}" \
-    --region "${REGION:-}"
+    --cluster "${CWS_CLUSTER}" \
+    --config "${CWS_CONFIG}" \
+    --region "${region}"
 }
 
 main() {
@@ -61,8 +62,8 @@ main() {
   fi
 
   # Defaults from environment or common.sh
-  local region="${BUILD_REGION:-${REGION:-}}"
-  local project="${PROJECT:-}"
+  local region="${BUILD_REGION:-${CWS_REGION:-}}"
+  local project="${GOOGLE_CLOUD_PROJECT:-}"
   local use_latest="${MONITOR_USE_LATEST:-false}"
   local lookback="${MONITOR_LOOKBACK_MINUTES:-10}"
   local interval="${MONITOR_POLL_INTERVAL:-30}"
@@ -81,11 +82,11 @@ main() {
   done
 
   if [[ -z "${project}" ]]; then
-    error "PROJECT must be set via .env or --project."
+    error "GOOGLE_CLOUD_PROJECT must be set via .env or --project."
   fi
 
   if [[ -z "${region}" ]]; then
-    error "Region must be set via .env (REGION/BUILD_REGION) or --region."
+    error "Region must be set via .env (CWS_REGION/BUILD_REGION) or --region."
   fi
 
   if [[ -z "${build_id}" ]]; then
@@ -113,7 +114,7 @@ main() {
 
   if [[ "${status}" == "SUCCESS" ]]; then
     log "✅ Build successful! Triggering workstation start..."
-    manage_ws "start" "${project}"
+    manage_cws "start" "${project}" "${CWS_REGION:-${region}}"
   else
     error "Build failed with status: ${status}. Check logs: gcloud builds log ${build_id} --project=${project} --region=${region}"
   fi

@@ -34,7 +34,7 @@ To implement robust, functional, and logically sound solutions that solve user p
 - **Test-Driven Reliability**: Always accompany changes with comprehensive unit and integration tests, as defined in the [Test Plan](../../docs/workstations/test_plan.md).
 - **Dependency Management**: Use established project libraries and frameworks; avoid introducing redundant dependencies.
 - **Language Standards**: Adhere strictly to the repository's language style guides and engineering standards (see [Coding Standards & Style Guides](#coding-standards--style-guides)).
-- **Documentation Quality**: Review and improve internal documentation, READMEs, and code comments to ensure the codebase is idiomatic and easy to maintain.
+- **Documentation Quality**: Review and improve internal documentation, READMEs, and code comments to ensure the codebase is idiomatic and easy to maintain. Maintain Elephant & Goldfish Model (EGM) `EGM.md` contracts (`target_filename="EGM.md"`, defining `Overview`, `Interface`, `Invariants`, and `Side Effects`) and `README.md` guides in sync with source code changes so zero documentation drift occurs.
 - **Maintainability Audits**: Proactively identify and simplify overly complex or non-idiomatic patterns during development and peer review.
 
 ## Coding Standards & Style Guides

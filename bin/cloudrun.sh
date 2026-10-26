@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # Copyright 2023-2026 Google LLC
 #
@@ -33,11 +33,8 @@ usage() {
 getCmd() {
   case "$1" in
       # pass skaffold argument "dev", "run", or "delete" to deploy or remove
-      dev | run | delete)
-          COMMAND=$1
-          ;;
-      iam)
-          COMMAND=$1
+      dev | run | delete | iam)
+          COMMAND="$1"
           ;;
       *)
           echo "unknown command: $1" >&2
@@ -45,21 +42,20 @@ getCmd() {
           exit 2
           ;;
   esac
-  shift
 }
 
 checkEnvs() {
-  if [ -z "$PROJECT_ID" -o -z "$REGION" ]
+  if [ -z "$PROJECT_ID" ] || [ -z "$REGION" ]
   then
     echo "Not all environment variables have been set:" >&2
     echo "PROJECT_ID, REGION" >&2
-    echo "Please specify the missing ones, e.g., in $ENV_FILE !" >&2
+    echo "Please specify the missing ones, e.g., in ${ENV_FILE:-$ROOT_DIR/envs/dev/.env} !" >&2
     exit 4
   fi
 }
 
 cloudrun() {
-  if [ "$COMMAND" == "dev" ]
+  if [ "$COMMAND" = "dev" ]
   then
     echo "manually execute in a different terminal:"
     echo "$0 iam"
@@ -67,13 +63,13 @@ cloudrun() {
 
   if [ "$COMMAND" != "iam" ]
   then
-    skaffold $COMMAND \
-      -f $SKAFFOLD_FILE \
-      --cloud-run-project=$PROJECT_ID \
-      --cloud-run-location=$REGION
+    skaffold "$COMMAND" \
+      -f "$SKAFFOLD_FILE" \
+      --cloud-run-project="$PROJECT_ID" \
+      --cloud-run-location="$REGION"
   fi
 
-  if [ "$COMMAND" != "dev" ]
+  if [ "$COMMAND" = "run" ] || [ "$COMMAND" = "iam" ]
   then
     applyIAM
   fi
@@ -82,16 +78,17 @@ cloudrun() {
 applyIAM() {
   for SERVICE in $PUBLIC_SERVICES
   do
-    gcloud run services add-iam-policy-binding $SERVICE --region $REGION \
+    gcloud run services add-iam-policy-binding "$SERVICE" --region "$REGION" \
         --member="allUsers" \
         --role="roles/run.invoker"
   done
 }
 
-. $(dirname $0)/common.sh
+. "$(dirname "$0")/common.sh"
 
-getOpts $*
-getCmd $*
+getOpts "$@"
+shift "$OPT_SHIFT"
+getCmd "$@"
 
 checkDependencies envsubst skaffold
 getRootDir

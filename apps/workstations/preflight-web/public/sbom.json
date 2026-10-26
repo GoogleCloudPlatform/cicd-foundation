@@ -52,7 +52,7 @@
     },
     {
       "name": "Vite",
-      "version": "8.0.3",
+      "version": "8.3.5",
       "group": "Preflight Solution",
       "license_id": "MIT",
       "supplier": "Vitejs",
@@ -61,7 +61,7 @@
     },
     {
       "name": "Tailwind CSS",
-      "version": "4.2.2",
+      "version": "4.3.3",
       "group": "Preflight Solution",
       "license_id": "MIT",
       "supplier": "Tailwind Labs Inc.",

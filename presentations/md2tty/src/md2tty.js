@@ -17,11 +17,22 @@
 
 /** @fileoverview Main entry point for the presentation engine. */
 
-import {RESIZE_DEBOUNCE_MS, Selectors, Themes, getHelpMarkdown} from './constants.js';
-import {initI18n, cycleLanguage, t} from './i18n.js';
-import {autoScale} from './scaling.js';
-import {initSlides, renderAllSlides, activateSlide, updateAllFooters, setTabTitle} from './slides.js';
-import {toggleHelp, toggleTheme, renderHelp, updateFooter} from './ui.js';
+import {
+  RESIZE_DEBOUNCE_MS,
+  Selectors,
+  Themes,
+  getHelpMarkdown,
+} from "./constants.js";
+import { initI18n, cycleLanguage, t } from "./i18n.js";
+import { autoScale } from "./scaling.js";
+import {
+  initSlides,
+  renderAllSlides,
+  activateSlide,
+  updateAllFooters,
+  setTabTitle,
+} from "./slides.js";
+import { toggleHelp, toggleTheme, renderHelp, updateFooter } from "./ui.js";
 
 /**
  * High-fidelity terminal-styled presentation engine.
@@ -35,12 +46,15 @@ export class Md2tty {
    */
   constructor(options = {}) {
     /** @type {HTMLElement|null} */
-    this.target = typeof options.target === 'string'
-      ? /** @type {HTMLElement|null} */ (document.querySelector(options.target))
-      : /** @type {HTMLElement} */ (options.target || null);
+    this.target =
+      typeof options.target === "string"
+        ? /** @type {HTMLElement|null} */ (
+            document.querySelector(options.target)
+          )
+        : /** @type {HTMLElement} */ (options.target || null);
 
-    this.manifestUrl = options.manifestUrl || 'slides.json';
-    this.slidesDir = options.slidesDir || 'slides/';
+    this.manifestUrl = options.manifestUrl || "slides.json";
+    this.slidesDir = options.slidesDir || "slides/";
 
     /** @type {string[]} */
     this.slideNames = [];
@@ -60,6 +74,8 @@ export class Md2tty {
     this.handleKeydown = this.handleKeydown.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleResize = this.handleResize.bind(this);
+    this.handleBeforePrint = this.handleBeforePrint.bind(this);
+    this.handleAfterPrint = this.handleAfterPrint.bind(this);
     /** @type {number | undefined} */
     this.resizeTimer = undefined;
   }
@@ -73,10 +89,10 @@ export class Md2tty {
       await initI18n();
 
       const urlParams = new URLSearchParams(window.location.search);
-      const themeParam = urlParams.get('theme');
-      if (themeParam === 'light') {
+      const themeParam = urlParams.get("theme");
+      if (themeParam === "light") {
         document.body.classList.add(Themes.LIGHT);
-      } else if (themeParam === 'dark') {
+      } else if (themeParam === "dark") {
         document.body.classList.remove(Themes.LIGHT);
       }
 
@@ -85,13 +101,16 @@ export class Md2tty {
       this.slideContents = slides.contents;
 
       if (this.slideNames.length === 0) {
-        if (this.target) this.target.innerHTML = `<p>${t('error_no_slides')}</p>`;
+        if (this.target)
+          this.target.innerHTML = `<p>${t("error_no_slides")}</p>`;
         return;
       }
 
       this.setupDOM();
       setTabTitle(this.slideContents);
-      renderAllSlides(this.target, this.slideNames, this.slideContents);
+      if (this.target) {
+        renderAllSlides(this.target, this.slideNames, this.slideContents);
+      }
       if (this.overlay) {
         renderHelp(this.overlay, this.currentSlide, this.slideContents.length);
       }
@@ -99,10 +118,11 @@ export class Md2tty {
       this.mount();
 
       const hash = window.location.hash.substring(1);
-      const startSlide = (hash && !isNaN(Number(hash))) ? parseInt(hash, 10) - 1 : 0;
+      const startSlide =
+        hash && !isNaN(Number(hash)) ? parseInt(hash, 10) - 1 : 0;
       this.goTo(startSlide);
     } catch (err) {
-      console.error('Md2tty initialization failed:', err);
+      console.error("Md2tty initialization failed:", err);
     }
   }
 
@@ -112,42 +132,31 @@ export class Md2tty {
    */
   setupDOM() {
     this.overlay = document.getElementById(Selectors.OVERLAY);
-    this.measureContainer = document.getElementById(Selectors.MEASURE_CONTAINER);
+    this.measureContainer = document.getElementById(
+      Selectors.MEASURE_CONTAINER,
+    );
   }
 
   /**
    * Attaches global event listeners.
    */
   mount() {
-    window.addEventListener('keydown', this.handleKeydown);
-    window.addEventListener('click', this.handleClick);
-    window.addEventListener('resize', this.handleResize);
-
-    this.handleBeforePrint = () => {
-      const PRINT_WIDTH = 1056;
-      const PRINT_HEIGHT = 793;
-      autoScale(
-        [...this.slideContents, getHelpMarkdown()],
-        /** @type {HTMLElement} */ (this.target),
-        /** @type {HTMLElement} */ (this.measureContainer),
-        PRINT_WIDTH,
-        PRINT_HEIGHT
-      );
-    };
-    this.handleAfterPrint = () => this.autoScale();
-    window.addEventListener('beforeprint', this.handleBeforePrint);
-    window.addEventListener('afterprint', this.handleAfterPrint);
+    window.addEventListener("keydown", this.handleKeydown);
+    window.addEventListener("click", this.handleClick);
+    window.addEventListener("resize", this.handleResize);
+    window.addEventListener("beforeprint", this.handleBeforePrint);
+    window.addEventListener("afterprint", this.handleAfterPrint);
   }
 
   /**
    * Detaches global event listeners.
    */
   unmount() {
-    window.removeEventListener('keydown', this.handleKeydown);
-    window.removeEventListener('click', this.handleClick);
-    window.removeEventListener('resize', this.handleResize);
-    window.removeEventListener('beforeprint', this.handleBeforePrint);
-    window.removeEventListener('afterprint', this.handleAfterPrint);
+    window.removeEventListener("keydown", this.handleKeydown);
+    window.removeEventListener("click", this.handleClick);
+    window.removeEventListener("resize", this.handleResize);
+    window.removeEventListener("beforeprint", this.handleBeforePrint);
+    window.removeEventListener("afterprint", this.handleAfterPrint);
   }
 
   /**
@@ -156,7 +165,11 @@ export class Md2tty {
   autoScale() {
     if (!this.target) return;
     const contentsToMeasure = [...this.slideContents, getHelpMarkdown()];
-    autoScale(contentsToMeasure, /** @type {HTMLElement} */ (this.target), /** @type {HTMLElement} */ (this.measureContainer));
+    autoScale(
+      contentsToMeasure,
+      /** @type {HTMLElement} */ (this.target),
+      /** @type {HTMLElement} */ (this.measureContainer),
+    );
   }
 
   /**
@@ -167,13 +180,17 @@ export class Md2tty {
     this.currentSlide = activateSlide(
       index,
       /** @type {HTMLElement} */ (this.target),
-      this.transitionFlash
+      this.transitionFlash,
     );
 
     // Update help footer progress even if hidden (so it's ready when opened or printed)
-    const helpFooter = this.overlay?.querySelector('.help-footer');
+    const helpFooter = this.overlay?.querySelector(".help-footer");
     if (helpFooter) {
-      updateFooter(/** @type {HTMLElement} */ (helpFooter), this.currentSlide, this.slideContents.length);
+      updateFooter(
+        /** @type {HTMLElement} */ (helpFooter),
+        this.currentSlide,
+        this.slideContents.length,
+      );
     }
   }
 
@@ -200,9 +217,13 @@ export class Md2tty {
     this.helpVisible = active;
     if (active) {
       // Ensure help footer matches current slide state when opened
-      const helpFooter = this.overlay?.querySelector('.help-footer');
+      const helpFooter = this.overlay?.querySelector(".help-footer");
       if (helpFooter) {
-        updateFooter(/** @type {HTMLElement} */ (helpFooter), this.currentSlide, this.slideContents.length);
+        updateFooter(
+          /** @type {HTMLElement} */ (helpFooter),
+          this.currentSlide,
+          this.slideContents.length,
+        );
       }
       this.autoScale();
     }
@@ -216,12 +237,19 @@ export class Md2tty {
   handleKeydown(e) {
     if (this.slideContents.length === 0) return;
 
-    const silentKeys = ['Shift', 'Control', 'Alt', 'Meta', 'AltGraph', 'CapsLock'];
+    const silentKeys = [
+      "Shift",
+      "Control",
+      "Alt",
+      "Meta",
+      "AltGraph",
+      "CapsLock",
+    ];
     if (silentKeys.includes(e.key)) {
       return;
     }
 
-    if (e.key >= '1' && e.key <= '9') {
+    if (e.key >= "1" && e.key <= "9") {
       const num = parseInt(e.key, 10) - 1;
       if (num < this.slideContents.length) {
         this.goTo(num);
@@ -231,14 +259,22 @@ export class Md2tty {
     }
 
     switch (e.key) {
-      case 't': case 'T':
+      case "t":
+      case "T":
         toggleTheme();
         return;
-      case 'l': case 'L':
+      case "l":
+      case "L":
         cycleLanguage();
-        updateAllFooters(this.target, this.slideContents.length);
+        if (this.target) {
+          updateAllFooters(this.target, this.slideContents.length);
+        }
         if (this.overlay) {
-          renderHelp(this.overlay, this.currentSlide, this.slideContents.length);
+          renderHelp(
+            this.overlay,
+            this.currentSlide,
+            this.slideContents.length,
+          );
         }
         if (this.helpVisible) {
           this.toggleHelp(true);
@@ -246,14 +282,18 @@ export class Md2tty {
           this.goTo(this.currentSlide);
         }
         return;
-      case 'f': case 'F':
+      case "f":
+      case "F":
         this.transitionFlash = !this.transitionFlash;
         return;
-      case 'q': case 'Q':
+      case "q":
+      case "Q":
         window.close();
         if (this.target) {
-          this.target.innerHTML = `<h1>${t('presentation_ended')}</h1>\n<p>${t('safe_to_close')}</p>`;
-          this.target.className = 'slide-content';
+          this.target.innerHTML = `<h1>${t("presentation_ended")}</h1>\n<p>${t(
+            "safe_to_close",
+          )}</p>`;
+          this.target.className = "slide-content";
         }
         return;
     }
@@ -265,21 +305,34 @@ export class Md2tty {
     }
 
     switch (e.key) {
-      case 'h': case 'H': case '?':
+      case "h":
+      case "H":
+      case "?":
         this.toggleHelp(true);
         break;
-      case 'PageDown': case 'ArrowRight': case 'ArrowDown':
-      case 'j': case 'n': case 's': case ' ': case 'Enter':
+      case "PageDown":
+      case "ArrowRight":
+      case "ArrowDown":
+      case "j":
+      case "n":
+      case "s":
+      case " ":
+      case "Enter":
         this.next();
         break;
-      case 'PageUp': case 'ArrowLeft': case 'ArrowUp':
-      case 'k': case 'p': case 'w': case 'Backspace':
+      case "PageUp":
+      case "ArrowLeft":
+      case "ArrowUp":
+      case "k":
+      case "p":
+      case "w":
+      case "Backspace":
         this.prev();
         break;
-      case 'Home':
+      case "Home":
         this.goTo(0);
         break;
-      case 'End':
+      case "End":
         this.goTo(this.slideContents.length - 1);
         break;
     }
@@ -292,18 +345,20 @@ export class Md2tty {
    */
   handleClick(e) {
     const target = /** @type {HTMLElement} */ (e.target);
-    const footerBtn = target.closest('.footer-btn');
+    const footerBtn = target.closest(".footer-btn");
     if (footerBtn) {
-      const action = footerBtn.getAttribute('data-action');
-      if (action === 'theme') {
+      const action = footerBtn.getAttribute("data-action");
+      if (action === "theme") {
         toggleTheme();
-      } else if (action === 'help') {
+      } else if (action === "help") {
         this.toggleHelp(true);
-      } else if (action === 'quit') {
+      } else if (action === "quit") {
         window.close();
         if (this.target) {
-          this.target.innerHTML = `<h1>${t('presentation_ended')}</h1>\n<p>${t('safe_to_close')}</p>`;
-          this.target.className = 'slide-content';
+          this.target.innerHTML = `<h1>${t("presentation_ended")}</h1>\n<p>${t(
+            "safe_to_close",
+          )}</p>`;
+          this.target.className = "slide-content";
         }
       }
       return; // Stop processing after handling button
@@ -321,5 +376,29 @@ export class Md2tty {
   handleResize() {
     clearTimeout(this.resizeTimer);
     this.resizeTimer = setTimeout(() => this.autoScale(), RESIZE_DEBOUNCE_MS);
+  }
+
+  /**
+   * Internal BeforePrint handler.
+   * @private
+   */
+  handleBeforePrint() {
+    const PRINT_WIDTH = 1056;
+    const PRINT_HEIGHT = 793;
+    autoScale(
+      [...this.slideContents, getHelpMarkdown()],
+      /** @type {HTMLElement} */ (this.target),
+      /** @type {HTMLElement} */ (this.measureContainer),
+      PRINT_WIDTH,
+      PRINT_HEIGHT,
+    );
+  }
+
+  /**
+   * Internal AfterPrint handler.
+   * @private
+   */
+  handleAfterPrint() {
+    this.autoScale();
   }
 }
