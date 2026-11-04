@@ -127,12 +127,31 @@ output "cloud_build_worker_pool_ids" {
 }
 # go/keep-sorted end
 
+# Cloud Deploy
+
+# go/keep-sorted start block=yes newline_separated=yes
+output "cloud_deploy_service_account_emails" {
+  description = "A map of Cloud Deploy execution service account emails, keyed by stage name."
+  value       = { for k, v in module.service_account_cloud_deploy : k => v.email }
+}
+# go/keep-sorted end
+
 # Binary Authorization
 
 # go/keep-sorted start block=yes newline_separated=yes
+output "binary_authorization_attestor_id" {
+  description = "The ID of the created Binary Authorization Attestor."
+  value       = local.create_binary_authorization_resources ? google_binary_authorization_attestor.vulnz_attestor[0].id : null
+}
+
 output "binary_authorization_policy_id" {
-  description = "The ID of the created Binary Authorization Policy."
-  value       = local.use_binary_authorization ? google_binary_authorization_policy.policy[0].id : null
+  description = "The ID of the created Binary Authorization Policy in the primary project."
+  value       = try(google_binary_authorization_policy.policy[var.project_id].id, null)
+}
+
+output "binary_authorization_policy_ids" {
+  description = "A map of Binary Authorization Policy IDs, keyed by GCP project ID."
+  value       = { for k, v in google_binary_authorization_policy.policy : k => v.id }
 }
 # go/keep-sorted end
 

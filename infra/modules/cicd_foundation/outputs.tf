@@ -13,6 +13,16 @@
 # limitations under the License.
 
 # go/keep-sorted start block=yes newline_separated=yes
+output "binary_authorization_attestor_id" {
+  description = "The ID of the created Binary Authorization Attestor."
+  value       = length(local.all_apps) > 0 ? module.cicd_pipelines[0].binary_authorization_attestor_id : null
+}
+
+output "binary_authorization_policy_ids" {
+  description = "A map of Binary Authorization Policy IDs, keyed by GCP project ID."
+  value       = length(local.all_apps) > 0 ? module.cicd_pipelines[0].binary_authorization_policy_ids : {}
+}
+
 output "cloud_build_trigger_github_connection_needed" {
   description = "Instructions to connect GitHub repository if using GitHub source."
   value       = length(local.all_apps) > 0 ? module.cicd_pipelines[0].cloud_build_trigger_github_connection_needed : null
@@ -26,6 +36,11 @@ output "cloud_build_trigger_ids" {
 output "cloud_build_trigger_trigger_ids" {
   description = "The unique short IDs of the Cloud Build triggers."
   value       = length(local.all_apps) > 0 ? module.cicd_pipelines[0].cloud_build_trigger_trigger_id : {}
+}
+
+output "cloud_deploy_service_account_emails" {
+  description = "A map of Cloud Deploy execution service account emails, keyed by stage name."
+  value       = length(local.all_apps) > 0 ? module.cicd_pipelines[0].cloud_deploy_service_account_emails : {}
 }
 
 output "cws_clusters" {

@@ -187,7 +187,9 @@ variable "stages" {
   type = map(object({
     cloud_run_region                      = optional(string)
     gke_cluster                           = optional(string)
+    gke_internal_ip                       = optional(bool, false)
     project_id                            = optional(string)
+    runtime_project_id                    = optional(string)
     peered_network                        = optional(string)
     require_approval                      = optional(bool, false)
     canary_percentages                    = optional(list(number))
@@ -195,7 +197,7 @@ variable "stages" {
     binary_authorization_evaluation_mode  = optional(string, "ALWAYS_ALLOW")
     binary_authorization_enforcement_mode = optional(string, "DRYRUN_AUDIT_LOG_ONLY")
   }))
-  description = "Map of deployment stages (e.g., dev, test, prod). Keys are stage names, values configure stage-specific settings like cluster, network, and Binary Authorization."
+  description = "Map of deployment stages (e.g., dev, test, prod). Keys are stage names, values configure stage-specific settings like cluster, runtime project, network, and Binary Authorization."
   default = {
     "dev" : {},
     "test" : {},
@@ -204,16 +206,9 @@ variable "stages" {
   validation {
     condition = alltrue([
       for stage_key, stage_value in var.stages :
-      !contains(keys(stage_value), "canary_percentages") || contains(keys(stage_value), "gke_cluster")
+      stage_value.canary_percentages == null || stage_value.gke_cluster != null
     ])
     error_message = "The 'canary_percentages' can only be set when 'gke_cluster' is also provided for the stage."
-  }
-  validation {
-    condition = alltrue([
-      for stage_key, stage_value in var.stages :
-      contains(keys(stage_value), "canary_percentages") == contains(keys(stage_value), "canary_verify")
-    ])
-    error_message = "If either 'canary_percentages' or 'canary_verify' is set, both must be provided."
   }
 }
 # go/keep-sorted end

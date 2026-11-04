@@ -44,8 +44,8 @@ rebuilds (such as Cloud Workstations base image patching).
     `stages`, `git_repo`, `github`, `ssm`, `workstation_config`, and
     `agents`; `apps_directory`; `runtimes` defaulting to `["agentruntime",
     "cloudrun", "gke", "workstations"]`; `stages` map configuring `cloud_run_region`,
-    `gke_cluster`, `project_id`, `peered_network`, `require_approval`,
-    `canary_percentages`, `canary_verify`,
+    `gke_cluster`, `gke_internal_ip`, `project_id`, `runtime_project_id`,
+    `peered_network`, `require_approval`, `canary_percentages`, `canary_verify`,
     `binary_authorization_evaluation_mode`, and
     `binary_authorization_enforcement_mode`.
   - Source Control: `git_branch_trigger`, `git_branches_regexp_trigger`,
@@ -99,9 +99,10 @@ rebuilds (such as Cloud Workstations base image patching).
     `cloud_build_trigger_github_connection_needed`,
     `cloud_build_trigger_id`, `cloud_build_trigger_trigger_id`,
     `cloud_build_worker_pool_ids`.
-  - Binary Authorization, Artifact Registry, and Cloud Workstations:
-    `binary_authorization_policy_id`, `artifact_registry_repository`,
-    `artifact_registry_repository_uri`,
+  - Cloud Deploy, Binary Authorization, Artifact Registry, and Cloud Workstations:
+    `cloud_deploy_service_account_emails`, `binary_authorization_attestor_id`,
+    `binary_authorization_policy_id`, `binary_authorization_policy_ids`,
+    `artifact_registry_repository`, `artifact_registry_repository_uri`,
     `cws_image_build_runner_service_account_email`,
     `cws_image_build_runner_service_account_id`.
 - Key Modules and Data Sources: `module.project_services`
@@ -140,10 +141,10 @@ rebuilds (such as Cloud Workstations base image patching).
   repository source (`github`, `ssm`, or `git_repo`); and all stage keys
   referenced in an app's `stages` map must exist in `var.stages`.
 - Stage canary and CA pool validation (`variables.tf`): In `var.stages`,
-  `canary_percentages` can only be set if `gke_cluster` is also set on that
-  stage, and `canary_percentages` and `canary_verify` must either both be set
-  or both be omitted. `var.secure_source_manager_create_ca_pool` cannot be
-  `true` when `var.secure_source_manager_ca_pool` is non-null.
+  `canary_percentages` can only be set when `gke_cluster` is non-null on that
+  stage, and `deploy.tf` restricts GKE Service Mesh canary strategy blocks to
+  applications with `runtime == "gke"`. `var.secure_source_manager_create_ca_pool`
+  cannot be `true` when `var.secure_source_manager_ca_pool` is non-null.
 - Trigger matrix and naming invariant (`main.tf`, `build.tf`): `local.ci_apps`
   pairs each app with `["github", "manual", "webhook"]`: GitHub-backed apps
   generate two triggers (`<prefix><app>-github` and `<prefix><app>-manual`
@@ -247,14 +248,18 @@ rebuilds (such as Cloud Workstations base image patching).
   `null_resource.run_git_repo_trigger` executing `gcloud builds triggers
 run`).
 - Binary Authorization, KMS, and Container Analysis (`binauth.tf`):
-  Conditionally provisions a Container Analysis attestation note
-  (`google_container_analysis_note.vulnz_attestor` and IAM viewer binding for
-  the Binary Authorization service agent), a KMS key ring and asymmetric
-  signing key (`google_kms_key_ring.keyring`,
-  `google_kms_crypto_key.vulnz_attestor_key`, and `roles/cloudkms.signer` for
-  the Cloud Build service agent), a Binary Authorization attestor
-  (`google_binary_authorization_attestor.vulnz_attestor`), and a project-wide
-  Binary Authorization policy (`google_binary_authorization_policy.policy`).
+  Conditionally provisions Binary Authorization service identities across Hub
+  and distinct stage runtime projects (`google_project_service_identity.binauth`),
+  a Container Analysis attestation note
+  (`google_container_analysis_note.vulnz_attestor` with occurrences viewer
+  bindings for each policy project's Binary Authorization service agent), a KMS
+  key ring and asymmetric signing key (`google_kms_key_ring.keyring`,
+  `google_kms_crypto_key.vulnz_attestor_key`, and
+  `roles/cloudkms.signerVerifier` for the custom Cloud Build execution service
+  account), a Binary Authorization attestor
+  (`google_binary_authorization_attestor.vulnz_attestor` with cross-project
+  `roles/binaryauthorization.attestorsVerifier` bindings), and per-project
+  Binary Authorization policies (`google_binary_authorization_policy.policy`).
 - Cloud Workstations Scheduled Rebuilds (`workstations.tf`): When `var.apps`
   is non-empty, provisions or reads a custom IAM role
   (`google_project_iam_custom_role.cws_image_build_runner` with

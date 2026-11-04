@@ -36,9 +36,9 @@ built and stored in Artifact Registry by the CI/CD pipeline.
   `github`/`ssm`/`git_repo`, and `agents`), `apps_directory` (default
   `"apps"`), `runtimes` (default `["cloudrun", "gke", "workstations",
   "agentruntime"]`), and `stages` (map of stage configurations for `dev`,
-  `test`, `prod` with `cloud_run_region`, `gke_cluster`, `project_id`,
-  `peered_network`, `require_approval`, `canary_percentages`, `canary_verify`,
-  and Binary Authorization modes).
+  `test`, `prod` with `cloud_run_region`, `gke_cluster`, `gke_internal_ip`,
+  `project_id`, `runtime_project_id`, `peered_network`, `require_approval`,
+  `canary_percentages`, `canary_verify`, and Binary Authorization modes).
 - Cloud Workstations inputs: `cws_clusters` (map of cluster definitions),
   `cws_configs` (map of workstation configurations supporting
   `custom_image_names`, `instances`, `boost_configs`, `accelerators`,
@@ -69,9 +69,12 @@ built and stored in Artifact Registry by the CI/CD pipeline.
   `length(local.all_apps) > 0`), `module.workstations`
   ([`../cicd_workstations`](../cicd_workstations/EGM.md)), and
   `resource.google_artifact_registry_repository_iam_member.workstation_artifactregistry_reader`.
-- Outputs: `cloud_build_trigger_github_connection_needed`,
+- Outputs: `binary_authorization_attestor_id`,
+  `binary_authorization_policy_ids`,
+  `cloud_build_trigger_github_connection_needed`,
   `cloud_build_trigger_ids`, `cloud_build_trigger_trigger_ids`,
-  `cws_clusters`, `cws_service_account_email`,
+  `cloud_deploy_service_account_emails`, `cws_clusters`,
+  `cws_service_account_email`,
   `secure_source_manager_instance_git_http`,
   `secure_source_manager_instance_git_ssh`,
   `secure_source_manager_instance_html`,
@@ -83,10 +86,8 @@ built and stored in Artifact Registry by the CI/CD pipeline.
 - Application source exclusivity (`var.apps` validation): Each entry in
   `var.apps` may specify at most one source repository block among `github`,
   `ssm`, or `git_repo` (`sum(...) <= 1`).
-- Canary stage configuration (`var.stages` validations): `canary_percentages`
-  can only be set for a stage when `gke_cluster` is also set on that stage,
-  and `canary_percentages` and `canary_verify` must either both be specified
-  or both be omitted.
+- Canary stage configuration (`var.stages` validation): `canary_percentages`
+  can only be set for a stage when `gke_cluster` is non-null on that stage.
 - SSM CA pool exclusivity (`var.secure_source_manager_create_ca_pool`
   validation): `secure_source_manager_create_ca_pool` cannot be set to `true`
   when `secure_source_manager_ca_pool` is non-null.

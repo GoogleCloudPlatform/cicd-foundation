@@ -34,7 +34,7 @@ locals {
   workstation_map = {
     for item in flatten([
       for config_key, config_value in var.cws_configs : [
-        for instance in config_value.instances : {
+        for instance in coalesce(config_value.instances, []) : {
           resource_key = "${config_key}-${instance.name}"
           ws_name      = instance.name
           display_name = coalesce(instance.display_name, config_value.display_name, instance.name)
@@ -172,8 +172,11 @@ data "google_iam_policy" "creators" {
   for_each = local.configs_with_creators
 
   binding {
-    role    = "roles/workstations.workstationCreator"
-    members = [for user in each.value.creators : "user:${user}"]
+    role = "roles/workstations.workstationCreator"
+    members = [
+      for principal in each.value.creators :
+      length(regexall("^(user|group|serviceAccount|domain|principal|principalSet):", principal)) > 0 ? principal : "user:${principal}"
+    ]
   }
 }
 
@@ -217,8 +220,11 @@ data "google_iam_policy" "users" {
   for_each = local.workstation_map
 
   binding {
-    role    = "roles/workstations.user"
-    members = [for user in each.value.users : "user:${user}"]
+    role = "roles/workstations.user"
+    members = [
+      for principal in each.value.users :
+      length(regexall("^(user|group|serviceAccount|domain|principal|principalSet):", principal)) > 0 ? principal : "user:${principal}"
+    ]
   }
 }
 

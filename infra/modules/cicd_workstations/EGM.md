@@ -93,9 +93,10 @@ v.persistent_disk_size_gb == null`). When `persistent_disk_source_snapshot`
   `projects/<vpc_project_or_project_id>/global/networks/<network>` and
   `projects/<vpc_project_or_project_id>/regions/<region>/subnetworks/<subnetwork>`.
 - IAM member formatting invariant: Entries in `cws_configs[*].creators` and
-  `cws_configs[*].instances[*].users` must be raw email addresses without IAM
-  type prefixes, because `workstations.tf` and `iam.tf` unconditionally
-  prepend `"user:"` (`"user:${user}"`).
+  `cws_configs[*].instances[*].users` accept either bare email addresses
+  (automatically normalized to `"user:<email>"`) or explicit IAM principal
+  prefixes (`"user:"`, `"group:"`, `"serviceAccount:"`, `"domain:"`,
+  `"principal:"`, `"principalSet:"`) without double-prefixing.
 - Label normalization and lifecycle invariant: All keys and values in
   `var.labels` and `local.default_labels` are converted to lowercase via
   `lower()`, with `local.default_labels` taking precedence on key collision;

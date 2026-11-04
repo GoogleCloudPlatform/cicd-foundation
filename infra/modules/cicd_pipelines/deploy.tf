@@ -12,6 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+locals {
+  cloud_deploy_runtime_roles = distinct(concat(
+    length([for _, c in var.apps : c if try(c.runtime, "") == "gke"]) > 0 ? [
+      "roles/container.developer",
+    ] : [],
+    length([for _, c in var.apps : c if try(c.runtime, "") == "cloudrun"]) > 0 ? [
+      "roles/iam.serviceAccountUser",
+      "roles/run.developer",
+    ] : [],
+    length([for _, c in var.apps : c if try(c.runtime, "") == "agentruntime"]) > 0 ? [
+      "roles/aiplatform.user",
+    ] : [],
+  ))
+
+  cloud_deploy_runtime_iam = length(local.cloud_deploy_apps) > 0 ? {
+    for pair in flatten([
+      for stage_key, stage_value in var.stages : [
+        for role in local.cloud_deploy_runtime_roles : {
+          stage_key = stage_key
+          role      = role
+        }
+      ]
+    ]) : "${pair.stage_key}:${pair.role}" => pair
+  } : {}
+}
+
 module "service_account_cloud_deploy" {
   for_each = length(local.cloud_deploy_apps) > 0 ? var.stages : {}
 
@@ -22,25 +48,14 @@ module "service_account_cloud_deploy" {
   display_name = "Cloud Deploy Service Account"
   description  = "Terraform-managed."
   iam_project_roles = {
-    (coalesce(each.value.project_id, local.build_project_id)) : concat(
-      length([for _, c in var.apps : c if try(c.runtime, "") == "gke"]) > 0 ? [
-        "roles/container.developer",
-      ] : [],
-      length([for _, c in var.apps : c if try(c.runtime, "") == "cloudrun"]) > 0 ? [
-        "roles/run.developer",
-      ] : [],
-      length([for _, c in var.apps : c if try(c.runtime, "") == "agentruntime"]) > 0 ? [
-        "roles/aiplatform.user",
-      ] : [],
-    ),
     # cf. https://cloud.google.com/deploy/docs/cloud-deploy-service-account#execution_service_account
     (data.google_project.project.project_id) : [
+      "roles/artifactregistry.writer",
+      "roles/cloudbuild.builds.editor",
       "roles/clouddeploy.jobRunner",
       "roles/clouddeploy.releaser",
       "roles/logging.logWriter",
       "roles/storage.objectUser",
-      "roles/artifactregistry.writer",
-      "roles/cloudbuild.builds.editor",
     ]
   }
   # cf. https://cloud.google.com/deploy/docs/cloud-deploy-service-account#using_service_accounts_from_a_different_project
@@ -58,6 +73,18 @@ module "service_account_cloud_deploy" {
   }
 }
 
+resource "google_project_iam_member" "cloud_deploy_runtime" {
+  for_each = local.cloud_deploy_runtime_iam
+
+  project = coalesce(
+    var.stages[each.value.stage_key].runtime_project_id,
+    var.stages[each.value.stage_key].project_id,
+    local.build_project_id,
+  )
+  role   = each.value.role
+  member = module.service_account_cloud_deploy[each.value.stage_key].iam_email
+}
+
 resource "google_clouddeploy_target" "cluster" {
   for_each = length(local.cloud_deploy_apps) > 0 ? { for key, value in var.stages : key => value if value.gke_cluster != null } : {}
 
@@ -67,7 +94,7 @@ resource "google_clouddeploy_target" "cluster" {
   description = "Terraform-managed."
   gke {
     cluster     = each.value.gke_cluster
-    internal_ip = false
+    internal_ip = coalesce(each.value.gke_internal_ip, false)
   }
   require_approval = each.value.require_approval
   execution_configs {
@@ -161,9 +188,10 @@ resource "google_clouddeploy_target" "agentruntime" {
 }
 
 resource "google_project_service_identity" "iap" {
-  count   = length([for _, c in var.apps : c if try(c.runtime, "") == "agentruntime"]) > 0 ? 1 : 0
-  project = local.build_project_id
-  service = "iap.googleapis.com"
+  count    = length([for _, c in var.apps : c if try(c.runtime, "") == "agentruntime"]) > 0 ? 1 : 0
+  provider = google-beta
+  project  = local.build_project_id
+  service  = "iap.googleapis.com"
 }
 
 resource "google_clouddeploy_delivery_pipeline" "continuous_delivery" {
@@ -191,7 +219,7 @@ resource "google_clouddeploy_delivery_pipeline" "continuous_delivery" {
           }
         }
         dynamic "strategy" {
-          for_each = var.stages[stages.value].canary_percentages == null ? [] : [0]
+          for_each = var.stages[stages.value].canary_percentages != null && each.value.runtime == "gke" ? [0] : []
 
           content {
             canary {
@@ -207,7 +235,7 @@ resource "google_clouddeploy_delivery_pipeline" "continuous_delivery" {
               }
               canary_deployment {
                 percentages = var.stages[stages.value].canary_percentages
-                verify      = var.stages[stages.value].canary_verify
+                verify      = coalesce(var.stages[stages.value].canary_verify, false)
               }
             }
           }
