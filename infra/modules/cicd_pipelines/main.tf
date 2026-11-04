@@ -143,9 +143,9 @@ locals {
     "tf_module_version"     = "v9-0-0"
   }
 
-  github_owner = coalesce(var.github_owner, "") != "" ? var.github_owner : null
+  github_owner = var.github_owner != null && var.github_owner != "" ? var.github_owner : null
 
-  github_repo = coalesce(var.github_repo, "") != "" ? var.github_repo : null
+  github_repo = var.github_repo != null && var.github_repo != "" ? var.github_repo : null
 
   kms_project_id = data.google_project.project.project_id
 

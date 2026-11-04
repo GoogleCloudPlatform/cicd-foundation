@@ -183,7 +183,9 @@ rebuilds (such as Cloud Workstations base image patching).
   changes to `included_files` and `source_to_build`;
   `google_clouddeploy_target`, `google_clouddeploy_delivery_pipeline`,
   `google_clouddeploy_automation`, `google_secure_source_manager_instance`,
-  and `google_kms_crypto_key` ignore changes to `labels`.
+  and `google_kms_crypto_key` ignore changes to `labels`;
+  `google_secure_source_manager_repository.cicd_foundation` ignores changes to
+  `initial_config` and `instance`.
 
 ## Side Effects
 

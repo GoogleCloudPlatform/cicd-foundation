@@ -83,8 +83,14 @@ To deploy the resources defined in this blueprint:
 1.  **Customize Variables**: Create a `.tfvars` file, e.g., by copying and
     adapting `terraform.tfvars.example` to match your environment settings and
     preferences.
-2.  **Initialize Terraform**: Run `terraform init`.
-3.  **Plan and Apply**: Run `terraform plan` to review the changes and
+2.  **Optional Remote State Backend**: Configure remote state by copying
+    `backend.tf.example` to `backend.tf` (which is git-ignored) and setting
+    your GCS bucket:
+    ```bash
+    cp backend.tf.example backend.tf
+    ```
+3.  **Initialize Terraform**: Run `terraform init`.
+4.  **Plan and Apply**: Run `terraform plan` to review the changes and
     `terraform apply` to provision the resources.
 
 ### Using Custom Images

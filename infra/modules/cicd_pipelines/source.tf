@@ -140,6 +140,13 @@ resource "google_secure_source_manager_repository" "cicd_foundation" {
     gitignores     = ["Python"]
   }
 
+  lifecycle {
+    ignore_changes = [
+      initial_config,
+      instance,
+    ]
+  }
+
   depends_on = [google_secure_source_manager_instance.cicd_foundation]
 }
 
