@@ -135,7 +135,24 @@ resource "google_secure_source_manager_repository" "cicd_foundation" {
   repository_id   = "${local.prefix}${var.secure_source_manager_repo_name}"
   deletion_policy = var.secure_source_manager_deletion_policy
 
+  initial_config {
+    default_branch = var.git_branch_trigger
+    gitignores     = ["Python"]
+  }
+
   depends_on = [google_secure_source_manager_instance.cicd_foundation]
+}
+
+resource "google_secure_source_manager_branch_rule" "cicd_foundation" {
+  count                  = local.source.ssm && try(var.ssm_branch_rule.create, false) ? 1 : 0
+  project                = google_secure_source_manager_repository.cicd_foundation[0].project
+  location               = google_secure_source_manager_repository.cicd_foundation[0].location
+  repository_id          = google_secure_source_manager_repository.cicd_foundation[0].repository_id
+  branch_rule_id         = coalesce(try(var.ssm_branch_rule.branch_rule_id, null), "main-linear")
+  include_pattern        = coalesce(try(var.ssm_branch_rule.include_pattern, null), var.git_branch_trigger)
+  require_pull_request   = try(var.ssm_branch_rule.require_pull_request, true)
+  require_linear_history = try(var.ssm_branch_rule.require_linear_history, true)
+  allow_stale_reviews    = try(var.ssm_branch_rule.allow_stale_reviews, false)
 }
 
 resource "google_secure_source_manager_repository_iam_binding" "repo_reader" {

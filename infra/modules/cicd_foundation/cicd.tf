@@ -87,6 +87,7 @@ module "cicd_pipelines" {
   skaffold_image_tag                          = var.skaffold_image_tag
   skaffold_output                             = var.skaffold_output
   skaffold_quiet                              = var.skaffold_quiet
+  ssm_branch_rule                             = var.ssm_branch_rule
   ssm_project_id                              = var.ssm_project_id
   stages                                      = var.stages
   vulnz_attestor_name                         = var.vulnz_attestor_name

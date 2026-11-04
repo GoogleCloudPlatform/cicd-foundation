@@ -321,6 +321,19 @@ variable "secure_source_manager_repo_name" {
   default     = "cicd-foundation"
 }
 
+variable "ssm_branch_rule" {
+  type = object({
+    allow_stale_reviews    = optional(bool, false)
+    branch_rule_id         = optional(string, "main-linear")
+    create                 = optional(bool, false)
+    include_pattern        = optional(string)
+    require_linear_history = optional(bool, true)
+    require_pull_request   = optional(bool, true)
+  })
+  description = "Branch protection rule configuration for Secure Source Manager. Set create to true to enable."
+  default     = {}
+}
+
 variable "ssm_project_id" {
   type        = string
   description = "The GCP project ID hosting the Secure Source Manager instance. If null, defaults to project_id or parsed from secure_source_manager_instance_id."
