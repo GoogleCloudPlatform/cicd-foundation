@@ -26,11 +26,9 @@ As an AI agent, you must **NEVER** use `git` commands to manage the repository, 
 
 You may use `git` exclusively for **read-only analysis** (`git status`, `git diff`, `git log`).
 
-**Agent-Friendly Validation**: The `gitseep-check` pre-commit hook is technically optimized for agents. It supports a **`CheckMode`** that permits validation of geological stratigraphy even when the worktree is **dirty** (contains unstaged agent changes), ensuring that technical refactors never block CI compliance.
-
 **Mandates for Pre-commit Integration**:
 
-- **Surgical Validation**: Never run `pre-commit run --all-files`. Always target validation surgically using `xargs` to pass only the changed files (e.g., `git diff --name-only | xargs pre-commit run --files`).
+- **Surgical Validation**: For ad-hoc pre-commit checks during development, never run `pre-commit run --all-files`. Always target validation surgically using `xargs` to pass only changed files (e.g., `git diff --name-only | xargs pre-commit run --files`). Automated validation runners (`skills/validate-image-updates/scripts/run_local_tests.sh`) may invoke full hook suites.
 - **Concurrency Safety**: Hooks that perform operations on shared directories or Go modules (e.g., `golangci-lint`, `go test`) MUST be configured with `require_serial: true` in `.pre-commit-config.yaml` to prevent parallel execution conflicts.
 - **Argument Robustness**: Custom hooks MUST utilize the `--` separator in their `entry` definition to ensure that filenames are never interpreted as command-line flags. All Go-based utilities MUST use `flag.Parse()` to correctly support this convention.
 
@@ -42,11 +40,9 @@ You may use `git` exclusively for **read-only analysis** (`git status`, `git dif
 
 ## 3. Core Architectural Mandates
 
-- **Strategy Pattern (Projection)**: Tree-building logic in `HistoryPipeline` must be abstracted via the `ProjectionStrategy` interface to allow for multiple reconstruction models (e.g., State Projection vs. Full Replay).
-- **Event Bus (UI)**: TUI components must utilize the internal `EventBus` (`ui/bus.go`) for decoupled pipeline event distribution, avoiding direct channel propagation.
-- **Path-Trie Optimization**: All file-to-bedrock matching must use the optimized `PathTrie` in `GeologicalMatcher` to ensure $O(K)$ lookup performance on large strata.
-- **Sequential Discovery**: History scanning must be performed sequentially in `Discover` to maintain deterministic stability with the non-thread-safe `go-git` object resolution, using a central `repoMu` mutex for safety.
-- **Shell Dependency Injection**: All system command executions (e.g., `pre-commit`, `worktree`) must be performed via the `ShellService` interface to enable deterministic testing and mock-based validation.
+- **Thin Layer Philosophy**: Workstation container layers (`apps/workstations/*`) inherit OS lifecycle and systemd orchestration from parent layers (`common`, `preflight`, `gnome`, `remote-desktop`); child layers only inject specialized packages, runtime configurations, and IDE hooks.
+- **Decoupled Hook Lifecycle**: Strict separation between build-time customization hooks (`/etc/workstation-build.d/`) executed during Docker build via `configure_workstation.sh`, and runtime startup hooks (`/etc/workstation-startup.d/`) executed by systemd PID 1 via `start_systemd.sh`.
+- **Headless Graphical Session & Software Rendering**: Wayland/GNOME sessions enforce software rendering (`LIBGL_ALWAYS_SOFTWARE=1`) for headless stability without dedicated GPU requirements.
 - **EGM Architecture Contracts (`EGM.md`)**: Every code and configuration directory maintains an Elephant & Goldfish Model (EGM) contract in its `EGM.md` (`target_filename="EGM.md"`, comprising `Peanuts` leaf contracts and `Hay` roll-up blueprints defining `Overview`, `Interface`, `Invariants`, and `Side Effects`) alongside human-facing `README.md` guides. Agents MUST consult local `EGM.md` contracts during context discovery and update `EGM.md` (as well as `README.md` where present) synchronously whenever exported interfaces, invariants, or side effects change.
 
 ## 4. Agent Validation Lifecycle
@@ -65,6 +61,7 @@ Every technical change MUST follow this sequential workflow:
 These global skills are available within the `skills/` directory:
 
 - **`validate-image-updates`**: Enforces the mandatory 6-step validation workflow.
+- **`deploy-workstations`**: Customizes Cloud Workstations blueprints and generates terraform.tfvars.
 - **`persona-swe`**: Software Engineering mandates and history refactoring.
 - **`persona-sre`**: System resilience and service orchestration.
 - **`persona-security`**: Vulnerability auditing and system hardening.

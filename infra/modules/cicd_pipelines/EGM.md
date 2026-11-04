@@ -18,7 +18,7 @@ limitations under the License.
 
 ## Overview
 
-The `cicd_pipelines` Terraform module (`v8-0-0`) provisions an end-to-end Google
+The `cicd_pipelines` Terraform module (`v9-0-0`) provisions an end-to-end Google
 Cloud-native CI/CD environment (`main.tf`, `build.tf`, `deploy.tf`, `source.tf`,
 `registry.tf`, `binauth.tf`, `workstations.tf`, `variables.tf`, `outputs.tf`).
 It configures source control integration (Secure Source Manager (SSM), GitHub,
@@ -26,11 +26,11 @@ or generic Git repository webhooks), Docker Artifact Registry storage, Cloud
 Build CI pipelines (with recursive Skaffold dependency resolution, optional
 pre-build multi-persona Gemini agentic code reviews, Kritis vulnerability
 scanning/signing, and a bootstrapped `build-runner` image), Cloud Deploy
-multi-stage serial delivery pipelines and targets for Cloud Run and GKE (with
-optional approvals and GKE Service Mesh canary strategies), Binary Authorization
-policies/attestors backed by Cloud Key Management Service (KMS) and Container
-Analysis notes, and Cloud Scheduler jobs for periodic rebuilds (such as Cloud
-Workstations base image patching).
+multi-stage serial delivery pipelines and targets for Cloud Run, GKE, and
+Agent Runtime custom targets (with optional approvals and GKE Service Mesh canary
+strategies), Binary Authorization policies/attestors backed by Cloud Key Management
+Service (KMS) and Container Analysis notes, and Cloud Scheduler jobs for periodic
+rebuilds (such as Cloud Workstations base image patching).
 
 ## Interface
 
@@ -42,8 +42,8 @@ Workstations base image patching).
     `secret_manager_region`, `secure_source_manager_region`.
   - Applications and Stages: `apps` map configuring `build`, `runtime`,
     `stages`, `git_repo`, `github`, `ssm`, `workstation_config`, and
-    `agents`; `apps_directory`; `runtimes` defaulting to `["cloudrun",
-"gke", "workstations"]`; `stages` map configuring `cloud_run_region`,
+    `agents`; `apps_directory`; `runtimes` defaulting to `["agentruntime",
+    "cloudrun", "gke", "workstations"]`; `stages` map configuring `cloud_run_region`,
     `gke_cluster`, `project_id`, `peered_network`, `require_approval`,
     `canary_percentages`, `canary_verify`,
     `binary_authorization_evaluation_mode`, and
@@ -59,7 +59,8 @@ Workstations base image patching).
     `secure_source_manager_ca_common_name`,
     `secure_source_manager_ca_organization`,
     `secure_source_manager_ca_key_algorithm`,
-    `secure_source_manager_ca_lifetime_seconds`.
+    `secure_source_manager_ca_lifetime_seconds`, `ssm_branch_rule`,
+    `ssm_project_id`.
   - Cloud Build: `build_machine_type_default`,
     `build_timeout_default_seconds`, `build_source_retention_days`,
     `cloud_build_api_key_name`, `cloud_build_api_key_display_name`,
@@ -110,6 +111,10 @@ Workstations base image patching).
   `module.service_account_cloud_build`, `module.service_account_cloud_deploy`,
   and `module.cws_image_build_runner_service_account`
   (`cloud-foundation-fabric//modules/iam-service-account`, `v45.0.0`),
+  `google_clouddeploy_custom_target_type.agentruntime`,
+  `google_project_service_identity.iap`,
+  `google_secure_source_manager_repository_initial_config.initial_config`,
+  `google_secure_source_manager_branch_rule.branch_rule`,
   `data.google_project.project`,
   `data.google_artifact_registry_repository.container_repository`,
   `data.external.skaffold_deps`,
@@ -196,8 +201,10 @@ Workstations base image patching).
   `roles/artifactregistry.repoAdmin` (for Cloud Build service account).
 - Cloud Build, Storage, and Local-Exec Bootstrap (`build.tf`): Creates the
   Cloud Build service account (`module.service_account_cloud_build`, granting
-  `roles/aiplatform.user` when pre-build review agents are enabled), optional
-  private worker pools (`google_cloudbuild_worker_pool.ci_pool` and per-stage
+  `roles/aiplatform.user` when pre-build review agents are enabled,
+  `roles/run.developer` when runtimes include Cloud Run, and
+  `roles/container.developer` when runtimes include GKE), optional private
+  worker pools (`google_cloudbuild_worker_pool.ci_pool` and per-stage
   `google_cloudbuild_worker_pool.pool` with `no_external_ip = true`), CI
   triggers (`google_cloudbuild_trigger.ci_pipeline`), a Cloud Storage
   staging/reports bucket (`google_storage_bucket.cloudbuild_source` with
@@ -209,11 +216,14 @@ Workstations base image patching).
   files in `apps/build-runner` change.
 - Cloud Deploy (`deploy.tf`): When `local.cloud_deploy_apps` is non-empty,
   provisions per-stage Cloud Deploy execution service accounts
-  (`module.service_account_cloud_deploy`), GKE targets
-  (`google_clouddeploy_target.cluster`), Cloud Run targets
-  (`google_clouddeploy_target.run`), serial delivery pipelines
-  (`google_clouddeploy_delivery_pipeline.continuous_delivery`), and release
-  promotion automation rules
+  (`module.service_account_cloud_deploy`, granting `roles/storage.objectUser`,
+  `roles/cloudbuild.builds.editor`, and `roles/artifactregistry.writer`), GKE
+  targets (`google_clouddeploy_target.cluster`), Cloud Run targets
+  (`google_clouddeploy_target.run`), the Agent Runtime custom target type
+  (`google_clouddeploy_custom_target_type.agentruntime`), project service
+  identity for IAP (`google_project_service_identity.iap`), serial delivery
+  pipelines (`google_clouddeploy_delivery_pipeline.continuous_delivery`), and
+  release promotion automation rules
   (`google_clouddeploy_automation.promote-release`).
 - Secure Source Manager, Private CA, and Webhook Secrets (`source.tf`):
   Conditionally provisions an Enterprise Private CA pool and Root CA
@@ -221,7 +231,10 @@ Workstations base image patching).
   `google_privateca_certificate_authority.ssm_root_ca`), an SSM instance and
   repository (`google_secure_source_manager_instance.cicd_foundation`,
   `google_secure_source_manager_repository.cicd_foundation`, plus
-  `instanceAccessor` and `repoReader` IAM bindings), a webhook secret
+  `instanceAccessor` and `repoReader` IAM bindings), repository initial branch
+  seeding (`google_secure_source_manager_repository_initial_config.initial_config`),
+  configurable branch protection rules
+  (`google_secure_source_manager_branch_rule.branch_rule`), a webhook secret
   (`google_secret_manager_secret.webhook_trigger`,
   `random_id.webhook_secret_key`,
   `google_secret_manager_secret_version.webhook_trigger`, and

@@ -18,7 +18,7 @@ limitations under the License.
 
 ## Overview
 
-The `cicd_workstations` Terraform module (`v8-0-0`, derived from
+The `cicd_workstations` Terraform module (`v9-0-0`, derived from
 `GoogleCloudPlatform/cicd-foundation`) provisions and manages Google Cloud
 Workstations infrastructure within an existing Google Cloud project. It enables
 required Google Cloud APIs, creates a dedicated Cloud Workstations service

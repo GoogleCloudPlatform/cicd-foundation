@@ -18,7 +18,7 @@ limitations under the License.
 
 ## Overview
 
-The `cicd_foundation` Terraform module (`v8-0-0`) establishes an end-to-end
+The `cicd_foundation` Terraform module (`v9-0-0`) establishes an end-to-end
 CI/CD and managed development environment foundation on Google Cloud by
 orchestrating the [`cicd_pipelines`](../cicd_pipelines/EGM.md) and
 [`cicd_workstations`](../cicd_workstations/EGM.md) modules. It unifies
@@ -34,11 +34,11 @@ built and stored in Artifact Registry by the CI/CD pipeline.
 - Application and stage inputs: `apps` (map of application objects with
   `build`, `runtime`, `stages`, source repository configuration
   `github`/`ssm`/`git_repo`, and `agents`), `apps_directory` (default
-  `"apps"`), `runtimes` (default `["cloudrun", "gke", "workstations"]`), and
-  `stages` (map of stage configurations for `dev`, `test`, `prod` with
-  `cloud_run_region`, `gke_cluster`, `project_id`, `peered_network`,
-  `require_approval`, `canary_percentages`, `canary_verify`, and Binary
-  Authorization modes).
+  `"apps"`), `runtimes` (default `["cloudrun", "gke", "workstations",
+  "agentruntime"]`), and `stages` (map of stage configurations for `dev`,
+  `test`, `prod` with `cloud_run_region`, `gke_cluster`, `project_id`,
+  `peered_network`, `require_approval`, `canary_percentages`, `canary_verify`,
+  and Binary Authorization modes).
 - Cloud Workstations inputs: `cws_clusters` (map of cluster definitions),
   `cws_configs` (map of workstation configurations supporting
   `custom_image_names`, `instances`, `boost_configs`, `accelerators`,
@@ -51,8 +51,9 @@ built and stored in Artifact Registry by the CI/CD pipeline.
   `cws_image_build_runner_role_*`).
 - Source control, build, and security inputs: GitHub (`github_owner`,
   `github_repo`, `git_branches_regexp_trigger`) and Secure Source Manager
-  (SSM) settings (`secure_source_manager_*`, `git_branch_trigger`), Artifact
-  Registry settings (`artifact_registry_id`, `artifact_registry_name`,
+  (SSM) settings (`secure_source_manager_*`, `ssm_branch_rule`,
+  `ssm_project_id`, `git_branch_trigger`), Artifact Registry settings
+  (`artifact_registry_id`, `artifact_registry_name`,
   `artifact_registry_region`, `artifact_registry_readers`), Cloud Build and
   worker pool settings (`cloud_build_*`, `build_*`, builder image tags
   `docker_image_tag`, `gcloud_image_tag`, `skaffold_image_tag`), Binary

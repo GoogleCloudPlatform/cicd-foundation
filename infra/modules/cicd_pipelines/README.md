@@ -71,7 +71,7 @@ Below is a basic usage example deploying a Cloud Run application named
 
 ```terraform
 module "cicd_pipelines" {
-  source = "github.com/GoogleCloudPlatform/cicd-foundation//infra/modules/cicd_pipelines?ref=v8.0.0"
+  source = "github.com/GoogleCloudPlatform/cicd-foundation//infra/modules/cicd_pipelines?ref=v9.0.0"
 
   project_id = "your-gcp-project-id"
   namespace  = "my-app"
@@ -160,7 +160,7 @@ Ensure the identity running Terraform has sufficient permissions on the target p
 | <a name="input_labels"></a> [labels](#input\_labels) | Common labels to be applied to resources. | `map(string)` | `{}` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | A prefix to be added to resource names to ensure uniqueness. | `string` | `""` | no |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | The ID of the Google Cloud project where resources will be deployed. | `string` | n/a | yes |
-| <a name="input_runtimes"></a> [runtimes](#input\_runtimes) | List of supported runtime solutions for applications. | `list(string)` | <pre>[<br/>  "cloudrun",<br/>  "gke",<br/>  "workstations"<br/>]</pre> | no |
+| <a name="input_runtimes"></a> [runtimes](#input\_runtimes) | List of supported runtime solutions for applications. | `list(string)` | <pre>[<br/>  "agentruntime",<br/>  "cloudrun",<br/>  "gke",<br/>  "workstations"<br/>]</pre> | no |
 | <a name="input_scheduler_default_region"></a> [scheduler\_default\_region](#input\_scheduler\_default\_region) | The default region for the Cloud Scheduler if not specified in the application config. | `string` | `"us-central1"` | no |
 | <a name="input_secret_manager_region"></a> [secret\_manager\_region](#input\_secret\_manager\_region) | The region for the Secret Manager, cf. https://cloud.google.com/secret-manager/docs/locations. | `string` | `"us-central1"` | no |
 | <a name="input_secure_source_manager_always_create"></a> [secure\_source\_manager\_always\_create](#input\_secure\_source\_manager\_always\_create) | If true, create Secure Source Manager resources (instance, repository). These resources can be created even when a GitHub repository is also specified as the trigger source. | `bool` | `false` | no |
@@ -180,6 +180,8 @@ Ensure the identity running Terraform has sufficient permissions on the target p
 | <a name="input_skaffold_image_tag"></a> [skaffold\_image\_tag](#input\_skaffold\_image\_tag) | The tag of the gcr.io/k8s-skaffold/skaffold image to use. | `string` | `"v2.18.1"` | no |
 | <a name="input_skaffold_output"></a> [skaffold\_output](#input\_skaffold\_output) | The filename for the Skaffold artifacts JSON output. | `string` | `"artifacts.json"` | no |
 | <a name="input_skaffold_quiet"></a> [skaffold\_quiet](#input\_skaffold\_quiet) | Suppress Skaffold console output during builds. | `bool` | `false` | no |
+| <a name="input_ssm_branch_rule"></a> [ssm\_branch\_rule](#input\_ssm\_branch\_rule) | Branch protection rule configuration for Secure Source Manager. Set create to true to enable. | <pre>object({<br/>    allow_stale_reviews    = optional(bool, false)<br/>    branch_rule_id         = optional(string, "main-linear")<br/>    create                 = optional(bool, false)<br/>    include_pattern        = optional(string)<br/>    require_linear_history = optional(bool, true)<br/>    require_pull_request   = optional(bool, true)<br/>  })</pre> | `{}` | no |
+| <a name="input_ssm_project_id"></a> [ssm\_project\_id](#input\_ssm\_project\_id) | The GCP project ID hosting the Secure Source Manager instance. If null, defaults to project\_id or parsed from secure\_source\_manager\_instance\_id. | `string` | `null` | no |
 | <a name="input_stages"></a> [stages](#input\_stages) | Map of deployment stages (e.g., dev, test, prod). Keys are stage names, values configure stage-specific settings like cluster, network, and Binary Authorization. | <pre>map(object({<br/>    cloud_run_region                      = optional(string)<br/>    gke_cluster                           = optional(string)<br/>    project_id                            = optional(string)<br/>    peered_network                        = optional(string)<br/>    require_approval                      = optional(bool, false)<br/>    canary_percentages                    = optional(list(number))<br/>    canary_verify                         = optional(bool, false)<br/>    binary_authorization_evaluation_mode  = optional(string, "ALWAYS_ALLOW")<br/>    binary_authorization_enforcement_mode = optional(string, "DRYRUN_AUDIT_LOG_ONLY")<br/>  }))</pre> | <pre>{<br/>  "dev": {},<br/>  "prod": {},<br/>  "test": {}<br/>}</pre> | no |
 | <a name="input_vulnz_attestor_name"></a> [vulnz\_attestor\_name](#input\_vulnz\_attestor\_name) | The name of the Binary Authorization Attestor and the Container Analysis note. | `string` | `"vulnz-attestor"` | no |
 

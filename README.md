@@ -56,6 +56,10 @@ The repository is built to meet strict corporate compliance and security require
 │   ├── node-hello-world/          <-- Node.js demo application template
 │   └── python-hello-world/        <-- Python demo application template
 │
+├── bin/                           <-- Core developer lifecycle and deployment CLI scripts (skaffold, Cloud Run, test)
+│
+├── dev/                           <-- Internal development, documentation generation, and pre-commit scripts
+│
 ├── docs/                          <-- System documentation and user guides
 │
 ├── exercises/                     <-- Hands-on enablement exercises for developers and AI agents
@@ -67,6 +71,7 @@ The repository is built to meet strict corporate compliance and security require
 │   │   ├── cicd_foundation/       <-- Foundation setup (networks, repos, governance)
 │   │   ├── cicd_pipelines/        <-- Provisions Cloud Build triggers, Cloud Deploy, and BinAuth policies
 │   │   └── cicd_workstations/     <-- Workstations integrations
+│   ├── reference/                 <-- Multi-environment reference architecture (dev/test/prod)
 │   └── simplified/                <-- Sandbox Terraform configuration for simplified single-project tests
 │
 ├── presentations/                 <-- Enablement and presentation materials

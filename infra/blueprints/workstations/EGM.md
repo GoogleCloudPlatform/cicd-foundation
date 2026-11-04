@@ -24,7 +24,7 @@ pipelines. It activates required project APIs, provisions VPC/subnet/Private
 Service Access/Cloud NAT/firewall networking, binds project-level IAM roles for
 workstation and admin users, optionally expands workstation configurations
 across a matrix of Android branches and targets, and invokes the
-`cicd_foundation` module (`v8.0.0`, mirrored locally at
+`cicd_foundation` module (`v9.0.0`, mirrored locally at
 [`../../modules/cicd_foundation`](../../modules/cicd_foundation/EGM.md)) to
 provision workstation clusters, configurations, instances, Artifact Registry
 repositories, Secure Source Manager (SSM) repositories, Cloud Build triggers,
@@ -84,7 +84,7 @@ module.vpc[0] }` in `moved.tf`), `module.fw`
   `google_project_iam_member.user_roles` (`iam.tf`), and
   `module.cicd_foundation`
   (`GoogleCloudPlatform/cicd-foundation//infra/modules/cicd_foundation`,
-  `v8.0.0`).
+  `v9.0.0`).
 
 ## Invariants
 

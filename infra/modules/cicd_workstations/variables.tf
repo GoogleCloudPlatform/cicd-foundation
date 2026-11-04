@@ -164,4 +164,11 @@ variable "cws_configs" {
     ])
     error_message = "If persistent_disk_source_snapshot is provided, persistent_disk_size_gb must not be set."
   }
+  validation {
+    condition = alltrue([
+      for k, v in var.cws_configs :
+      v.persistent_disk_source_snapshot != null || v.persistent_disk_size_gb != null
+    ])
+    error_message = "If persistent_disk_source_snapshot is not provided, persistent_disk_size_gb must be set."
+  }
 }

@@ -16,7 +16,7 @@ limitations under the License.
 
 # AI Agent Instructions: Preflight Dashboard
 
-These mandates apply specifically to the Preflight layer (`examples/preflight/`).
+These mandates apply specifically to the Preflight layer (`apps/workstations/preflight/`).
 
 ## 1. Frontend Engineering Standards
 
@@ -28,16 +28,16 @@ These mandates apply specifically to the Preflight layer (`examples/preflight/`)
 ## 2. Module-Specific Skills
 
 - **`update-preflight`**: localized skill for hot-patching the dashboard and rendering internal docs.
-  - 👉 `examples/preflight/skills/update-preflight/SKILL.md`
+  - 👉 `apps/workstations/preflight/skills/update-preflight/SKILL.md`
 
 ## 3. Global Foundation Skills
 
 Refer to the root instructions for global tools:
-👉 **[Foundation Skills](../../../AGENTS.md#3-global-agent-skills-foundation)**
+👉 **[Foundation Skills](../../../AGENTS.md#5-global-agent-skills-foundation)**
 
 ## 4. Mandatory Testing
 
-Maintain **100% Vitest coverage**. Run `npm test` within `web/` before every hot-patch.
+Maintain **100% Vitest coverage**. Run `npm test` within `apps/workstations/preflight-web/` before every hot-patch.
 
 - **Routing Tests**: JSDOM v30+ enforces `window.location` immutability. All navigation testing MUST mock and assert against the abstractions in `window_utils.ts`.
 - **Event Dispatching**: To prevent JSDOM `TypeError` crashes, dispatch synthesized UI events (e.g., `KeyboardEvent`) on `document.body` with `{ bubbles: true }` instead of directly on `document` or `window`.
