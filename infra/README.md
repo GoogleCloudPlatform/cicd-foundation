@@ -70,7 +70,7 @@ git clone https://github.com/grafeas/kritis.git
 cd kritis
 ```
 
-Next, set the GCP project to where Cloud Build will be running (cf. `project_prod_supplychain` variable in the reference architecture of the single `project_id` in the simplified architecture).
+Next, set the GCP project to where Cloud Build will be running (cf. `project_hub_supplychain` in the reference architecture or `project_id` in the simplified architecture).
 
 ```sh
 gcloud config set project $GOOGLE_CLOUD_PROJECT

@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+locals {
+  developer_iam_members = [
+    for principal in var.developers :
+    length(regexall("^(user|group|serviceAccount|domain|principal|principalSet):", principal)) > 0 ? principal : "user:${principal}"
+  ]
+}
+
 module "org" {
   source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/organization?ref=v45.0.0"
   organization_id = "organizations/${var.org_id}"
@@ -25,28 +32,13 @@ module "folder_hub" {
   id            = var.folder_hub_id != null ? "folders/${var.folder_hub_id}" : null
 }
 
-module "folder_prod" {
+module "folder_spoke" {
+  for_each      = var.environments
   source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v45.0.0"
-  name          = "Production"
+  name          = each.value.folder_display_name
   parent        = module.org.organization_id
   folder_create = var.folders_create
-  id            = var.folder_prod_id != null ? "folders/${var.folder_prod_id}" : null
-}
-
-module "folder_test" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v45.0.0"
-  name          = "Testing"
-  parent        = module.org.organization_id
-  folder_create = var.folders_create
-  id            = var.folder_test_id != null ? "folders/${var.folder_test_id}" : null
-}
-
-module "folder_dev" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder?ref=v45.0.0"
-  name          = "Development"
-  parent        = module.org.organization_id
-  folder_create = var.folders_create
-  id            = var.folder_dev_id != null ? "folders/${var.folder_dev_id}" : null
+  id            = each.value.folder_id != null ? "folders/${each.value.folder_id}" : null
 }
 
 module "project_hub_host" {
@@ -73,266 +65,82 @@ module "project_hub_supplychain" {
         "cloudservices",
         "container-engine",
         "workstations",
-      ],
+      ]
       "roles/container.hostServiceAgentUser" = [
-        "container-engine"
-      ],
-    }
-  }
-  iam = {
-    "roles/binaryauthorization.policyViewer" = var.developers,
-    "roles/cloudbuild.builds.viewer"         = var.developers,
-    "roles/clouddeploy.approver"             = var.developers,
-    "roles/clouddeploy.viewer"               = var.developers,
-    "roles/workstations.workstationCreator"  = var.developers,
-    "roles/workstations.operationViewer"     = var.developers,
-  }
-}
-
-resource "google_project_iam_member" "hub_container_developer" {
-  count   = length(var.developers)
-  project = module.project_hub_supplychain.id
-  role    = "roles/browser"
-  member  = var.developers[count.index]
-}
-
-resource "google_project_iam_member" "hub_container_occurrences_viewer" {
-  count   = length(var.developers)
-  project = module.project_hub_supplychain.id
-  role    = "roles/containeranalysis.occurrences.viewer"
-  member  = var.developers[count.index]
-}
-
-resource "google_project_iam_member" "hub_logging_viewer" {
-  count   = length(var.developers)
-  project = module.project_hub_supplychain.id
-  role    = "roles/logging.viewer"
-  member  = var.developers[count.index]
-}
-
-resource "google_project_iam_member" "hub_monitoring_viewer" {
-  count   = length(var.developers)
-  project = module.project_hub_supplychain.id
-  role    = "roles/monitoring.viewer"
-  member  = var.developers[count.index]
-}
-
-module "project_prod_host" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v45.0.0"
-  name          = var.project_prod_host
-  parent        = module.folder_prod.id
-  project_reuse = var.projects_create ? null : {}
-  services      = var.project_prod_host_services
-  shared_vpc_host_config = {
-    enabled = true
-  }
-}
-
-module "project_prod_supplychain" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v45.0.0"
-  name          = var.project_prod_supplychain
-  parent        = module.folder_prod.id
-  project_reuse = var.projects_create ? null : {}
-  services      = var.project_prod_supplychain_services
-  shared_vpc_service_config = {
-    host_project = module.project_prod_host.project_id
-  }
-  iam = {
-    "roles/cloudbuild.workerPoolUser" = [
-      module.project_hub_supplychain.service_agents["clouddeploy"].iam_email
-    ]
-  }
-}
-
-module "project_prod_service" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v45.0.0"
-  name          = var.project_prod_service
-  parent        = module.folder_prod.id
-  project_reuse = var.projects_create ? null : {}
-  services      = var.project_prod_service_services
-  shared_vpc_service_config = {
-    host_project = module.project_prod_host.project_id
-    service_agent_iam = {
-      "roles/compute.networkUser" = [
-        "cloudservices",
         "container-engine",
-      ],
-      "roles/container.hostServiceAgentUser" = [
-        "container-engine"
-      ],
-    }
-  }
-}
-
-resource "google_project_iam_member" "prod_browser" {
-  count   = length(var.developers)
-  project = module.project_prod_service.id
-  role    = "roles/browser"
-  member  = var.developers[count.index]
-}
-
-resource "google_project_iam_member" "prod_logging_viewer" {
-  count   = length(var.developers)
-  project = module.project_prod_service.id
-  role    = "roles/logging.viewer"
-  member  = var.developers[count.index]
-}
-
-resource "google_project_iam_member" "prod_monitoring_viewer" {
-  count   = length(var.developers)
-  project = module.project_prod_service.id
-  role    = "roles/monitoring.viewer"
-  member  = var.developers[count.index]
-}
-
-module "project_test_host" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v45.0.0"
-  name          = var.project_test_host
-  parent        = module.folder_test.id
-  project_reuse = var.projects_create ? null : {}
-  services      = var.project_test_host_services
-  shared_vpc_host_config = {
-    enabled = true
-  }
-}
-
-module "project_test_supplychain" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v45.0.0"
-  name          = var.project_test_supplychain
-  parent        = module.folder_test.id
-  project_reuse = var.projects_create ? null : {}
-  services      = var.project_test_supplychain_services
-  shared_vpc_service_config = {
-    host_project = module.project_test_host.project_id
-  }
-  iam = {
-    "roles/cloudbuild.workerPoolUser" = [
-      module.project_hub_supplychain.service_agents["clouddeploy"].iam_email
-    ]
-  }
-}
-
-module "project_test_service" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v45.0.0"
-  name          = var.project_test_service
-  parent        = module.folder_test.id
-  project_reuse = var.projects_create ? null : {}
-  services      = var.project_test_service_services
-  shared_vpc_service_config = {
-    host_project = module.project_test_host.project_id
-    service_agent_iam = {
-      "roles/compute.networkUser" = [
-        "cloudservices",
-        "container-engine",
-      ],
-      "roles/container.hostServiceAgentUser" = [
-        "container-engine"
-      ],
-    }
-  }
-}
-
-resource "google_project_iam_member" "test_browser" {
-  count   = length(var.developers)
-  project = module.project_test_service.id
-  role    = "roles/browser"
-  member  = var.developers[count.index]
-}
-
-resource "google_project_iam_member" "test_logging_viewer" {
-  count   = length(var.developers)
-  project = module.project_test_service.id
-  role    = "roles/logging.viewer"
-  member  = var.developers[count.index]
-}
-
-resource "google_project_iam_member" "test_monitoring_viewer" {
-  count   = length(var.developers)
-  project = module.project_test_service.id
-  role    = "roles/monitoring.viewer"
-  member  = var.developers[count.index]
-}
-
-module "project_dev_host" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v45.0.0"
-  name          = var.project_dev_host
-  parent        = module.folder_dev.id
-  project_reuse = var.projects_create ? null : {}
-  services      = var.project_dev_host_services
-  shared_vpc_host_config = {
-    enabled = true
-  }
-}
-
-module "project_dev_supplychain" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v45.0.0"
-  name          = var.project_dev_supplychain
-  parent        = module.folder_dev.id
-  project_reuse = var.projects_create ? null : {}
-  services      = var.project_dev_supplychain_services
-  shared_vpc_service_config = {
-    host_project = module.project_dev_host.project_id
-    service_agent_iam = {
-      "roles/compute.networkUser" = [
-        "cloudservices",
-        "container-engine",
-      ],
-      "roles/container.hostServiceAgentUser" = [
-        "container-engine"
       ]
     }
   }
   iam = {
+    "roles/binaryauthorization.policyViewer"     = local.developer_iam_members
+    "roles/browser"                              = local.developer_iam_members
+    "roles/cloudbuild.builds.viewer"             = local.developer_iam_members
+    "roles/clouddeploy.approver"                 = local.developer_iam_members
+    "roles/clouddeploy.viewer"                   = local.developer_iam_members
+    "roles/containeranalysis.occurrences.viewer" = local.developer_iam_members
+    "roles/logging.viewer"                       = local.developer_iam_members
+    "roles/monitoring.viewer"                    = local.developer_iam_members
+    "roles/workstations.operationViewer"         = local.developer_iam_members
+    "roles/workstations.workstationCreator"      = local.developer_iam_members
+  }
+}
+
+module "project_spoke_host" {
+  for_each      = var.environments
+  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v45.0.0"
+  name          = each.value.projects.host
+  parent        = module.folder_spoke[each.key].id
+  project_reuse = var.projects_create ? null : {}
+  services      = coalesce(each.value.projects.host_services, var.spoke_host_services)
+  shared_vpc_host_config = {
+    enabled = true
+  }
+}
+
+module "project_spoke_supplychain" {
+  for_each      = var.environments
+  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v45.0.0"
+  name          = each.value.projects.supplychain
+  parent        = module.folder_spoke[each.key].id
+  project_reuse = var.projects_create ? null : {}
+  services      = coalesce(each.value.projects.supplychain_services, var.spoke_supplychain_services)
+  shared_vpc_service_config = {
+    host_project = module.project_spoke_host[each.key].project_id
+  }
+  iam = {
     "roles/cloudbuild.workerPoolUser" = [
-      module.project_hub_supplychain.service_agents["clouddeploy"].iam_email
+      module.project_hub_supplychain.service_agents["clouddeploy"].iam_email,
     ]
   }
 }
 
-module "project_dev_service" {
+module "project_spoke_service" {
+  for_each      = var.environments
   source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/project?ref=v45.0.0"
-  name          = var.project_dev_service
-  parent        = module.folder_dev.id
+  name          = each.value.projects.service
+  parent        = module.folder_spoke[each.key].id
   project_reuse = var.projects_create ? null : {}
-  services      = var.project_dev_service_services
+  services      = coalesce(each.value.projects.service_services, var.spoke_service_services)
   shared_vpc_service_config = {
-    host_project = module.project_dev_host.project_id
+    host_project = module.project_spoke_host[each.key].project_id
     service_agent_iam = {
       "roles/compute.networkUser" = [
         "cloudservices",
         "container-engine",
-      ],
+      ]
       "roles/container.hostServiceAgentUser" = [
-        "container-engine"
+        "container-engine",
       ]
     }
   }
-}
-
-resource "google_project_iam_member" "dev_browser" {
-  count   = length(var.developers)
-  project = module.project_dev_service.id
-  role    = "roles/browser"
-  member  = var.developers[count.index]
-}
-
-resource "google_project_iam_member" "dev_container_developer" {
-  count   = length(var.developers)
-  project = module.project_dev_service.id
-  role    = "roles/container.developer"
-  member  = var.developers[count.index]
-}
-
-resource "google_project_iam_member" "dev_logging_viewer" {
-  count   = length(var.developers)
-  project = module.project_dev_service.id
-  role    = "roles/logging.viewer"
-  member  = var.developers[count.index]
-}
-
-resource "google_project_iam_member" "dev_monitoring_viewer" {
-  count   = length(var.developers)
-  project = module.project_dev_service.id
-  role    = "roles/monitoring.viewer"
-  member  = var.developers[count.index]
+  iam = merge(
+    {
+      "roles/browser"           = local.developer_iam_members
+      "roles/logging.viewer"    = local.developer_iam_members
+      "roles/monitoring.viewer" = local.developer_iam_members
+    },
+    each.value.grant_developer_cluster_access ? {
+      "roles/container.developer" = local.developer_iam_members
+    } : {},
+  )
 }

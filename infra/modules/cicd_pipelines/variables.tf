@@ -159,12 +159,9 @@ variable "apps" {
     condition = alltrue([
       for app_key, app_value in var.apps :
       # Check that if 'stages' is provided, all keys are valid.
-      (lookup(app_value, "stages", {}) == null ? true : alltrue([
-        for stage_key, stage_value in lookup(app_value, "stages", {}) :
-        alltrue([
-          for k in keys(stage_value) :
-          contains(keys(var.stages), k)
-        ])
+      (app_value.stages == null ? true : alltrue([
+        for stage_key in keys(app_value.stages) :
+        contains(keys(var.stages), stage_key)
       ]))
     ])
     error_message = "Stages must be a subset of the allowed stages: ${join(", ", keys(var.stages))}."
@@ -185,6 +182,7 @@ variable "runtimes" {
 
 variable "stages" {
   type = map(object({
+    order                                 = optional(number)
     cloud_run_region                      = optional(string)
     gke_cluster                           = optional(string)
     gke_internal_ip                       = optional(bool, false)
@@ -197,11 +195,11 @@ variable "stages" {
     binary_authorization_evaluation_mode  = optional(string, "ALWAYS_ALLOW")
     binary_authorization_enforcement_mode = optional(string, "DRYRUN_AUDIT_LOG_ONLY")
   }))
-  description = "Map of deployment stages (e.g., dev, test, prod). Keys are stage names, values configure stage-specific settings like cluster, runtime project, network, and Binary Authorization."
+  description = "Map of deployment stages (e.g., dev, test, prod). Keys are stage names, values configure promotion order, cluster, runtime project, network, and Binary Authorization."
   default = {
-    "dev" : {},
-    "test" : {},
-    "prod" : {},
+    "dev" : { order = 10 },
+    "test" : { order = 20 },
+    "prod" : { order = 30 },
   }
   validation {
     condition = alltrue([

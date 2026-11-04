@@ -14,46 +14,34 @@
 
 locals {
   stages = {
-    dev = {
-      project_id                            = module.project_dev_supplychain.project_id
-      runtime_project_id                    = module.project_dev_service.project_id
-      gke_cluster                           = "projects/${module.project_dev_service.project_id}/locations/${module.cluster-dev.location}/clusters/${module.cluster-dev.name}"
-      gke_internal_ip                       = true
-      cloud_run_region                      = "projects/${module.project_dev_service.project_id}/locations/${var.region}"
-      peered_network                        = module.vpc-dev-build.id
-      require_approval                      = false
-      binary_authorization_evaluation_mode  = "ALWAYS_ALLOW"
-      binary_authorization_enforcement_mode = "DRYRUN_AUDIT_LOG_ONLY"
+    for env_key, env in var.environments : env_key => {
+      order                                 = env.order
+      project_id                            = module.project_spoke_supplychain[env_key].project_id
+      runtime_project_id                    = module.project_spoke_service[env_key].project_id
+      gke_cluster                           = "projects/${module.project_spoke_service[env_key].project_id}/locations/${module.cluster[env_key].location}/clusters/${module.cluster[env_key].name}"
+      gke_internal_ip                       = env.gke_internal_ip
+      cloud_run_region                      = "projects/${module.project_spoke_service[env_key].project_id}/locations/${var.region}"
+      peered_network                        = module.vpc_spoke_build[env_key].id
+      require_approval                      = env.require_approval
+      canary_percentages                    = env.canary_percentages
+      canary_verify                         = env.canary_verify
+      binary_authorization_evaluation_mode  = env.binary_authorization_evaluation_mode
+      binary_authorization_enforcement_mode = env.binary_authorization_enforcement_mode
     }
-    test = {
-      project_id                            = module.project_test_supplychain.project_id
-      runtime_project_id                    = module.project_test_service.project_id
-      gke_cluster                           = "projects/${module.project_test_service.project_id}/locations/${module.cluster-test.location}/clusters/${module.cluster-test.name}"
-      gke_internal_ip                       = true
-      cloud_run_region                      = "projects/${module.project_test_service.project_id}/locations/${var.region}"
-      peered_network                        = module.vpc-test-build.id
-      require_approval                      = false
-      binary_authorization_evaluation_mode  = "ALWAYS_ALLOW"
-      binary_authorization_enforcement_mode = "DRYRUN_AUDIT_LOG_ONLY"
-    }
-    prod = {
-      project_id                            = module.project_prod_supplychain.project_id
-      runtime_project_id                    = module.project_prod_service.project_id
-      gke_cluster                           = "projects/${module.project_prod_service.project_id}/locations/${module.cluster-prod.location}/clusters/${module.cluster-prod.name}"
-      gke_internal_ip                       = true
-      cloud_run_region                      = "projects/${module.project_prod_service.project_id}/locations/${var.region}"
-      peered_network                        = module.vpc-prod-build.id
-      require_approval                      = true
-      canary_percentages                    = var.prod_canary_percentages
-      canary_verify                         = var.prod_canary_verify
-      binary_authorization_evaluation_mode  = "REQUIRE_ATTESTATION"
-      binary_authorization_enforcement_mode = "ENFORCED_BLOCK_AND_AUDIT_LOG"
-    }
+  }
+
+  apps = {
+    for app_key, app in var.apps : app_key => merge(app, {
+      stages = {
+        for env_key in keys(var.environments) :
+        env_key => lookup(coalesce(app.stages, {}), env_key, {})
+      }
+    })
   }
 
   cws_clusters = {
     default = {
-      network     = module.vpc-hub.name
+      network     = module.vpc_hub.name
       subnetwork  = var.vpc_subnet_name
       region      = var.region
       vpc_project = module.project_hub_host.project_id
@@ -61,17 +49,17 @@ locals {
   }
 
   workstation_developer_users = [
-    for dev in var.developers : dev
-    if !startswith(dev, "group:") && !startswith(dev, "domain:") && !startswith(dev, "serviceAccount:")
+    for dev in local.developer_iam_members : dev
+    if startswith(dev, "user:")
   ]
 
-  cws_configs = length(var.developers) > 0 ? {
+  cws_configs = length(local.developer_iam_members) > 0 ? {
     default = {
       cws_cluster             = "default"
       image                   = "us-central1-docker.pkg.dev/cloud-workstations-images/predefined/code-oss:latest"
       machine_type            = var.machine_type_default
       persistent_disk_size_gb = var.ws_pd_disk_size_gb
-      creators                = var.developers
+      creators                = local.developer_iam_members
       instances = [
         for dev in local.workstation_developer_users : {
           name         = "ws-${lower(replace(split("@", trimprefix(dev, "user:"))[0], "/[^a-z0-9]/", "-"))}"
@@ -89,13 +77,11 @@ module "cicd_foundation" {
   project_id = module.project_hub_supplychain.project_id
 
   # go/keep-sorted start
-  apps = var.apps
-  artifact_registry_readers = [
-    module.sa-cluster-dev.iam_email,
-    module.sa-cluster-test.iam_email,
-    module.sa-cluster-prod.iam_email,
-    "serviceAccount:service-${module.project_hub_supplychain.number}@gcp-sa-workstationsvm.iam.gserviceaccount.com",
-  ]
+  apps = local.apps
+  artifact_registry_readers = concat(
+    [for env_key in sort(keys(var.environments)) : module.sa_cluster[env_key].iam_email],
+    ["serviceAccount:service-${module.project_hub_supplychain.number}@gcp-sa-workstationsvm.iam.gserviceaccount.com"],
+  )
   artifact_registry_region               = coalesce(var.artifact_registry_region, var.region)
   boot_disk_size_gb_default              = var.boot_disk_size_gb_default
   build_machine_type_default             = var.build_machine_type_default

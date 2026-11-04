@@ -16,26 +16,26 @@ limitations under the License.
 
 # Reference Architecture Blueprint (`reference`)
 
-This blueprint implements an enterprise multi-environment (`DEV`, `TEST`, `PROD`) software supply chain and runtime platform on Google Cloud.
+This blueprint implements an enterprise hub-and-spoke multi-environment software supply chain and runtime platform on Google Cloud. Spoke environments (e.g., `dev`, `test`, `prod`, or custom stages) are parameterized via `var.environments` and ordered deterministically in Cloud Deploy via each stage's `order` attribute.
 
 ## Architecture
 
 The blueprint reflects enterprise architecture best practices:
-- **Hub & Spoke Network Architecture**: Centralized hub VPC peered with spoke runtime VPCs, connected to build VPCs via HA VPN for non-transitive PSA routing.
-- **Resource Management**: Dedicated GCP folders and segmented projects for Hub host/supplychain, and Prod/Test/Dev host, supplychain, and runtime service environments.
-- **Runtime Compute**: Dedicated GKE Autopilot clusters per stage in isolated service projects.
+- **Hub & Spoke Network Architecture**: Centralized Hub VPC peered with per-environment spoke runtime VPCs, each connected to an isolated build VPC via HA VPN for non-transitive Private Service Access (PSA) routing.
+- **Resource Management**: Dedicated GCP folders and segmented projects for Hub (`project_hub_host`, `project_hub_supplychain`) and each spoke environment (`projects.host`, `projects.supplychain`, `projects.service`).
+- **Runtime Compute**: Dedicated GKE Autopilot clusters and Cloud Run targets per spoke environment in isolated service projects.
 - **Supply Chain Automation (`cicd_foundation`)**:
-  - Instantiates `module.cicd_foundation` in `project_hub_supplychain`.
-  - Multi-stage Cloud Deploy targets and delivery pipelines across dev, test, and prod.
-  - Private Cloud Build worker pools per stage connected to build VPCs.
-  - Binary Authorization with vulnerability attestor, KMS signing keys, and stage-specific policies.
-  - Cloud Workstations for developers with persistent disks and Code-OSS.
+  - Instantiates `module.cicd_foundation` (`v9.0.0`) in `project_hub_supplychain`.
+  - Multi-stage Cloud Deploy targets and serial delivery pipelines ordered by `environments[*].order`.
+  - Private Cloud Build worker pools per spoke environment connected to build VPCs.
+  - Binary Authorization with vulnerability attestor, KMS signing keys, and per-environment runtime project policies.
+  - Cloud Workstations in the Hub Shared VPC for developers with persistent disks and Code-OSS.
 
 ## Prerequisites
 
 - A Google Cloud Organization.
 - Organization Administrator and Folder Administrator IAM permissions.
-- Pre-created or automatically provisioned folders and projects.
+- Pre-created or automatically provisioned folders (`folders_create`) and projects (`projects_create`).
 
 ## Usage
 
@@ -43,7 +43,7 @@ The blueprint reflects enterprise architecture best practices:
    ```bash
    cp terraform.tfvars.example terraform.tfvars
    ```
-2. Set `org_id`, folder IDs, project IDs, and developer identities.
+2. Set `org_id`, Hub folder/project IDs, `environments` (folders, project IDs, CIDRs, and stage policies), and `developers`.
 3. Initialize and apply:
    ```bash
    terraform init

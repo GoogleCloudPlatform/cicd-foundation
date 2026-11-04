@@ -150,6 +150,7 @@ variable "runtimes" {
 
 variable "stages" {
   type = map(object({
+    order                                 = optional(number)
     cloud_run_region                      = optional(string)
     gke_cluster                           = optional(string)
     gke_internal_ip                       = optional(bool, false)
@@ -162,11 +163,11 @@ variable "stages" {
     binary_authorization_evaluation_mode  = optional(string, "ALWAYS_ALLOW")
     binary_authorization_enforcement_mode = optional(string, "DRYRUN_AUDIT_LOG_ONLY")
   }))
-  description = "Map of deployment stages (e.g., dev, test, prod). Keys are stage names, values configure stage-specific settings like cluster, runtime project, network, and Binary Authorization."
+  description = "Map of deployment stages (e.g., dev, test, prod). Keys are stage names, values configure promotion order, cluster, runtime project, network, and Binary Authorization."
   default = {
-    "dev" : {},
-    "test" : {},
-    "prod" : {},
+    "dev" : { order = 10 },
+    "test" : { order = 20 },
+    "prod" : { order = 30 },
   }
   validation {
     condition = alltrue([

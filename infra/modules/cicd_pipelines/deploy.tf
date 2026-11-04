@@ -36,6 +36,20 @@ locals {
       ]
     ]) : "${pair.stage_key}:${pair.role}" => pair
   } : {}
+
+  default_stage_ranks = {
+    dev     = 10
+    test    = 20
+    staging = 25
+    prod    = 30
+  }
+
+  ordered_stage_keys = [
+    for item in sort([
+      for k, v in var.stages :
+      format("%012d:%s", floor(coalesce(v.order, lookup(local.default_stage_ranks, k, 1000))) + 100000000, k)
+    ]) : replace(item, "/^[^:]+:/", "")
+  ]
 }
 
 module "service_account_cloud_deploy" {
@@ -203,13 +217,13 @@ resource "google_clouddeploy_delivery_pipeline" "continuous_delivery" {
   description = "Terraform-managed."
   serial_pipeline {
     dynamic "stages" {
-      for_each = keys(var.stages)
+      for_each = local.ordered_stage_keys
 
       content {
         profiles  = [stages.value]
         target_id = each.value.runtime == "gke" ? google_clouddeploy_target.cluster[stages.value].name : (each.value.runtime == "agentruntime" ? google_clouddeploy_target.agentruntime[stages.value].name : google_clouddeploy_target.run[stages.value].name)
         dynamic "deploy_parameters" {
-          for_each = each.value.stages[stages.value]
+          for_each = lookup(coalesce(each.value.stages, {}), stages.value, {})
 
           content {
             values = {

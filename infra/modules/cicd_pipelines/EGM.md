@@ -43,7 +43,7 @@ rebuilds (such as Cloud Workstations base image patching).
   - Applications and Stages: `apps` map configuring `build`, `runtime`,
     `stages`, `git_repo`, `github`, `ssm`, `workstation_config`, and
     `agents`; `apps_directory`; `runtimes` defaulting to `["agentruntime",
-    "cloudrun", "gke", "workstations"]`; `stages` map configuring `cloud_run_region`,
+    "cloudrun", "gke", "workstations"]`; `stages` map configuring `order`, `cloud_run_region`,
     `gke_cluster`, `gke_internal_ip`, `project_id`, `runtime_project_id`,
     `peered_network`, `require_approval`, `canary_percentages`, `canary_verify`,
     `binary_authorization_evaluation_mode`, and

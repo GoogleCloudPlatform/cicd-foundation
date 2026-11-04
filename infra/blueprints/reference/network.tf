@@ -12,50 +12,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module "vpc-hub" {
+module "vpc_hub" {
   source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v45.0.0"
   project_id = module.project_hub_host.project_id
   name       = "hub"
   vpc_reuse  = var.vpc_create ? null : {}
   subnets = [
     {
-      ip_cidr_range = var.vpc-hub_primary_cidr
+      ip_cidr_range = var.vpc_hub_primary_cidr
       name          = var.vpc_subnet_name
       region        = var.region
     },
   ]
   psa_configs = [{
     ranges = {
-      "default" = var.vpc-hub_psa_cidr
+      "default" = var.vpc_hub_psa_cidr
     }
   }]
 }
 
-module "fw-hub" {
+module "fw_hub" {
   source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v45.0.0"
   project_id = module.project_hub_host.project_id
-  network    = module.vpc-hub.name
+  network    = module.vpc_hub.name
 }
 
-module "vpc-prod" {
+module "vpc_spoke" {
+  for_each   = var.environments
   source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v45.0.0"
-  project_id = module.project_prod_host.project_id
-  name       = "prod"
+  project_id = module.project_spoke_host[each.key].project_id
+  name       = each.key
   vpc_reuse  = var.vpc_create ? null : {}
   subnets = [
     {
-      ip_cidr_range = var.cluster-prod_network_config.nodes_cidr_block
+      ip_cidr_range = each.value.network.nodes_cidr_block
       name          = var.vpc_subnet_name
       region        = var.region
       secondary_ip_ranges = {
-        pods     = { ip_cidr_range = var.cluster-prod_network_config.pods_cidr_block }
-        services = { ip_cidr_range = var.cluster-prod_network_config.services_cidr_block }
+        pods     = { ip_cidr_range = each.value.network.pods_cidr_block }
+        services = { ip_cidr_range = each.value.network.services_cidr_block }
       }
     },
   ]
   subnets_proxy_only = [
     {
-      ip_cidr_range = var.cluster-prod_network_config.proxy_only_subnet_cidr_block
+      ip_cidr_range = each.value.network.proxy_only_subnet_cidr_block
       name          = "proxy"
       region        = var.region
       active        = true
@@ -63,165 +64,92 @@ module "vpc-prod" {
   ]
   psa_configs = [{
     ranges = {
-      "default" = var.vpc-prod_psa_cidr
+      "default" = each.value.network.psa_cidr
     }
   }]
 }
 
-module "fw-prod" {
+module "fw_spoke" {
+  for_each   = var.environments
   source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v45.0.0"
-  project_id = module.project_prod_host.project_id
-  network    = module.vpc-prod.name
+  project_id = module.project_spoke_host[each.key].project_id
+  network    = module.vpc_spoke[each.key].name
   factories_config = {
     rules_folder  = "${path.module}/firewall/rules"
     cidr_tpl_file = "${path.module}/firewall/cidrs.yaml"
   }
 }
 
-module "peering-hub-prod" {
+module "peering_hub_spoke" {
+  for_each      = var.environments
   source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-peering?ref=v45.0.0"
-  prefix        = "hub-prod"
-  local_network = module.vpc-hub.self_link
-  peer_network  = module.vpc-prod.self_link
+  prefix        = "hub-${each.key}"
+  local_network = module.vpc_hub.self_link
+  peer_network  = module.vpc_spoke[each.key].self_link
 }
 
-module "vpc-test" {
+module "vpc_spoke_build" {
+  for_each   = var.environments
   source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v45.0.0"
-  project_id = module.project_test_host.project_id
-  name       = "test"
-  vpc_reuse  = var.vpc_create ? null : {}
-  subnets = [
-    {
-      ip_cidr_range = var.cluster-test_network_config.nodes_cidr_block
-      name          = var.vpc_subnet_name
-      region        = var.region
-      secondary_ip_ranges = {
-        pods     = { ip_cidr_range = var.cluster-test_network_config.pods_cidr_block }
-        services = { ip_cidr_range = var.cluster-test_network_config.services_cidr_block }
-      }
-    },
-  ]
-  subnets_proxy_only = [
-    {
-      ip_cidr_range = var.cluster-test_network_config.proxy_only_subnet_cidr_block
-      name          = "proxy"
-      region        = var.region
-      active        = true
-    },
-  ]
-  psa_configs = [{
-    ranges = {
-      "default" = var.vpc-test_psa_cidr
-    }
-  }]
-}
-
-module "fw-test" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v45.0.0"
-  project_id = module.project_test_host.project_id
-  network    = module.vpc-test.name
-  factories_config = {
-    rules_folder  = "${path.module}/firewall/rules"
-    cidr_tpl_file = "${path.module}/firewall/cidrs.yaml"
-  }
-}
-
-module "peering-hub-test" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-peering?ref=v45.0.0"
-  prefix        = "hub-test"
-  local_network = module.vpc-hub.self_link
-  peer_network  = module.vpc-test.self_link
-}
-
-module "vpc-dev" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v45.0.0"
-  project_id = module.project_dev_host.project_id
-  name       = "dev"
-  vpc_reuse  = var.vpc_create ? null : {}
-  subnets = [
-    {
-      ip_cidr_range = var.cluster-dev_network_config.nodes_cidr_block
-      name          = var.vpc_subnet_name
-      region        = var.region
-      secondary_ip_ranges = {
-        pods     = { ip_cidr_range = var.cluster-dev_network_config.pods_cidr_block }
-        services = { ip_cidr_range = var.cluster-dev_network_config.services_cidr_block }
-      }
-    },
-  ]
-  subnets_proxy_only = [
-    {
-      ip_cidr_range = var.cluster-dev_network_config.proxy_only_subnet_cidr_block
-      name          = "proxy"
-      region        = var.region
-      active        = true
-    },
-  ]
-  psa_configs = [{
-    ranges = {
-      "default" = var.vpc-dev_psa_cidr
-    }
-  }]
-}
-
-module "fw-dev" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v45.0.0"
-  project_id = module.project_dev_host.project_id
-  network    = module.vpc-dev.name
-  factories_config = {
-    rules_folder  = "${path.module}/firewall/rules"
-    cidr_tpl_file = "${path.module}/firewall/cidrs.yaml"
-  }
-}
-
-module "peering-hub-dev" {
-  source        = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-peering?ref=v45.0.0"
-  prefix        = "hub-dev"
-  local_network = module.vpc-hub.self_link
-  peer_network  = module.vpc-dev.self_link
-}
-
-module "vpc-prod-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v45.0.0"
-  project_id = module.project_prod_host.project_id
+  project_id = module.project_spoke_host[each.key].project_id
   name       = "build"
   vpc_reuse  = var.vpc_create ? null : {}
   subnets = [
     {
-      ip_cidr_range = var.vpc-prod-build_primary_cidr
+      ip_cidr_range = each.value.network.build_primary_cidr
       name          = "build"
       region        = var.region
     },
   ]
   psa_configs = [{
     ranges = {
-      "build" = var.vpc-prod-build_psa_cidr
+      "build" = each.value.network.build_psa_cidr
     }
     export_routes = true
   }]
 }
 
-module "fw-prod-build" {
+module "fw_spoke_build" {
+  for_each   = var.environments
   source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v45.0.0"
-  project_id = module.project_prod_host.project_id
-  network    = module.vpc-prod-build.name
+  project_id = module.project_spoke_host[each.key].project_id
+  network    = module.vpc_spoke_build[each.key].name
 }
 
-module "vpn-build-prod" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v45.0.0"
-  project_id = module.project_prod_host.project_id
-  region     = var.region
-  network    = module.vpc-prod-build.self_link
-  name       = "build-to-prod"
+resource "google_compute_ha_vpn_gateway" "build_to_spoke" {
+  for_each = var.environments
+  name     = "build-to-${each.key}"
+  project  = module.project_spoke_host[each.key].project_id
+  region   = var.region
+  network  = module.vpc_spoke_build[each.key].self_link
+}
+
+resource "google_compute_ha_vpn_gateway" "spoke_to_build" {
+  for_each = var.environments
+  name     = "${each.key}-to-build"
+  project  = module.project_spoke_host[each.key].project_id
+  region   = var.region
+  network  = module.vpc_spoke[each.key].self_link
+}
+
+module "vpn_build_to_spoke" {
+  for_each           = var.environments
+  source             = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v45.0.0"
+  project_id         = module.project_spoke_host[each.key].project_id
+  region             = var.region
+  network            = module.vpc_spoke_build[each.key].self_link
+  name               = "build-to-${each.key}"
+  vpn_gateway_create = null
+  vpn_gateway        = google_compute_ha_vpn_gateway.build_to_spoke[each.key].self_link
   peer_gateways = {
-    default = { gcp = module.vpn-prod-build.self_link }
+    default = { gcp = google_compute_ha_vpn_gateway.spoke_to_build[each.key].self_link }
   }
   router_config = {
     asn = 64514
     custom_advertise = {
       all_subnets = true
       ip_ranges = {
-        (var.vpc-prod-build_psa_cidr) = "psa-prod-build"
+        (each.value.network.build_psa_cidr) = "psa-${each.key}-build"
       }
     }
   }
@@ -245,23 +173,26 @@ module "vpn-build-prod" {
   }
 }
 
-module "vpn-prod-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v45.0.0"
-  project_id = module.project_prod_host.project_id
-  region     = var.region
-  network    = module.vpc-prod.self_link
-  name       = "prod-to-build"
+module "vpn_spoke_to_build" {
+  for_each           = var.environments
+  source             = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v45.0.0"
+  project_id         = module.project_spoke_host[each.key].project_id
+  region             = var.region
+  network            = module.vpc_spoke[each.key].self_link
+  name               = "${each.key}-to-build"
+  vpn_gateway_create = null
+  vpn_gateway        = google_compute_ha_vpn_gateway.spoke_to_build[each.key].self_link
   router_config = {
     asn = 64513
     custom_advertise = {
       all_subnets = true
       ip_ranges = {
-        (var.cluster-prod_network_config.master_cidr_block) = "cluster-prod"
+        (each.value.network.master_cidr_block) = "cluster-${each.key}"
       }
     }
   }
   peer_gateways = {
-    default = { gcp = module.vpn-build-prod.self_link }
+    default = { gcp = google_compute_ha_vpn_gateway.build_to_spoke[each.key].self_link }
   }
   tunnels = {
     remote-0 = {
@@ -270,7 +201,7 @@ module "vpn-prod-build" {
         asn     = 64514
       }
       bgp_session_range     = "169.254.1.1/30"
-      shared_secret         = module.vpn-build-prod.random_secret
+      shared_secret         = module.vpn_build_to_spoke[each.key].random_secret
       vpn_gateway_interface = 0
     }
     remote-1 = {
@@ -279,215 +210,7 @@ module "vpn-prod-build" {
         asn     = 64514
       }
       bgp_session_range     = "169.254.2.1/30"
-      shared_secret         = module.vpn-build-prod.random_secret
-      vpn_gateway_interface = 1
-    }
-  }
-}
-
-module "vpc-test-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v45.0.0"
-  project_id = module.project_test_host.project_id
-  name       = "build"
-  vpc_reuse  = var.vpc_create ? null : {}
-  subnets = [
-    {
-      ip_cidr_range = var.vpc-test-build_primary_cidr
-      name          = "build"
-      region        = var.region
-    },
-  ]
-  psa_configs = [{
-    ranges = {
-      "build" = var.vpc-test-build_psa_cidr
-    }
-    export_routes = true
-  }]
-}
-
-module "fw-test-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v45.0.0"
-  project_id = module.project_test_host.project_id
-  network    = module.vpc-test-build.name
-}
-
-module "vpn-build-test" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v45.0.0"
-  project_id = module.project_test_host.project_id
-  region     = var.region
-  network    = module.vpc-test-build.self_link
-  name       = "build-to-test"
-  peer_gateways = {
-    default = { gcp = module.vpn-test-build.self_link }
-  }
-  router_config = {
-    asn = 64514
-    custom_advertise = {
-      all_subnets = true
-      ip_ranges = {
-        (var.vpc-test-build_psa_cidr) = "psa-test-build"
-      }
-    }
-  }
-  tunnels = {
-    remote-0 = {
-      bgp_peer = {
-        address = "169.254.1.1"
-        asn     = 64513
-      }
-      bgp_session_range     = "169.254.1.2/30"
-      vpn_gateway_interface = 0
-    }
-    remote-1 = {
-      bgp_peer = {
-        address = "169.254.2.1"
-        asn     = 64513
-      }
-      bgp_session_range     = "169.254.2.2/30"
-      vpn_gateway_interface = 1
-    }
-  }
-}
-
-module "vpn-test-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v45.0.0"
-  project_id = module.project_test_host.project_id
-  region     = var.region
-  network    = module.vpc-test.self_link
-  name       = "test-to-build"
-  router_config = {
-    asn = 64513
-    custom_advertise = {
-      all_subnets = true
-      ip_ranges = {
-        (var.cluster-test_network_config.master_cidr_block) = "cluster-test"
-      }
-    }
-  }
-  peer_gateways = {
-    default = { gcp = module.vpn-build-test.self_link }
-  }
-  tunnels = {
-    remote-0 = {
-      bgp_peer = {
-        address = "169.254.1.2"
-        asn     = 64514
-      }
-      bgp_session_range     = "169.254.1.1/30"
-      shared_secret         = module.vpn-build-test.random_secret
-      vpn_gateway_interface = 0
-    }
-    remote-1 = {
-      bgp_peer = {
-        address = "169.254.2.2"
-        asn     = 64514
-      }
-      bgp_session_range     = "169.254.2.1/30"
-      shared_secret         = module.vpn-build-test.random_secret
-      vpn_gateway_interface = 1
-    }
-  }
-}
-
-module "vpc-dev-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc?ref=v45.0.0"
-  project_id = module.project_dev_host.project_id
-  name       = "build"
-  vpc_reuse  = var.vpc_create ? null : {}
-  subnets = [
-    {
-      ip_cidr_range = var.vpc-dev-build_primary_cidr
-      name          = "build"
-      region        = var.region
-    },
-  ]
-  psa_configs = [{
-    ranges = {
-      "build" = var.vpc-dev-build_psa_cidr
-    }
-    export_routes = true
-  }]
-}
-
-module "fw-dev-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpc-firewall?ref=v45.0.0"
-  project_id = module.project_dev_host.project_id
-  network    = module.vpc-dev-build.name
-}
-
-module "vpn-build-dev" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v45.0.0"
-  project_id = module.project_dev_host.project_id
-  region     = var.region
-  network    = module.vpc-dev-build.self_link
-  name       = "build-to-dev"
-  peer_gateways = {
-    default = { gcp = module.vpn-dev-build.self_link }
-  }
-  router_config = {
-    asn = 64514
-    custom_advertise = {
-      all_subnets = true
-      ip_ranges = {
-        (var.vpc-dev-build_psa_cidr) = "psa-dev-build"
-      }
-    }
-  }
-  tunnels = {
-    remote-0 = {
-      bgp_peer = {
-        address = "169.254.1.1"
-        asn     = 64513
-      }
-      bgp_session_range     = "169.254.1.2/30"
-      vpn_gateway_interface = 0
-    }
-    remote-1 = {
-      bgp_peer = {
-        address = "169.254.2.1"
-        asn     = 64513
-      }
-      bgp_session_range     = "169.254.2.2/30"
-      vpn_gateway_interface = 1
-    }
-  }
-}
-
-module "vpn-dev-build" {
-  source     = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/net-vpn-ha?ref=v45.0.0"
-  project_id = module.project_dev_host.project_id
-  region     = var.region
-  network    = module.vpc-dev.self_link
-  name       = "dev-to-build"
-  router_config = {
-    asn = 64513
-    custom_advertise = {
-      all_subnets = true
-      ip_ranges = {
-        (var.cluster-dev_network_config.master_cidr_block) = "cluster-dev"
-      }
-    }
-  }
-  peer_gateways = {
-    default = { gcp = module.vpn-build-dev.self_link }
-  }
-  tunnels = {
-    remote-0 = {
-      bgp_peer = {
-        address = "169.254.1.2"
-        asn     = 64514
-      }
-      bgp_session_range     = "169.254.1.1/30"
-      shared_secret         = module.vpn-build-dev.random_secret
-      vpn_gateway_interface = 0
-    }
-    remote-1 = {
-      bgp_peer = {
-        address = "169.254.2.2"
-        asn     = 64514
-      }
-      bgp_session_range     = "169.254.2.1/30"
-      shared_secret         = module.vpn-build-dev.random_secret
+      shared_secret         = module.vpn_build_to_spoke[each.key].random_secret
       vpn_gateway_interface = 1
     }
   }
