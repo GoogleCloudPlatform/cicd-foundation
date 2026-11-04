@@ -306,6 +306,12 @@ variable "secure_source_manager_repo_name" {
   description = "The name of the Secure Source Manager repository."
   default     = "cicd-foundation"
 }
+
+variable "ssm_project_id" {
+  type        = string
+  description = "The GCP project ID hosting the Secure Source Manager instance. If null, defaults to project_id or parsed from secure_source_manager_instance_id."
+  default     = null
+}
 # go/keep-sorted end
 
 # Cloud Scheduler
