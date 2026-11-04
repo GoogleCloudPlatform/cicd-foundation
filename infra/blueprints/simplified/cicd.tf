@@ -25,6 +25,7 @@ locals {
 
   stages = {
     dev = {
+      order                                 = 10
       gke_cluster                           = "projects/${var.project_id}/locations/${module.cluster_dev.location}/clusters/${module.cluster_dev.name}"
       cloud_run_region                      = "projects/${var.project_id}/locations/${var.region}"
       require_approval                      = false
@@ -32,6 +33,7 @@ locals {
       binary_authorization_enforcement_mode = "DRYRUN_AUDIT_LOG_ONLY"
     }
     test = {
+      order                                 = 20
       gke_cluster                           = "projects/${var.project_id}/locations/${module.cluster_test.location}/clusters/${module.cluster_test.name}"
       cloud_run_region                      = "projects/${var.project_id}/locations/${var.region}"
       require_approval                      = false
@@ -39,6 +41,7 @@ locals {
       binary_authorization_enforcement_mode = "DRYRUN_AUDIT_LOG_ONLY"
     }
     prod = {
+      order                                 = 30
       gke_cluster                           = "projects/${var.project_id}/locations/${module.cluster_prod.location}/clusters/${module.cluster_prod.name}"
       cloud_run_region                      = "projects/${var.project_id}/locations/${var.region}"
       require_approval                      = true

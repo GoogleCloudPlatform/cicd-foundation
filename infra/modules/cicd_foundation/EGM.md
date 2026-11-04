@@ -35,8 +35,8 @@ built and stored in Artifact Registry by the CI/CD pipeline.
   `build`, `runtime`, `stages`, source repository configuration
   `github`/`ssm`/`git_repo`, and `agents`), `apps_directory` (default
   `"apps"`), `runtimes` (default `["cloudrun", "gke", "workstations",
-  "agentruntime"]`), and `stages` (map of stage configurations for `dev`,
-  `test`, `prod` with `cloud_run_region`, `gke_cluster`, `gke_internal_ip`,
+  "agentruntime"]`), and `stages` (map of stage configurations with `order`,
+  `cloud_run_region`, `gke_cluster`, `gke_internal_ip`,
   `project_id`, `runtime_project_id`, `peered_network`, `require_approval`,
   `canary_percentages`, `canary_verify`, and Binary Authorization modes).
 - Cloud Workstations inputs: `cws_clusters` (map of cluster definitions),

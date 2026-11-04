@@ -28,19 +28,9 @@ output "cloud_build_trigger_trigger_ids" {
   value       = module.cicd_foundation.cloud_build_trigger_trigger_ids
 }
 
-output "cluster_dev_id" {
-  description = "The fully-qualified ID of the development GKE cluster."
-  value       = module.cluster-dev.id
-}
-
-output "cluster_prod_id" {
-  description = "The fully-qualified ID of the production GKE cluster."
-  value       = module.cluster-prod.id
-}
-
-output "cluster_test_id" {
-  description = "The fully-qualified ID of the test GKE cluster."
-  value       = module.cluster-test.id
+output "cluster_ids" {
+  description = "Map of spoke environment names to fully-qualified GKE cluster IDs."
+  value       = { for k, v in module.cluster : k => v.id }
 }
 
 output "cws_clusters" {
@@ -78,23 +68,13 @@ output "secure_source_manager_repository_git_https" {
   value       = module.cicd_foundation.secure_source_manager_repository_git_https
 }
 
-output "vpc_dev_self_link" {
-  description = "The URI of the dev VPC network."
-  value       = module.vpc-dev.self_link
-}
-
 output "vpc_hub_self_link" {
   description = "The URI of the hub VPC network."
-  value       = module.vpc-hub.self_link
+  value       = module.vpc_hub.self_link
 }
 
-output "vpc_prod_self_link" {
-  description = "The URI of the prod VPC network."
-  value       = module.vpc-prod.self_link
-}
-
-output "vpc_test_self_link" {
-  description = "The URI of the test VPC network."
-  value       = module.vpc-test.self_link
+output "vpc_spoke_self_links" {
+  description = "Map of spoke environment names to VPC network self links."
+  value       = { for k, v in module.vpc_spoke : k => v.self_link }
 }
 # go/keep-sorted end

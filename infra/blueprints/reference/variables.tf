@@ -53,33 +53,33 @@ variable "apps" {
     "go-hello-world" = {
       runtime = "gke"
       stages = {
-        "dev"  = { "replicas" = 1 }
-        "test" = { "replicas" = 3 }
-        "prod" = { "replicas" = 3 }
+        "dev"  = { "replicas" = "1" }
+        "test" = { "replicas" = "3" }
+        "prod" = { "replicas" = "3" }
       }
     }
     "java-hello-world" = {
       runtime = "cloudrun"
       stages = {
-        "dev"  = { "replicas" = 1 }
-        "test" = { "replicas" = 3 }
-        "prod" = { "replicas" = 3 }
+        "dev"  = { "replicas" = "1" }
+        "test" = { "replicas" = "3" }
+        "prod" = { "replicas" = "3" }
       }
     }
     "node-hello-world" = {
       runtime = "gke"
       stages = {
-        "dev"  = { "replicas" = 1 }
-        "test" = { "replicas" = 3 }
-        "prod" = { "replicas" = 3 }
+        "dev"  = { "replicas" = "1" }
+        "test" = { "replicas" = "3" }
+        "prod" = { "replicas" = "3" }
       }
     }
     "python-hello-world" = {
       runtime = "gke"
       stages = {
-        "dev"  = { "replicas" = 1 }
-        "test" = { "replicas" = 3 }
-        "prod" = { "replicas" = 3 }
+        "dev"  = { "replicas" = "1" }
+        "test" = { "replicas" = "3" }
+        "prod" = { "replicas" = "3" }
       }
     }
   }
@@ -145,73 +145,6 @@ variable "cloud_build_region" {
   default     = null
 }
 
-variable "cluster-dev_network_config" {
-  description = "Cluster dev network configuration."
-  type = object({
-    nodes_cidr_block              = string
-    proxy_only_subnet_cidr_block  = string
-    pods_cidr_block               = string
-    services_cidr_block           = string
-    master_authorized_cidr_blocks = map(string)
-    master_cidr_block             = string
-  })
-  default = {
-    nodes_cidr_block             = "10.73.0.0/22"
-    proxy_only_subnet_cidr_block = "10.73.128.0/22"
-    pods_cidr_block              = "172.16.0.0/19"
-    services_cidr_block          = "192.168.0.0/22"
-    master_authorized_cidr_blocks = {
-      internal = "10.0.0.0/8"
-      external = "0.0.0.0/0"
-    }
-    master_cidr_block = "10.1.8.0/28"
-  }
-}
-
-variable "cluster-prod_network_config" {
-  description = "Cluster prod network configuration."
-  type = object({
-    nodes_cidr_block              = string
-    proxy_only_subnet_cidr_block  = string
-    pods_cidr_block               = string
-    services_cidr_block           = string
-    master_authorized_cidr_blocks = map(string)
-    master_cidr_block             = string
-  })
-  default = {
-    nodes_cidr_block             = "10.76.0.0/22"
-    proxy_only_subnet_cidr_block = "10.76.128.0/22"
-    pods_cidr_block              = "172.19.0.0/19"
-    services_cidr_block          = "192.168.12.0/22"
-    master_authorized_cidr_blocks = {
-      internal = "10.0.0.0/8"
-    }
-    master_cidr_block = "10.1.11.0/28"
-  }
-}
-
-variable "cluster-test_network_config" {
-  description = "Cluster test network configuration."
-  type = object({
-    nodes_cidr_block              = string
-    proxy_only_subnet_cidr_block  = string
-    pods_cidr_block               = string
-    services_cidr_block           = string
-    master_authorized_cidr_blocks = map(string)
-    master_cidr_block             = string
-  })
-  default = {
-    nodes_cidr_block             = "10.75.0.0/22"
-    proxy_only_subnet_cidr_block = "10.75.128.0/22"
-    pods_cidr_block              = "172.18.0.0/19"
-    services_cidr_block          = "192.168.8.0/22"
-    master_authorized_cidr_blocks = {
-      internal = "10.0.0.0/8"
-    }
-    master_cidr_block = "10.1.10.0/28"
-  }
-}
-
 variable "cluster_deletion_protection" {
   description = "Deletion protection for GKE clusters."
   type        = bool
@@ -225,7 +158,7 @@ variable "cluster_min_version" {
 }
 
 variable "cluster_name" {
-  description = "Name of the cluster."
+  description = "Name of the GKE cluster in each spoke service project."
   type        = string
   default     = "gke"
 }
@@ -311,7 +244,7 @@ variable "default_agentic_prompt" {
 }
 
 variable "developers" {
-  description = "List of developers, e.g. to create Cloud Workstations."
+  description = "List of developer identities (bare emails or IAM principal strings) granted workstation and observability permissions."
   type        = list(string)
   default     = []
 }
@@ -334,26 +267,49 @@ variable "enable_nested_virtualization_default" {
   default     = false
 }
 
-variable "folder_dev_id" {
-  description = "Folder-ID that references existing Development folder."
-  type        = number
-  default     = null
+variable "environments" {
+  description = "Map of spoke environments (e.g., dev, test, prod) provisioned around the Hub, ordered by `order` in Cloud Deploy delivery pipelines."
+  type = map(object({
+    order               = number
+    folder_display_name = string
+    folder_id           = optional(number)
+    projects = object({
+      host                 = string
+      supplychain          = string
+      service              = string
+      host_services        = optional(list(string))
+      supplychain_services = optional(list(string))
+      service_services     = optional(list(string))
+    })
+    network = object({
+      nodes_cidr_block              = string
+      pods_cidr_block               = string
+      services_cidr_block           = string
+      proxy_only_subnet_cidr_block  = string
+      master_cidr_block             = string
+      master_authorized_cidr_blocks = optional(map(string), { internal = "10.0.0.0/8" })
+      psa_cidr                      = string
+      build_primary_cidr            = string
+      build_psa_cidr                = string
+    })
+    grant_developer_cluster_access        = optional(bool, false)
+    disable_public_endpoint               = optional(bool, true)
+    gke_internal_ip                       = optional(bool, true)
+    enable_binary_authorization           = optional(bool, true)
+    require_approval                      = optional(bool, false)
+    canary_percentages                    = optional(list(number))
+    canary_verify                         = optional(bool, false)
+    binary_authorization_evaluation_mode  = optional(string, "ALWAYS_ALLOW")
+    binary_authorization_enforcement_mode = optional(string, "DRYRUN_AUDIT_LOG_ONLY")
+  }))
+  validation {
+    condition     = length(var.environments) > 0
+    error_message = "At least one spoke environment must be defined in `environments`."
+  }
 }
 
 variable "folder_hub_id" {
-  description = "Folder-ID that references existing Hub folder."
-  type        = number
-  default     = null
-}
-
-variable "folder_prod_id" {
-  description = "Folder-ID that references existing Production folder."
-  type        = number
-  default     = null
-}
-
-variable "folder_test_id" {
-  description = "Folder-ID that references existing Testing folder."
+  description = "Folder-ID that references existing Hub folder when `folders_create = false`."
   type        = number
   default     = null
 }
@@ -412,12 +368,6 @@ variable "machine_type_default" {
   default     = "e2-standard-4"
 }
 
-variable "nat_name" {
-  description = "Name of the CloudNAT instance."
-  type        = string
-  default     = "nat"
-}
-
 variable "org_id" {
   description = "Organization-ID that references existing organization."
   type        = number
@@ -445,69 +395,6 @@ variable "pool_size_default" {
   description = "Cloud Workstations pool size (to speed up startup time)."
   type        = number
   default     = 1
-}
-
-variable "prod_canary_percentages" {
-  description = "Traffic percentages for GKE Gateway Service Mesh canary deployments in prod (set null to disable canary)."
-  type        = list(number)
-  default     = [10, 25, 50]
-}
-
-variable "prod_canary_verify" {
-  description = "Whether to run Cloud Deploy verification steps during prod GKE canary deployments."
-  type        = bool
-  default     = false
-}
-
-variable "project_dev_host" {
-  description = "Project-ID for dev host project."
-  type        = string
-}
-
-variable "project_dev_host_services" {
-  description = "Service APIs to enable on dev host project."
-  type        = list(string)
-  default = [
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "servicenetworking.googleapis.com",
-  ]
-}
-
-variable "project_dev_service" {
-  description = "Project-ID for dev service project."
-  type        = string
-}
-
-variable "project_dev_service_services" {
-  description = "Service APIs to enable on dev service project."
-  type        = list(string)
-  default = [
-    "binaryauthorization.googleapis.com",
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "monitoring.googleapis.com",
-    "run.googleapis.com",
-  ]
-}
-
-variable "project_dev_supplychain" {
-  description = "Project-ID for dev supplychain project."
-  type        = string
-}
-
-variable "project_dev_supplychain_services" {
-  description = "Service APIs to enable on dev supplychain project."
-  type        = list(string)
-  default = [
-    "binaryauthorization.googleapis.com",
-    "cloudbuild.googleapis.com",
-    "clouddeploy.googleapis.com",
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "orgpolicy.googleapis.com",
-    "servicenetworking.googleapis.com",
-  ]
 }
 
 variable "project_hub_host" {
@@ -554,110 +441,6 @@ variable "project_hub_supplychain_services" {
   ]
 }
 
-variable "project_prod_host" {
-  description = "Project-ID for prod host project."
-  type        = string
-}
-
-variable "project_prod_host_services" {
-  description = "Service APIs to enable on prod host project."
-  type        = list(string)
-  default = [
-    "binaryauthorization.googleapis.com",
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "servicenetworking.googleapis.com",
-  ]
-}
-
-variable "project_prod_service" {
-  description = "Project-ID for prod service project."
-  type        = string
-}
-
-variable "project_prod_service_services" {
-  description = "Service APIs to enable on prod service project."
-  type        = list(string)
-  default = [
-    "binaryauthorization.googleapis.com",
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "monitoring.googleapis.com",
-    "run.googleapis.com",
-  ]
-}
-
-variable "project_prod_supplychain" {
-  description = "Project-ID for prod supplychain project."
-  type        = string
-}
-
-variable "project_prod_supplychain_services" {
-  description = "Service APIs to enable on prod supplychain project."
-  type        = list(string)
-  default = [
-    "binaryauthorization.googleapis.com",
-    "cloudbuild.googleapis.com",
-    "clouddeploy.googleapis.com",
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "orgpolicy.googleapis.com",
-    "servicenetworking.googleapis.com",
-  ]
-}
-
-variable "project_test_host" {
-  description = "Project-ID for test host project."
-  type        = string
-}
-
-variable "project_test_host_services" {
-  description = "Service APIs to enable on test host project."
-  type        = list(string)
-  default = [
-    "binaryauthorization.googleapis.com",
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "servicenetworking.googleapis.com",
-  ]
-}
-
-variable "project_test_service" {
-  description = "Project-ID for test service project."
-  type        = string
-}
-
-variable "project_test_service_services" {
-  description = "Service APIs to enable on test service project."
-  type        = list(string)
-  default = [
-    "binaryauthorization.googleapis.com",
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "monitoring.googleapis.com",
-    "run.googleapis.com",
-  ]
-}
-
-variable "project_test_supplychain" {
-  description = "Project-ID for test supplychain project."
-  type        = string
-}
-
-variable "project_test_supplychain_services" {
-  description = "Service APIs to enable on test supplychain project."
-  type        = list(string)
-  default = [
-    "binaryauthorization.googleapis.com",
-    "cloudbuild.googleapis.com",
-    "clouddeploy.googleapis.com",
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "orgpolicy.googleapis.com",
-    "servicenetworking.googleapis.com",
-  ]
-}
-
 variable "projects_create" {
   description = "Create projects instead of using existing ones."
   type        = bool
@@ -694,6 +477,43 @@ variable "skaffold_image_tag" {
   default     = "v2.18.1"
 }
 
+variable "spoke_host_services" {
+  description = "Default service APIs enabled on spoke Shared VPC host projects (overridable per environment via `projects.host_services`)."
+  type        = list(string)
+  default = [
+    "binaryauthorization.googleapis.com",
+    "compute.googleapis.com",
+    "container.googleapis.com",
+    "servicenetworking.googleapis.com",
+  ]
+}
+
+variable "spoke_service_services" {
+  description = "Default service APIs enabled on spoke runtime service projects (overridable per environment via `projects.service_services`)."
+  type        = list(string)
+  default = [
+    "binaryauthorization.googleapis.com",
+    "compute.googleapis.com",
+    "container.googleapis.com",
+    "monitoring.googleapis.com",
+    "run.googleapis.com",
+  ]
+}
+
+variable "spoke_supplychain_services" {
+  description = "Default service APIs enabled on spoke supplychain projects (overridable per environment via `projects.supplychain_services`)."
+  type        = list(string)
+  default = [
+    "binaryauthorization.googleapis.com",
+    "cloudbuild.googleapis.com",
+    "clouddeploy.googleapis.com",
+    "compute.googleapis.com",
+    "container.googleapis.com",
+    "orgpolicy.googleapis.com",
+    "servicenetworking.googleapis.com",
+  ]
+}
+
 variable "ssm_branch_rule" {
   description = "Branch protection rule configuration for Secure Source Manager."
   type = object({
@@ -713,80 +533,26 @@ variable "ssm_region" {
   default     = "europe-west4"
 }
 
-variable "vpc-dev-build_primary_cidr" {
-  description = "CIDR for the primary subnet in the build VPC."
-  type        = string
-  default     = "10.77.0.0/22"
+variable "vpc_create" {
+  description = "Flag indicating whether VPC networks should be created or reused."
+  type        = bool
+  default     = true
 }
 
-variable "vpc-dev-build_psa_cidr" {
-  description = "PSA CIDR range."
-  type        = string
-  default     = "10.62.0.0/16"
-}
-
-variable "vpc-dev_psa_cidr" {
-  description = "PSA CIDR range."
-  type        = string
-  default     = "10.65.0.0/16"
-}
-
-variable "vpc-hub_primary_cidr" {
+variable "vpc_hub_primary_cidr" {
   description = "CIDR for the primary subnet in the hub VPC."
   type        = string
   default     = "10.8.0.0/22"
 }
 
-variable "vpc-hub_psa_cidr" {
-  description = "PSA CIDR range."
+variable "vpc_hub_psa_cidr" {
+  description = "PSA CIDR range for the hub VPC."
   type        = string
   default     = "10.60.0.0/16"
 }
 
-variable "vpc-prod-build_primary_cidr" {
-  description = "CIDR for the primary subnet in the build VPC."
-  type        = string
-  default     = "10.79.0.0/22"
-}
-
-variable "vpc-prod-build_psa_cidr" {
-  description = "PSA CIDR range."
-  type        = string
-  default     = "10.66.0.0/16"
-}
-
-variable "vpc-prod_psa_cidr" {
-  description = "PSA CIDR range."
-  type        = string
-  default     = "10.63.0.0/16"
-}
-
-variable "vpc-test-build_primary_cidr" {
-  description = "CIDR for the primary subnet in the build VPC."
-  type        = string
-  default     = "10.78.0.0/22"
-}
-
-variable "vpc-test-build_psa_cidr" {
-  description = "PSA CIDR range."
-  type        = string
-  default     = "10.67.0.0/16"
-}
-
-variable "vpc-test_psa_cidr" {
-  description = "PSA CIDR range."
-  type        = string
-  default     = "10.64.0.0/16"
-}
-
-variable "vpc_create" {
-  description = "Flag indicating whether the VPC should be created or not."
-  type        = bool
-  default     = true
-}
-
 variable "vpc_subnet_name" {
-  description = "Name of the subnet hosting the cluster."
+  description = "Name of the primary subnet in the hub and spoke VPCs."
   type        = string
   default     = "primary"
 }

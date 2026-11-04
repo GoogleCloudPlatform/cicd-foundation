@@ -15,24 +15,87 @@
 # gcloud organizations describe $ORG_NAME --format="value(name.segment(1))"
 org_id = 123456789012
 
-folder_hub_id  = 123456789012
-folder_prod_id = 123456789012
-folder_test_id = 123456789012
-folder_dev_id  = 123456789012
-
+# folders_create  = false
 # projects_create = false
 
-project_hub_host         = "prj-hub-host"
-project_hub_supplychain  = "prj-hub-supplychain"
-project_prod_host        = "prj-prod-host"
-project_prod_supplychain = "prj-prod-supplychain"
-project_prod_service     = "prj-prod-service"
-project_test_host        = "prj-test-host"
-project_test_supplychain = "prj-test-supplychain"
-project_test_service     = "prj-test-service"
-project_dev_host         = "prj-dev-host"
-project_dev_supplychain  = "prj-dev-supplychain"
-project_dev_service      = "prj-dev-service"
+folder_hub_id           = 123456789012
+project_hub_host        = "prj-hub-host"
+project_hub_supplychain = "prj-hub-supplychain"
+
+environments = {
+  dev = {
+    order               = 10
+    folder_display_name = "Development"
+    folder_id           = 123456789012
+    projects = {
+      host        = "prj-dev-host"
+      supplychain = "prj-dev-supplychain"
+      service     = "prj-dev-service"
+    }
+    network = {
+      nodes_cidr_block             = "10.73.0.0/22"
+      proxy_only_subnet_cidr_block = "10.73.128.0/22"
+      pods_cidr_block              = "172.16.0.0/19"
+      services_cidr_block          = "192.168.0.0/22"
+      master_cidr_block            = "10.1.8.0/28"
+      master_authorized_cidr_blocks = {
+        internal = "10.0.0.0/8"
+        external = "0.0.0.0/0"
+      }
+      psa_cidr           = "10.65.0.0/16"
+      build_primary_cidr = "10.77.0.0/22"
+      build_psa_cidr     = "10.62.0.0/16"
+    }
+    grant_developer_cluster_access = true
+    disable_public_endpoint        = false
+    enable_binary_authorization    = false
+  }
+  test = {
+    order               = 20
+    folder_display_name = "Testing"
+    folder_id           = 123456789012
+    projects = {
+      host        = "prj-test-host"
+      supplychain = "prj-test-supplychain"
+      service     = "prj-test-service"
+    }
+    network = {
+      nodes_cidr_block             = "10.75.0.0/22"
+      proxy_only_subnet_cidr_block = "10.75.128.0/22"
+      pods_cidr_block              = "172.18.0.0/19"
+      services_cidr_block          = "192.168.8.0/22"
+      master_cidr_block            = "10.1.10.0/28"
+      psa_cidr                     = "10.64.0.0/16"
+      build_primary_cidr           = "10.78.0.0/22"
+      build_psa_cidr               = "10.67.0.0/16"
+    }
+  }
+  prod = {
+    order               = 30
+    folder_display_name = "Production"
+    folder_id           = 123456789012
+    projects = {
+      host        = "prj-prod-host"
+      supplychain = "prj-prod-supplychain"
+      service     = "prj-prod-service"
+    }
+    network = {
+      nodes_cidr_block             = "10.76.0.0/22"
+      proxy_only_subnet_cidr_block = "10.76.128.0/22"
+      pods_cidr_block              = "172.19.0.0/19"
+      services_cidr_block          = "192.168.12.0/22"
+      master_cidr_block            = "10.1.11.0/28"
+      psa_cidr                     = "10.63.0.0/16"
+      build_primary_cidr           = "10.79.0.0/22"
+      build_psa_cidr               = "10.66.0.0/16"
+    }
+    require_approval                      = true
+    canary_percentages                    = [10, 25, 50]
+    canary_verify                         = false
+    binary_authorization_evaluation_mode  = "REQUIRE_ATTESTATION"
+    binary_authorization_enforcement_mode = "ENFORCED_BLOCK_AND_AUDIT_LOG"
+  }
+}
 
 region     = "us-central1"
 zone       = "us-central1-a"
@@ -49,4 +112,4 @@ developers = [
 ]
 
 # Optional Kritis signer image reference:
-# kritis_signer_image = "gcr.io/prj-prod-supplychain/kritis-signer@sha256:REPLACE_WITH_SHA256_OF_IMAGE"
+# kritis_signer_image = "gcr.io/prj-hub-supplychain/kritis-signer@sha256:REPLACE_WITH_SHA256_OF_IMAGE"
