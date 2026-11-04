@@ -28,7 +28,9 @@ security, VPC networking, and GKE Autopilot/Cloud Run runtime environments.
 ## Subdirectories & Boundaries
 
 - [Blueprints (`blueprints`)](./blueprints/EGM.md): Deployable Terraform root
-  blueprints, including the [`workstations`](./blueprints/workstations/EGM.md)
+  blueprints, including the [`reference`](./blueprints/reference/EGM.md)
+  enterprise multi-environment blueprint, the [`simplified`](./blueprints/simplified/EGM.md)
+  single-project blueprint, and the [`workstations`](./blueprints/workstations/EGM.md)
   blueprint for provisioning Cloud Workstations, VPC/NAT/firewall networking,
   IAM bindings, Android build matrices, and custom container image CI/CD
   pipelines.
@@ -38,12 +40,3 @@ security, VPC networking, and GKE Autopilot/Cloud Run runtime environments.
   [`cicd_workstations`](./modules/cicd_workstations/EGM.md)) and build/review
   helper scripts
   ([`cicd_pipelines/scripts`](./modules/cicd_pipelines/scripts/EGM.md)).
-- [Reference Architecture (`reference`)](./reference/EGM.md): Multi-folder,
-  11-project hub-and-spoke enterprise reference architecture with Shared VPCs,
-  hub-to-spoke VPC peerings, HA VPN build-to-runtime bridges, private Cloud
-  Build worker pools, Binary Authorization, Cloud Workstations, and GKE
-  Autopilot/Cloud Run targets across `DEV`, `TEST`, and `PROD`.
-- [Simplified Architecture (`simplified`)](./simplified/EGM.md):
-  Single-project orchestration composing a shared infrastructure
-  [`hub`](./simplified/hub/EGM.md) and per-developer isolated
-  [`team`](./simplified/team/EGM.md) environments.

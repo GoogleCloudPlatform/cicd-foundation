@@ -16,8 +16,8 @@ limitations under the License.
 
 # Infrastructure Setup
 
-- For the hands-on workshop use the [simplified](simplified/) folder.
-- A reference architecture for a GCP Organization can be found in the [reference](reference/) folder.
+- For the hands-on workshop use the [simplified](./blueprints/simplified/) blueprint.
+- A reference architecture for a GCP Organization can be found in the [reference](./blueprints/reference/) blueprint.
 
 ## Prerequisites
 
@@ -27,10 +27,10 @@ For the simplified architecture a single GCP project is required that can be pla
 
 ### List of Participants
 
-For each participant list their Google Identity in the `developers` map in `terraform.tfvars` (cf. [`terraform.tfvars.example`](./simplified/terraform.tfvars.example)).
+For each participant list their Google Identity in the `developers` map in `terraform.tfvars` (cf. [`terraform.tfvars.example`](./blueprints/simplified/terraform.tfvars.example)).
 This will provision respective resources (such as a Cloud Workstation) for them and grant required permissions.
 
-⚠️ In case GitHub shall be used to trigger the Continuous Integration pipeline, the users need to establish a connection to their GitHub repository before the `google_cloudbuild_trigger` Terraform resource can be created, cf. [this comment](./simplified/team/apps.tf#L15).
+⚠️ In case GitHub shall be used to trigger the Continuous Integration pipeline, the users need to establish a connection to their GitHub repository before the `google_cloudbuild_trigger` Terraform resource can be created, cf. [this comment](./modules/cicd_pipelines/apps.tf).
 
 In the absence of a `github_user`, a repository in the shared Secure Source Manager instance will be provisioned.
 In the hands-on workshop the participants will be able to check out and work with a repository from GitHub using their Cloud Workstation and GitHub credentials but the CI/CD automation will be based on the (private) repositories where we will be pushing the cloned code to and where changes will be conducted.

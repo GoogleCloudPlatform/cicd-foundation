@@ -13,7 +13,10 @@
 # limitations under the License.
 
 locals {
-  workstation_users = toset(flatten([for config in var.cws_configs : coalesce(config.creators, [])]))
+  workstation_users = toset([
+    for principal in flatten([for config in var.cws_configs : coalesce(config.creators, [])]) :
+    length(regexall("^(user|group|serviceAccount|domain|principal|principalSet):", principal)) > 0 ? principal : "user:${principal}"
+  ])
 
   workstation_user_roles = toset([
     # go/keep-sorted start
@@ -27,12 +30,12 @@ locals {
   workstation_user_role_members = {
     for pair in flatten([
       for role in local.workstation_user_roles : [
-        for user in local.workstation_users : {
-          role = role
-          user = user
+        for member in local.workstation_users : {
+          role   = role
+          member = member
         }
       ]
-    ]) : "${pair.role}-${pair.user}" => pair
+    ]) : "${pair.role}-${pair.member}" => pair
   }
 }
 
@@ -51,7 +54,7 @@ resource "google_project_iam_member" "workstation_user_roles" {
 
   project = data.google_project.project.project_id
   role    = each.value.role
-  member  = "user:${each.value.user}"
+  member  = each.value.member
 }
 
 # Grant workstation users the ability to act as the workstation service account.
@@ -60,5 +63,5 @@ resource "google_service_account_iam_member" "cws_sa_user" {
 
   service_account_id = "projects/${data.google_project.project.project_id}/serviceAccounts/${module.cws_service_account.email}"
   role               = "roles/iam.serviceAccountUser"
-  member             = "user:${each.key}"
+  member             = each.key
 }

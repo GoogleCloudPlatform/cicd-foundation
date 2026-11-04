@@ -66,13 +66,13 @@ The repository is built to meet strict corporate compliance and security require
 │
 ├── infra/                         <-- Infrastructure-as-Code (Terraform)
 │   ├── blueprints/
+│   │   ├── reference/             <-- Multi-environment reference architecture (dev/test/prod)
+│   │   ├── simplified/            <-- Sandbox Terraform configuration for simplified single-project tests
 │   │   └── workstations/          <-- Provisioning of Cloud Workstations clusters and configurations
-│   ├── modules/
-│   │   ├── cicd_foundation/       <-- Foundation setup (networks, repos, governance)
-│   │   ├── cicd_pipelines/        <-- Provisions Cloud Build triggers, Cloud Deploy, and BinAuth policies
-│   │   └── cicd_workstations/     <-- Workstations integrations
-│   ├── reference/                 <-- Multi-environment reference architecture (dev/test/prod)
-│   └── simplified/                <-- Sandbox Terraform configuration for simplified single-project tests
+│   └── modules/
+│       ├── cicd_foundation/       <-- Foundation setup (networks, repos, governance)
+│       ├── cicd_pipelines/        <-- Provisions Cloud Build triggers, Cloud Deploy, and BinAuth policies
+│       └── cicd_workstations/     <-- Workstations integrations
 │
 ├── presentations/                 <-- Enablement and presentation materials
 │   └── md2tty/                    <-- Terminal & Browser markdown slideshow tool (TypeScript & Bash)

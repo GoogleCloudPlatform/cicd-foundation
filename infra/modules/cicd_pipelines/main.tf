@@ -35,8 +35,8 @@ locals {
       # go/keep-sorted start block=yes
       git_repo = v.git_repo
       github = v.github != null ? v.github : (v.ssm == null && v.git_repo == null && local.source.github ? {
-        owner          = var.github_owner
-        repo           = var.github_repo
+        owner          = local.github_owner
+        repo           = local.github_repo
         branch_pattern = var.git_branches_regexp_trigger
       } : null)
       has_git_repo = v.git_repo != null
@@ -143,6 +143,10 @@ locals {
     "tf_module_version"     = "v9-0-0"
   }
 
+  github_owner = coalesce(var.github_owner, "") != "" ? var.github_owner : null
+
+  github_repo = coalesce(var.github_repo, "") != "" ? var.github_repo : null
+
   kms_project_id = data.google_project.project.project_id
 
   needs_agent_platform_access = anytrue([
@@ -154,8 +158,8 @@ locals {
   scheduled_apps = var.apps
 
   source = {
-    github = var.github_owner != null && var.github_repo != null
-    ssm    = var.secure_source_manager_always_create || (var.github_owner == null && var.github_repo == null && anytrue([for k, v in var.apps : v.github == null && v.git_repo == null]))
+    github = local.github_owner != null && local.github_repo != null
+    ssm    = var.secure_source_manager_always_create || ((local.github_owner == null || local.github_repo == null) && anytrue([for k, v in var.apps : v.github == null && v.git_repo == null]))
   }
 
   workstation_apps = { for k, v in var.apps : k => v if v.runtime == "workstations" }

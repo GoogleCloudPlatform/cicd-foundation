@@ -25,6 +25,16 @@ provisioning.
 
 ## Subdirectories & Boundaries
 
+- [Reference Architecture Blueprint](./reference/EGM.md): Multi-folder,
+  11-project hub-and-spoke enterprise reference architecture with Shared VPCs,
+  hub-to-spoke VPC peerings, HA VPN build-to-runtime bridges, private Cloud
+  Build worker pools, Binary Authorization, Cloud Workstations, and GKE
+  Autopilot/Cloud Run targets across `DEV`, `TEST`, and `PROD`, instantiating
+  `cicd_foundation`.
+- [Simplified Architecture Blueprint](./simplified/EGM.md):
+  Single-project deployable blueprint provisioning VPC networking, GKE
+  Autopilot clusters across `DEV`, `TEST`, and `PROD`, and full CI/CD, Binary
+  Authorization, and Cloud Workstations via `cicd_foundation`.
 - [Workstations Blueprint](./workstations/EGM.md): Deploys and manages Google
   Cloud Workstations, VPC/Cloud NAT/firewall networking, project IAM bindings,
   Android branch/target configuration matrices, and custom container image

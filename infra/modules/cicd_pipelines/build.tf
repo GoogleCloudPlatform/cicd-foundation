@@ -183,7 +183,7 @@ locals {
       _GIT_REPO_REF          = local.app_source[app_source_config.name].has_git_repo ? "refs/heads/${local.app_source[app_source_config.name].git_repo.branch}" : ""
       _IS_GIT_REPO_WEBHOOK   = tostring(local.ci_apps_flags[app_source_key].is_git_repo_webhook)
       _KMS_DIGEST_ALG        = var.kms_digest_alg
-      _KMS_KEY_NAME          = var.kms_key_name
+      _KMS_KEY_NAME          = local.use_binary_authorization ? trimprefix(data.google_kms_crypto_key_version.vulnz_attestor[0].id, "//cloudkms.googleapis.com/v1/") : ""
       _KRITIS_POLICY_BASE64  = base64encode(local.policy_content)
       _KRITIS_SIGNER_IMAGE   = var.kritis_signer_image
       _NAMESPACE             = var.namespace
