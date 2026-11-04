@@ -31,6 +31,9 @@ module "service_account_cloud_deploy" {
       "roles/clouddeploy.jobRunner",
       "roles/clouddeploy.releaser",
       "roles/logging.logWriter",
+      "roles/storage.objectUser",
+      "roles/artifactregistry.writer",
+      "roles/cloudbuild.builds.editor",
     ]
   }
   # cf. https://cloud.google.com/deploy/docs/cloud-deploy-service-account#using_service_accounts_from_a_different_project

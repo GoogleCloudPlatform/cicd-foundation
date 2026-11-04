@@ -27,10 +27,11 @@ locals {
     var.secure_source_manager_instance_id :
     google_secure_source_manager_instance.cicd_foundation[0].id
   ) : null
-  ssm_instance_is_provided = var.secure_source_manager_instance_id != null
-  ssm_instance_name        = local.ssm_instance_is_provided ? split("/", var.secure_source_manager_instance_id)[5] : var.secure_source_manager_instance_name
-  ssm_location             = local.ssm_instance_is_provided ? split("/", var.secure_source_manager_instance_id)[3] : var.secure_source_manager_region
-  ssm_project              = local.ssm_instance_is_provided ? split("/", var.secure_source_manager_instance_id)[1] : data.google_project.project.project_id
+  ssm_instance_is_provided  = var.secure_source_manager_instance_id != null
+  ssm_is_full_resource_name = local.ssm_instance_is_provided && length(split("/", var.secure_source_manager_instance_id)) >= 6
+  ssm_instance_name         = local.ssm_is_full_resource_name ? split("/", var.secure_source_manager_instance_id)[5] : (local.ssm_instance_is_provided ? var.secure_source_manager_instance_id : var.secure_source_manager_instance_name)
+  ssm_location              = local.ssm_is_full_resource_name ? split("/", var.secure_source_manager_instance_id)[3] : var.secure_source_manager_region
+  ssm_project               = coalesce(var.ssm_project_id, local.ssm_is_full_resource_name ? split("/", var.secure_source_manager_instance_id)[1] : data.google_project.project.project_id)
   # go/keep-sorted end
 }
 
