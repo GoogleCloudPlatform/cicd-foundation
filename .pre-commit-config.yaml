@@ -126,7 +126,7 @@ repos:
 
       - id: markdown-link-checker
         name: Markdown Link Checker (Go)
-        entry: go run skills/persona-swe/scripts/cmd/link_checker/main.go
+        entry: go run skills/persona-swe/scripts/cmd/link_checker/main.go --
         language: golang
         files: \.md$
         pass_filenames: true
@@ -157,15 +157,15 @@ repos:
             for f in "$@"; do
               if [[ "$f" =~ ^(skills/persona-[^/]+)/ ]]; then
                 persona_dir="${BASH_REMATCH[1]}"
-                if [[ -d "$persona_dir/scripts" && -f "$persona_dir/scripts/go.mod" ]]; then
-                  targets+=("$persona_dir/scripts")
+                if [[ -d "$persona_dir/scripts" ]]; then
+                  targets+=("./$persona_dir/scripts/...")
                 fi
               fi
             done
             if [ ${#targets[@]} -gt 0 ]; then
               unique_targets=($(echo "${targets[@]}" | tr " " "\n" | sort -u))
               for t in "${unique_targets[@]}"; do
-                (cd "$t" && go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5 run ./... --timeout 5m) || exit 1
+                go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5 run "$t" --timeout 5m || exit 1
               done
             fi
           ' --
@@ -232,15 +232,15 @@ repos:
             for f in "$@"; do
               if [[ "$f" =~ ^(skills/persona-[^/]+)/ ]]; then
                 persona_dir="${BASH_REMATCH[1]}"
-                if [[ -d "$persona_dir/scripts" && -f "$persona_dir/scripts/go.mod" ]]; then
-                  targets+=("$persona_dir/scripts")
+                if [[ -d "$persona_dir/scripts" ]]; then
+                  targets+=("./$persona_dir/scripts/...")
                 fi
               fi
             done
             if [ ${#targets[@]} -gt 0 ]; then
               unique_targets=($(echo "${targets[@]}" | tr " " "\n" | sort -u))
               for t in "${unique_targets[@]}"; do
-                (cd "$t" && go test ./...) || exit 1
+                go test "$t" || exit 1
               done
             fi
           ' --

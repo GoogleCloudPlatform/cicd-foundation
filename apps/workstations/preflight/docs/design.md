@@ -112,7 +112,7 @@ The build process is automated within the Docker lifecycle but can be executed m
 To test changes on a live Cloud Workstation without a full image rebuild, use the localized skill script:
 
 ```bash
-./examples/preflight/skills/update-preflight/scripts/hotpatch_frontend.sh --wipe
+./apps/workstations/preflight/skills/update-preflight/scripts/hotpatch_frontend.sh --wipe
 ```
 
 ### 5.4. Maintenance Procedures

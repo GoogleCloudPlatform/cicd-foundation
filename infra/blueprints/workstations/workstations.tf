@@ -13,7 +13,7 @@
 # limitations under the License.
 
 module "cicd_foundation" {
-  source = "github.com/GoogleCloudPlatform/cicd-foundation//infra/modules/cicd_foundation?ref=v8.0.0"
+  source = "github.com/GoogleCloudPlatform/cicd-foundation//infra/modules/cicd_foundation?ref=v9.0.0"
 
   project_id  = data.google_project.project.project_id
   enable_apis = var.enable_apis

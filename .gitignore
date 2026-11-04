@@ -49,6 +49,17 @@
 *_override.tf.json
 .terraform.lock.hcl
 .terraform/
+backend.tf
+# go/keep-sorted end
+
+# ==========================================
+# Java & Build Tooling
+# ==========================================
+# go/keep-sorted start
+*.class
+*.jar
+.m2/
+target/
 # go/keep-sorted end
 
 # ==========================================

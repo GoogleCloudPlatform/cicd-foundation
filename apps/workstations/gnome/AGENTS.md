@@ -28,7 +28,7 @@ These mandates apply specifically to the GNOME desktop environment.
 ## 2. Global Foundation Skills
 
 Desktop development utilizes global foundation tools for lifecycle and validation:
-👉 **[Foundation Skills](../../../AGENTS.md#3-global-agent-skills-foundation)**
+👉 **[Foundation Skills](../../../AGENTS.md#5-global-agent-skills-foundation)**
 
 ## 3. Mandatory Testing
 
@@ -40,4 +40,4 @@ skills/validate-image-updates/scripts/run_integration_tests.sh
 
 ---
 
-👉 **[Design Document](docs/design.md)** | 👉 **[Technical Requirements](docs/requirements.md)** | 👉 **[System Overview](../docs/system_overview.md)**
+👉 **[Design Document](docs/design.md)** | 👉 **[Technical Requirements](docs/requirements.md)** | 👉 **[System Overview](../../../docs/workstations/design.md)**
