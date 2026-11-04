@@ -127,7 +127,7 @@ locals {
     if value.runtime != null && contains(local.cloud_deploy_supported_runtimes, value.runtime)
   }
 
-  cloud_deploy_supported_runtimes = ["cloudrun", "gke"]
+  cloud_deploy_supported_runtimes = ["agentruntime", "cloudrun", "gke"]
 
   # merge the default labels with the user-provided labels and convert to lowercase
   common_labels = {
