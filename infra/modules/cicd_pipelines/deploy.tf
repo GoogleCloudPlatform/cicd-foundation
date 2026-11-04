@@ -22,10 +22,17 @@ module "service_account_cloud_deploy" {
   display_name = "Cloud Deploy Service Account"
   description  = "Terraform-managed."
   iam_project_roles = {
-    (coalesce(each.value.project_id, local.build_project_id)) : [
-      "roles/container.developer",
-      "roles/run.developer",
-    ],
+    (coalesce(each.value.project_id, local.build_project_id)) : concat(
+      length([for _, c in var.apps : c if try(c.runtime, "") == "gke"]) > 0 ? [
+        "roles/container.developer",
+      ] : [],
+      length([for _, c in var.apps : c if try(c.runtime, "") == "cloudrun"]) > 0 ? [
+        "roles/run.developer",
+      ] : [],
+      length([for _, c in var.apps : c if try(c.runtime, "") == "agentruntime"]) > 0 ? [
+        "roles/aiplatform.user",
+      ] : [],
+    ),
     # cf. https://cloud.google.com/deploy/docs/cloud-deploy-service-account#execution_service_account
     (data.google_project.project.project_id) : [
       "roles/clouddeploy.jobRunner",
@@ -108,6 +115,57 @@ resource "google_clouddeploy_target" "run" {
   }
 }
 
+resource "google_clouddeploy_custom_target_type" "agentruntime" {
+  count    = length([for _, c in var.apps : c if try(c.runtime, "") == "agentruntime"]) > 0 ? 1 : 0
+  project  = local.build_project_id
+  location = var.deploy_region
+  name     = "${local.prefix}agentruntime"
+
+  custom_actions {
+    render_action = "render-agentruntime"
+    deploy_action = "deploy-agentruntime"
+  }
+}
+
+resource "google_clouddeploy_target" "agentruntime" {
+  for_each = length(local.cloud_deploy_apps) > 0 ? {
+    for key, value in var.stages : key => value
+    if length([for _, c in var.apps : c if try(c.runtime, "") == "agentruntime"]) > 0
+  } : {}
+
+  project          = local.build_project_id
+  name             = "${local.prefix}agentruntime-${each.key}"
+  location         = var.deploy_region
+  description      = "Terraform-managed."
+  require_approval = each.value.require_approval
+  execution_configs {
+    worker_pool = try(google_cloudbuild_worker_pool.pool[each.key].id, null)
+    usages = [
+      "RENDER",
+      "DEPLOY",
+    ]
+    service_account = module.service_account_cloud_deploy[each.key].email
+  }
+
+  custom_target {
+    custom_target_type = google_clouddeploy_custom_target_type.agentruntime[0].id
+  }
+
+  labels = local.common_labels
+
+  lifecycle {
+    ignore_changes = [
+      labels,
+    ]
+  }
+}
+
+resource "google_project_service_identity" "iap" {
+  count   = length([for _, c in var.apps : c if try(c.runtime, "") == "agentruntime"]) > 0 ? 1 : 0
+  project = local.build_project_id
+  service = "iap.googleapis.com"
+}
+
 resource "google_clouddeploy_delivery_pipeline" "continuous_delivery" {
   for_each = local.cloud_deploy_apps
 
@@ -121,7 +179,7 @@ resource "google_clouddeploy_delivery_pipeline" "continuous_delivery" {
 
       content {
         profiles  = [stages.value]
-        target_id = each.value.runtime == "gke" ? google_clouddeploy_target.cluster[stages.value].name : google_clouddeploy_target.run[stages.value].name
+        target_id = each.value.runtime == "gke" ? google_clouddeploy_target.cluster[stages.value].name : (each.value.runtime == "agentruntime" ? google_clouddeploy_target.agentruntime[stages.value].name : google_clouddeploy_target.run[stages.value].name)
         dynamic "deploy_parameters" {
           for_each = each.value.stages[stages.value]
 

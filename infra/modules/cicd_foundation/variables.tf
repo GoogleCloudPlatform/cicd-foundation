@@ -145,7 +145,7 @@ variable "apps_directory" {
 variable "runtimes" {
   type        = list(string)
   description = "List of supported runtime solutions for applications."
-  default     = ["cloudrun", "gke", "workstations"]
+  default     = ["agentruntime", "cloudrun", "gke", "workstations"]
 }
 
 variable "stages" {
